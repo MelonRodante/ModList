@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ModList</class>
+ <widget class="QMainWindow" name="ModList">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>914</width>
+    <height>585</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>ModList</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icon/zubiaicon.ico</normaloff>:/icon/zubiaicon.ico</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="hlBuscar">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="lblModList">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Lista de mods:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmbModList">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblCategory">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Categoria:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmbCategory">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="Line" name="ln_1">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="tableMods">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTableView::item {
+		background-color: rgb(226, 226, 255)
+}
+
+ QTableView::item:alternate {
+		background-color: rgb(255, 255, 255); 
+}
+
+ QTableView::item:selected {
+	color: rgb(255, 255, 255); 
+	background-color: rgb(12, 93, 255);
+}</string>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="rowCount">
+       <number>0</number>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>150</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>40</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>40</number>
+      </attribute>
+      <attribute name="verticalHeaderMinimumSectionSize">
+       <number>40</number>
+      </attribute>
+      <column>
+       <property name="text">
+        <string/>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>NOMBRE</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>RUTA</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>914</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Configuracion</string>
+    </property>
+    <addaction name="actionConfigurarBusquedas"/>
+    <addaction name="actionAdministrarListas"/>
+   </widget>
+   <widget class="QMenu" name="menuListaActual">
+    <property name="title">
+     <string>Lista actual</string>
+    </property>
+    <addaction name="actionAgregados"/>
+    <addaction name="actionBloqueados"/>
+    <addaction name="separator"/>
+    <addaction name="actionBuscar"/>
+   </widget>
+   <widget class="QMenu" name="menuFavoritos">
+    <property name="title">
+     <string>Favoritos</string>
+    </property>
+    <addaction name="actionForgeFavoritos"/>
+    <addaction name="actionFabricFavoritos"/>
+   </widget>
+   <addaction name="menuOptions"/>
+   <addaction name="menuFavoritos"/>
+   <addaction name="menuListaActual"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionConfigurarBusquedas">
+   <property name="text">
+    <string>Configurar busquedas</string>
+   </property>
+  </action>
+  <action name="actionForgeFavoritos">
+   <property name="text">
+    <string>Forge favoritos</string>
+   </property>
+  </action>
+  <action name="actionPruebas">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pruebas</string>
+   </property>
+  </action>
+  <action name="actionTodos">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Todos</string>
+   </property>
+  </action>
+  <action name="actionWord">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Word</string>
+   </property>
+  </action>
+  <action name="actionExcel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Excel</string>
+   </property>
+  </action>
+  <action name="actionPowerPoint">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>PowerPoint</string>
+   </property>
+  </action>
+  <action name="actionPDF">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>PDF</string>
+   </property>
+  </action>
+  <action name="actionDWG">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DWG</string>
+   </property>
+  </action>
+  <action name="actionTexto_plano">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Texto plano</string>
+   </property>
+  </action>
+  <action name="actionOtros">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Otros</string>
+   </property>
+  </action>
+  <action name="actionFabricFavoritos">
+   <property name="text">
+    <string>Fabric favoritos</string>
+   </property>
+  </action>
+  <action name="actionAgregados">
+   <property name="text">
+    <string>Agregados</string>
+   </property>
+  </action>
+  <action name="actionBloqueados">
+   <property name="text">
+    <string>Ignorados</string>
+   </property>
+  </action>
+  <action name="actionCargarLista">
+   <property name="text">
+    <string>Cargar lista</string>
+   </property>
+  </action>
+  <action name="actionGuardarLista">
+   <property name="text">
+    <string>Guardar lista</string>
+   </property>
+  </action>
+  <action name="actionVerFavoritosForge">
+   <property name="text">
+    <string>Ver favoritos Forge</string>
+   </property>
+  </action>
+  <action name="actionVerFavoritosFabric">
+   <property name="text">
+    <string>Ver favoritos Fabric</string>
+   </property>
+  </action>
+  <action name="actionAdministrarListas">
+   <property name="text">
+    <string>Administrar listas</string>
+   </property>
+  </action>
+  <action name="actionBuscar">
+   <property name="text">
+    <string>Buscar</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
