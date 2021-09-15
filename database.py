@@ -28,14 +28,14 @@ tablemodlists = '''CREATE TABLE ModsLists (
                     );'''
 
 tablefavorites = '''CREATE TABLE Favorites (
-                        path	TEXT NOT NULL UNIQUE,
-                        PRIMARY KEY(path),
-                        FOREIGN KEY(path) REFERENCES Mods(path) ON DELETE CASCADE);'''
+                        mod	TEXT NOT NULL UNIQUE,
+                        PRIMARY KEY(mod),
+                        FOREIGN KEY(mod) REFERENCES Mods(path) ON DELETE CASCADE);'''
 
 tableblocked = '''CREATE TABLE Blocked (
-                    path	TEXT NOT NULL UNIQUE,
-                    PRIMARY KEY(path),
-                    FOREIGN KEY(path) REFERENCES Mods(path) ON DELETE CASCADE);'''
+                    mod	TEXT NOT NULL UNIQUE,
+                    PRIMARY KEY(mod),
+                    FOREIGN KEY(mod) REFERENCES Mods(path) ON DELETE CASCADE);'''
 
 class Database:
 
