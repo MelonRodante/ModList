@@ -83,7 +83,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fill_table()
 
     def resize_table(self):
-        self.ui.tableMods.setIconSize(QSize(32, 32))
         header = self.ui.tableMods.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
@@ -91,6 +90,10 @@ class MainWindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
+
+        f = header.font()
+        f.setBold(True)
+        header.setFont(f)
 
     def create_cmb_values_lists(self):
         self.cmbModList.clear()
@@ -189,6 +192,7 @@ class MainWindow(QtWidgets.QMainWindow):
         p.loadFromData(image)
         btn = QPushButton()
         btn.setIcon(QtGui.QIcon(p))
+        btn.setStyleSheet('background-color: rgba(255, 255, 255, 0);')
 
         btn.setMinimumSize(40, 40)
         btn.setMaximumSize(40, 40)

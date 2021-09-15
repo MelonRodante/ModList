@@ -42,6 +42,7 @@ class Ui_ModList(object):
         self.hlBuscar.addWidget(self.lblCategory)
         self.cmbCategory = QtWidgets.QComboBox(self.centralwidget)
         self.cmbCategory.setMinimumSize(QtCore.QSize(150, 0))
+        self.cmbCategory.setStyleSheet("")
         self.cmbCategory.setObjectName("cmbCategory")
         self.hlBuscar.addWidget(self.cmbCategory)
         self.lblName = QtWidgets.QLabel(self.centralwidget)
@@ -52,6 +53,7 @@ class Ui_ModList(object):
         self.lblName.setObjectName("lblName")
         self.hlBuscar.addWidget(self.lblName)
         self.editName = QtWidgets.QLineEdit(self.centralwidget)
+        self.editName.setStyleSheet("")
         self.editName.setClearButtonEnabled(True)
         self.editName.setObjectName("editName")
         self.hlBuscar.addWidget(self.editName)
@@ -63,21 +65,10 @@ class Ui_ModList(object):
         self.verticalLayout.addWidget(self.ln_1)
         self.tableMods = QtWidgets.QTableWidget(self.centralwidget)
         self.tableMods.setAutoFillBackground(False)
-        self.tableMods.setStyleSheet("QTableView::item {\n"
-"        background-color: rgb(226, 226, 255)\n"
-"}\n"
-"\n"
-" QTableView::item:alternate {\n"
-"        background-color: rgb(255, 255, 255); \n"
-"}\n"
-"\n"
-" QTableView::item:selected {\n"
-"    color: rgb(255, 255, 255); \n"
-"    background-color: rgb(12, 93, 255);\n"
-"}")
+        self.tableMods.setStyleSheet("")
         self.tableMods.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableMods.setAlternatingRowColors(True)
-        self.tableMods.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tableMods.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.tableMods.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableMods.setRowCount(0)
         self.tableMods.setObjectName("tableMods")
