@@ -66,17 +66,24 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QLabel" name="lblName">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
+        <property name="text">
+         <string>Nombre del Mod:</string>
         </property>
-       </spacer>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="editName">
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -140,7 +147,7 @@
       </column>
       <column>
        <property name="text">
-        <string>NOMBRE</string>
+        <string>   NOMBRE   </string>
        </property>
        <property name="font">
         <font>
@@ -151,7 +158,7 @@
       </column>
       <column>
        <property name="text">
-        <string>CATEGORIA</string>
+        <string>   CATEGORIA   </string>
        </property>
        <property name="font">
         <font>
@@ -162,7 +169,7 @@
       </column>
       <column>
        <property name="text">
-        <string>LOADER</string>
+        <string>   LOADER   </string>
        </property>
        <property name="font">
         <font>
@@ -173,7 +180,7 @@
       </column>
       <column>
        <property name="text">
-        <string>VERSION</string>
+        <string>   VERSION   </string>
        </property>
        <property name="font">
         <font>
@@ -184,7 +191,7 @@
       </column>
       <column>
        <property name="text">
-        <string>UPDATE</string>
+        <string>   UPDATE   </string>
        </property>
        <property name="font">
         <font>

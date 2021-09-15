@@ -50,22 +50,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setupWidgets()
         self.setupEvents()
 
-    def setupWidgets(self):
-        self.resize_table()
-        self.create_cmb_values_category()
-        self.create_cmb_values_lists()
-        self.fill_table()
-
-    def resize_table(self):
-        self.ui.tableMods.setIconSize(QSize(32, 32))
-        header = self.ui.tableMods.horizontalHeader()
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
-
     @staticmethod
     def create_bold_font():
         f = QFont()
@@ -90,6 +74,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return cmbModList
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def setupWidgets(self):
+        self.resize_table()
+        self.create_cmb_values_category()
+        self.create_cmb_values_lists()
+        self.fill_table()
+
+    def resize_table(self):
+        self.ui.tableMods.setIconSize(QSize(32, 32))
+        header = self.ui.tableMods.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
+
     def create_cmb_values_lists(self):
         self.cmbModList.clear()
         self.cmbModList.addItem('')
@@ -111,33 +113,57 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     def setupEvents(self):
-        self.cmbModList.currentIndexChanged.connect(self.change_cmb)
-        self.ui.cmbCategory.currentIndexChanged.connect(self.change_cmb)
+        self.cmbModList.currentIndexChanged.connect(self.change_filter)
+        self.ui.cmbCategory.currentIndexChanged.connect(self.change_filter)
+        self.ui.editName.textChanged.connect(self.change_filter)
 
-    def change_cmb(self):
-        self.fill_table(self.cmbModList.currentText(), self.ui.cmbCategory.currentText())
+    def change_filter(self):
+        self.fill_table(self.cmbModList.currentText(), self.ui.cmbCategory.currentText(), self.ui.editName.text().strip())
 
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def optional_query(field, value):
+    def optional_filter(field, value, tableas='', prefix='', posfix='', like=False):
+
+        value.strip()
+        field = field.strip()
+
+        if tableas:
+            tableas = tableas.strip() + '.'
+
+        if prefix:
+            prefix = ' ' + prefix.strip() + ' '
+
+        if posfix:
+            posfix = ' ' + posfix.strip() + ' '
 
         if value:
-            return ':' + field
+            if like:
+                return prefix + tableas + field + ' LIKE :' + field + posfix
+            else:
+                return prefix + tableas + field + ' == :' + field + posfix
         else:
-            return field
+            return prefix + ' True ' + posfix
 
-    def fill_table(self, modlist='', category=''):
+    def fill_table(self, modlist='', category='', name=''):
         self.ui.tableMods.setRowCount(0)
         q = QtSql.QSqlQuery()
 
+        opcional_filters = self.optional_filter('category', category, prefix='WHERE') + self.optional_filter('name', name, prefix='AND', like=True)
+
         if modlist:
-            q.prepare('SELECT M.icon, M.path, M.name, M.category, M.loader, M.version, M.update_date FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path WHERE ML.list == :list AND M.category == ' + self.optional_query('category', category) + ' ORDER BY M.category asc, M.name ASC;')
-            q.bindValue(':list', modlist)
-            q.bindValue(':category', category)
+            obligatory_filter = opcional_filters + self.optional_filter('list', modlist, tableas='ML', prefix='AND')
+            q.prepare('SELECT M.icon, M.path, M.name, M.category, M.loader, M.version, M.update_date FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path ' +
+                      obligatory_filter +
+                      ' ORDER BY M.category asc, M.name ASC;')
         else:
-            q.prepare('SELECT icon, path, name, category, loader, version, update_date FROM Mods WHERE category == ' + self.optional_query('category', category) + ' ORDER BY loader desc, category asc, name ASC;')
-            q.bindValue(':category', category)
+            q.prepare('SELECT icon, path, name, category, loader, version, update_date FROM Mods ' +
+                      opcional_filters +
+                      ' ORDER BY loader desc, category asc, name ASC;')
+
+        q.bindValue(':list', modlist)
+        q.bindValue(':category', category)
+        q.bindValue(':name', '%' + name + '%')
 
         if self.exec(q):
             while q.next():
