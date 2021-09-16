@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 
 from PyQt5.QtCore import QByteArray, QSize
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox
+from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QFrame
 
 from database import Database
 from pyqt_windows.main_window import Ui_ModList
@@ -62,7 +62,9 @@ class MainWindow(QtWidgets.QMainWindow):
         f = lbl.font()
         f.setBold(True)
         lbl.setFont(f)
+
         cmbModList = QComboBox()
+        cmbModList.setContentsMargins(0, 5, 0, 5)
         cmbModList.setMinimumSize(QtCore.QSize(150, 0))
 
         m = self.ui.statusbar.contentsMargins()
@@ -77,6 +79,20 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     def setupWidgets(self):
+        f = self.ui.menubar.font()
+        f.setBold(True)
+        self.ui.menubar.setFont(f)
+        self.ui.menubar.setStyleSheet('QMenuBar {'
+                                      'background-color: #0F1A25;'
+                                      'border-color: #0F1A25; '
+                                      'border-bottom-color: #F0651F;}')
+
+
+        self.ui.statusbar.setStyleSheet('QStatusBar {'
+                                        'background-color: #0F1A25; '
+                                        'border-color: #0F1A25; '
+                                        'border-top-color: #F0651F;}')
+
         self.resize_table()
         self.create_cmb_values_category()
         self.create_cmb_values_lists()
@@ -90,6 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeToContents)
 
         f = header.font()
         f.setBold(True)
@@ -179,6 +196,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + q.value(4) + '  '))
                 self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem('  ' + q.value(5) + '  '))
                 self.ui.tableMods.setItem(i, 5, QtWidgets.QTableWidgetItem('  ' + q.value(6) + '  '))
+                self.ui.tableMods.setCellWidget(i, 6, self.create_table_item_option_btn())
 
                 self.ui.tableMods.item(i, 1).setFont(self.bold_font)
 
@@ -201,6 +219,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         btn.clicked.connect(lambda: os.startfile(self.url + path))
 
+        return btn
+
+    def create_table_item_option_btn(self):
+        btn = QPushButton()
+        btn.setStyleSheet('background-color: rgba(255, 255, 255, 0);')
+        btn.setMinimumWidth(15)
+        btn.setMaximumWidth(15)
         return btn
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -245,3 +270,4 @@ class MainWindow(QtWidgets.QMainWindow):
         if b is False:
             print(q.lastError().text())
         return b
+

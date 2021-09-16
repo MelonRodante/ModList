@@ -32,7 +32,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="bottomMargin">
-     <number>0</number>
+     <number>9</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="hlBuscar">
@@ -102,6 +102,11 @@
     </item>
     <item>
      <widget class="QTableWidget" name="tableMods">
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+       </font>
+      </property>
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
@@ -127,7 +132,7 @@
        <number>150</number>
       </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>40</number>
+       <number>10</number>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
        <number>40</number>
@@ -195,6 +200,11 @@
         </font>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string/>
+       </property>
+      </column>
      </widget>
     </item>
    </layout>
@@ -235,7 +245,11 @@
    <addaction name="menuFavoritos"/>
    <addaction name="menuListaActual"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
   <action name="actionConfigurarBusquedas">
    <property name="text">
     <string>Configurar busquedas</string>
