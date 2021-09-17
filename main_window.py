@@ -5,9 +5,10 @@ from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 
 from PyQt5.QtCore import QByteArray, QSize
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QFrame
+from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QFrame, QToolButton, QAction, QMenu
 
 from database import Database
+from pyqt_widgets.customwidgets import CustomQMenu
 from pyqt_windows.main_window import Ui_ModList
 
 
@@ -45,7 +46,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cmbModList = self.create_cmd_list()
 
         Database.connect_db()
-        # self.setupTestData()
+        self.setupTestData()
 
         self.setupWidgets()
         self.setupEvents()
@@ -79,24 +80,32 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     def setupWidgets(self):
+
+        self.modify_css()
+        self.resize_table()
+        self.create_cmb_values_category()
+        self.create_cmb_values_lists()
+        self.fill_table()
+
+    def modify_css(self):
+
+        f = self.ui.tableMods.horizontalHeader().font()
+        f.setBold(True)
+        self.ui.tableMods.horizontalHeader().setFont(f)
+
         f = self.ui.menubar.font()
         f.setBold(True)
         self.ui.menubar.setFont(f)
+
         self.ui.menubar.setStyleSheet('QMenuBar {'
                                       'background-color: #0F1A25;'
                                       'border-color: #0F1A25; '
                                       'border-bottom-color: #F0651F;}')
 
-
         self.ui.statusbar.setStyleSheet('QStatusBar {'
                                         'background-color: #0F1A25; '
                                         'border-color: #0F1A25; '
                                         'border-top-color: #F0651F;}')
-
-        self.resize_table()
-        self.create_cmb_values_category()
-        self.create_cmb_values_lists()
-        self.fill_table()
 
     def resize_table(self):
         header = self.ui.tableMods.horizontalHeader()
@@ -106,11 +115,6 @@ class MainWindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeToContents)
-
-        f = header.font()
-        f.setBold(True)
-        header.setFont(f)
 
     def create_cmb_values_lists(self):
         self.cmbModList.clear()
@@ -196,7 +200,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + q.value(4) + '  '))
                 self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem('  ' + q.value(5) + '  '))
                 self.ui.tableMods.setItem(i, 5, QtWidgets.QTableWidgetItem('  ' + q.value(6) + '  '))
-                self.ui.tableMods.setCellWidget(i, 6, self.create_table_item_option_btn())
 
                 self.ui.tableMods.item(i, 1).setFont(self.bold_font)
 
@@ -221,13 +224,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return btn
 
-    def create_table_item_option_btn(self):
-        btn = QPushButton()
-        btn.setStyleSheet('background-color: rgba(255, 255, 255, 0);')
-        btn.setMinimumWidth(15)
-        btn.setMaximumWidth(15)
-        return btn
-
     # ------------------------------------------------------------------------------------------------------------------
 
     def setupTestData(self):
@@ -241,7 +237,7 @@ class MainWindow(QtWidgets.QMainWindow):
         lists = ['1.17.1', '1.16.6', '1.15.2', '1.14.3', '1.14.1']
 
         for l in lists:
-            q.prepare('insert into Lists(list, search)' 'VALUES (:list, :search)')
+            q.prepare('insert into Lists(list, search, loader)' 'VALUES (:list, :search, "Forge")')
             q.bindValue(':list', l)
             q.bindValue(':search', 'filter-game-version=2020709689%3A8203')
             self.exec(q)
@@ -249,15 +245,13 @@ class MainWindow(QtWidgets.QMainWindow):
         for mod in mods:
             icon = requests.get(mod[2]).content
 
-            a = QByteArray(icon)
-
-            q.prepare('insert into Mods(path, name, loader, version, update_date, icon)' 'VALUES (:path, :name, :loader, :version, :update_date, :icon)')
+            q.prepare('INSERT INTO Mods(path, name, loader, version, update_date, icon)' 'VALUES (:path, :name, :loader, :version, :update_date, :icon)')
             q.bindValue(':path', mod[0])
             q.bindValue(':name', mod[1])
             q.bindValue(':loader', 'Forge')
             q.bindValue(':version', '1.16')
             q.bindValue(':update_date', '3/12/2020')
-            q.bindValue(':icon', a)
+            q.bindValue(':icon', QByteArray(icon))
             self.exec(q)
 
             q.prepare('insert into ModsLists(list, mod)' 'VALUES (:list, :mod)')
