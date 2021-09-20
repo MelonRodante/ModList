@@ -235,7 +235,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 q.bindValue(':mod', self.selectedMod)
                 q.bindValue(':installed', int(self.ui.chkInstalledConfig.isChecked()))
                 q.bindValue(':ignored', int(self.ui.chkIgnoredConfig.isChecked()))
-                q.bindValue(':updated', int(self.ui.chkUpdated.isChecked()))
+                q.bindValue(':updated', int(not self.ui.chkUpdated.isChecked()))
                 self.exec(q)
 
             self.fill_table()
