@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="main_windows_icons">
+    <file>save_off.png</file>
+    <file>save.png</file>
+  </qresource>
+  <qresource prefix="table_icons">
+    <file>updated.png</file>
+    <file>empty.png</file>
+    <file>blocked.png</file>
+    <file>favorite.png</file>
+  </qresource>
+</RCC>

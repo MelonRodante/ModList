@@ -7,16 +7,15 @@ from PyQt5.QtWidgets import QMessageBox
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     list    TEXT NOT NULL,
                     search  TEXT NOT NULL,
-                    loader  TEXT NOT NULL,
+                    loader  TEXT NOT NULL DEFAULT 'Sin Loader',
                     PRIMARY KEY(list));'''
 
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     path        TEXT NOT NULL,
                     name	    TEXT NOT NULL,
                     category    TEXT NOT NULL DEFAULT 'Sin categoria',
-                    loader	    TEXT NOT NULL DEFAULT 'No especificado',
-                    version	    TEXT NOT NULL,
-                    update_date TEXT NOT NULL,
+                    loader	    TEXT NOT NULL DEFAULT 'Sin Loader',
+                    update_date INT NOT NULL,
                     icon	    BLOB NOT NULL,
                     favorite    INTEGER NOT NULL DEFAULT 0,
                     blocked	    INTEGER NOT NULL DEFAULT 0,
@@ -27,10 +26,12 @@ tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
                     mod	        TEXT NOT NULL,
                     installed   INTEGER NOT NULL DEFAULT 0,
                     ignored     INTEGER NOT NULL DEFAULT 0,
+                    updated     INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY(list, mod),
                     FOREIGN KEY(list) REFERENCES Lists(list) ON DELETE CASCADE
                     FOREIGN KEY(mod) REFERENCES Mods(path) ON DELETE CASCADE
                     );'''
+
 
 class Database:
 
@@ -55,3 +56,8 @@ class Database:
     def exec(db, sql):
         if not db.exec(sql):
             print(db.lastError().text())
+
+    @staticmethod
+    def execq(q):
+        if not q.exec():
+            print(q.lastError().text())
