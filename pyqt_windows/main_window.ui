@@ -393,6 +393,7 @@
      <string>Configuracion</string>
     </property>
     <addaction name="actionAdminLists"/>
+    <addaction name="actionSearchingNewMods"/>
    </widget>
    <widget class="QMenu" name="menuShow">
     <property name="title">
@@ -414,6 +415,9 @@
    <property name="text">
     <string>Administrar listas</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
   </action>
   <action name="actionShowInstalled">
    <property name="checkable">
@@ -421,6 +425,9 @@
    </property>
    <property name="text">
     <string>Ver instalados</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
    </property>
   </action>
   <action name="actionShowIgnored">
@@ -430,10 +437,8 @@
    <property name="text">
     <string>Ver ignorados</string>
    </property>
-  </action>
-  <action name="actionMarcar_actualizado">
-   <property name="text">
-    <string>Marcar actualizado</string>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="actionShowUpdated">
@@ -444,7 +449,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Ver actualizables</string>
+    <string>Ver  instalados actualizables</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionSearchingNewMods">
+   <property name="text">
+    <string>Buscar nuevos mods</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

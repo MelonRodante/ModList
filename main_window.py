@@ -8,10 +8,10 @@ from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 from PyQt5.QtCore import QByteArray, QSize
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QLabel
-from bs4 import BeautifulSoup
 
 from database import Database
-from other_windows import ListDialog
+from other_windows.admin_list_dialog import AdminListDialog
+from other_windows.searching_dialog import SearchingDialog
 from pyqt_widgets.customwidgets import CustomButton, Mod
 from pyqt_windows.main_window import Ui_ModList
 
@@ -73,7 +73,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.create_cmb_values_category()
         self.create_cmb_values_lists()
         self.resize_table()
-        self.resize_combobox_items()
+        self.resize_combobox_loader()
         self.fill_table()
 
     def modify_css(self):
@@ -109,20 +109,8 @@ class MainWindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
 
-    def resize_combobox_items(self):
-        model = self.ui.cmbModList.model()
-        for i in range(model.rowCount()):
-            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
-
-        model = self.ui.cmbCategory.model()
-        for i in range(model.rowCount()):
-            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
-
+    def resize_combobox_loader(self):
         model = self.ui.cmbLoaderConfig.model()
-        for i in range(model.rowCount()):
-            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
-
-        model = self.ui.cmbCategoryConfig.model()
         for i in range(model.rowCount()):
             model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
 
@@ -148,6 +136,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.cmbModList.addItem('Fabric')
         self.ui.cmbModList.addItem('Sin Loader')
 
+        model = self.ui.cmbModList.model()
+        for i in range(model.rowCount()):
+            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+
     def create_cmb_values_category(self):
         self.ui.cmbCategory.clear()
         self.ui.cmbCategoryConfig.clear()
@@ -159,6 +151,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.cmbCategory.insertSeparator(2)
         self.ui.cmbCategoryConfig.insertSeparator(1)
+
+        model = self.ui.cmbCategoryConfig.model()
+        for i in range(model.rowCount()):
+            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+
+        model = self.ui.cmbCategory.model()
+        for i in range(model.rowCount()):
+            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -175,7 +175,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.editName.textChanged.connect(self.fill_table)
         self.ui.tableMods.itemSelectionChanged.connect(self.clicked_table)
 
-        self.ui.actionAdminLists.triggered.connect(self.show_conf_lists)
+        self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
+        self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
 
         self.ui.actionShowUpdated.triggered.connect(self.fill_table)
         self.ui.actionShowInstalled.triggered.connect(self.fill_table)
@@ -197,10 +198,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 mod = self.ui.tableMods.indexWidget(self.ui.tableMods.selectedIndexes()[0]).mod
 
+                self.selectedMod = mod.path
+
+                self.ui.editNameConfig.setText(mod.name)
                 self.ui.cmbCategoryConfig.setCurrentIndex(self.ui.cmbCategoryConfig.findText(mod.category))
                 self.ui.cmbLoaderConfig.setCurrentIndex(self.ui.cmbLoaderConfig.findText(mod.loader))
 
-                self.selectedMod = mod.path
                 self.ui.chkInstalledConfig.setChecked(bool(mod.installed))
                 self.ui.chkIgnoredConfig.setChecked(bool(mod.ignored))
                 self.ui.chkUpdated.setChecked(not bool(mod.updated))
@@ -210,6 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 if 0 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 7:
                     self.ui.chkUpdated.setEnabled(bool(mod.updated))
+
         except Exception as e:
             print('ERROR clicked_table:', e)
 
@@ -402,7 +406,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         opfilter += self.optional_filter('updated', not self.ui.actionShowUpdated.isChecked(), opfilter, tableas='ML')
         opfilter += self.optional_filter('installed', not self.ui.actionShowInstalled.isChecked(), opfilter, tableas='ML')
-        opfilter += self.optional_filter('ignored',     not self.ui.actionShowIgnored.isChecked(), opfilter, tableas='ML')
+        opfilter += self.optional_filter('ignored', not self.ui.actionShowIgnored.isChecked(), opfilter, tableas='ML')
 
 
         q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked '
@@ -443,14 +447,25 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def show_conf_lists(self):
+    def show_admin_list_dialog(self):
         try:
-            paths_dialog = ListDialog()
-            paths_dialog.show()
-            paths_dialog.exec()
-            self.create_cmb_values_lists()
+            dialog = AdminListDialog()
+            code = dialog.exec()
+
+            if code == 1:
+                self.create_cmb_values_lists()
         except Exception as e:
-            print('show_conf_paths: ', str(e))
+            print('show_admin_list_dialog: ', str(e))
+
+    def show_searching_dialog(self):
+        try:
+            dialog = SearchingDialog()
+            code = dialog.exec()
+
+            if code == 1:
+                self.fill_table()
+        except Exception as e:
+            print('show_searching_dialog: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -466,7 +481,7 @@ class MainWindow(QtWidgets.QMainWindow):
         loader = ['Forge', 'Forge', 'Fabric', 'Fabric', 'Sin Loader']
 
         for i in range(len(lists)):
-            q.prepare('insert into Lists(list, search, loader)' 'VALUES (:list, :search, :loader)')
+            q.prepare('INSERT INTO Lists(list, search, loader)' 'VALUES (:list, :search, :loader)')
             q.bindValue(':list', lists[i])
             q.bindValue(':search', 'filter-game-version=2020709689%3A8203')
             q.bindValue(':loader', loader[i])
@@ -483,7 +498,7 @@ class MainWindow(QtWidgets.QMainWindow):
             q.bindValue(':icon', QByteArray(icon))
             self.exec(q)
 
-            q.prepare('insert into ModsLists(list, mod)' 'VALUES (:list, :mod)')
+            q.prepare('INSERT INTO ModsLists(list, mod)' 'VALUES (:list, :mod)')
             q.bindValue(':list', '1.16.5')
             q.bindValue(':mod', mod[0])
             self.exec(q)
@@ -493,4 +508,3 @@ class MainWindow(QtWidgets.QMainWindow):
         if b is False:
             print(q.lastError().text())
         return b
-

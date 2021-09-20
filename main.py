@@ -18,8 +18,6 @@ if __name__ == '__main__':
     epoch_time = 1632062031
     time_formatted = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch_time))
 
-    print(time_formatted)
-
     main_window = MainWindow()
     app.setStyleSheet(css.style)
     main_window.show()
