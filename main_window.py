@@ -1,12 +1,13 @@
 import os
 import time
+from typing import Union
 
 import requests
 
 from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
-from PyQt5.QtCore import QByteArray, QSize, Qt, QVariant
-from PyQt5.QtGui import QFont, QBrush, QColor, QPalette, QIcon, QPixmap
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QPushButton
+from PyQt5.QtCore import QByteArray, QSize
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QLabel
 from bs4 import BeautifulSoup
 
 from database import Database
@@ -54,6 +55,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setupWidgets()
         self.setupEvents()
+
+        self.ui.cmbModList.setCurrentIndex(5)
 
     @staticmethod
     def create_bold_font():
@@ -173,8 +176,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.tableMods.itemSelectionChanged.connect(self.clicked_table)
 
         self.ui.actionAdminLists.triggered.connect(self.show_conf_lists)
-        self.ui.actionShowInstalled.triggered.connect(self.change_chk_show_installed)
-        self.ui.actionShowIgnored.triggered.connect(self.change_chk_show_ignored)
+
+        self.ui.actionShowUpdated.triggered.connect(self.fill_table)
+        self.ui.actionShowInstalled.triggered.connect(self.fill_table)
+        self.ui.actionShowIgnored.triggered.connect(self.fill_table)
 
     # ---------------------------------------
 
@@ -188,17 +193,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def clicked_table(self):
         try:
-            if self.ui.tableMods.hasFocus():
-
-                fila = self.ui.tableMods.selectedItems()
-
-                bs = BeautifulSoup(self.ui.tableMods.indexWidget(self.ui.tableMods.selectedIndexes()[1]).text(), features="html.parser")
-                self.ui.editNameConfig.setText(bs.find('b').string.strip())
-
-                self.ui.cmbCategoryConfig.setCurrentIndex(self.ui.cmbCategoryConfig.findText(fila[0].text().strip()))
-                self.ui.cmbLoaderConfig.setCurrentIndex(self.ui.cmbLoaderConfig.findText(fila[1].text().strip()))
+            if len(self.ui.tableMods.selectedIndexes()) > 0:
 
                 mod = self.ui.tableMods.indexWidget(self.ui.tableMods.selectedIndexes()[0]).mod
+
+                self.ui.cmbCategoryConfig.setCurrentIndex(self.ui.cmbCategoryConfig.findText(mod.category))
+                self.ui.cmbLoaderConfig.setCurrentIndex(self.ui.cmbLoaderConfig.findText(mod.loader))
+
                 self.selectedMod = mod.path
                 self.ui.chkInstalledConfig.setChecked(bool(mod.installed))
                 self.ui.chkIgnoredConfig.setChecked(bool(mod.ignored))
@@ -210,7 +211,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 if 0 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 7:
                     self.ui.chkUpdated.setEnabled(bool(mod.updated))
         except Exception as e:
-            print(e)
+            print('ERROR clicked_table:', e)
+
     # ---------------------------------------
 
     def save_mod_config(self):
@@ -274,22 +276,10 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.ui.chkFavoriteConfig.isChecked():
                 self.ui.chkFavoriteConfig.setChecked(False)
 
-    # ---------------------------------------
-
-    def change_chk_show_installed(self):
-        if self.ui.actionShowInstalled.isChecked():
-            self.ui.actionShowIgnored.setChecked(False)
-        self.fill_table()
-
-    def change_chk_show_ignored(self):
-        if self.ui.actionShowIgnored.isChecked():
-            self.ui.actionShowInstalled.setChecked(False)
-        self.fill_table()
-
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def optional_filter(field, value, previus_sql, tableas='', novalue='', like=False):
+    def optional_filter(field, value: Union[str, bool], previus_sql, tableas='', novalue='', like=False):
 
         field = field.strip()
 
@@ -329,27 +319,31 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return btn
 
-    def create_table_item_lbl(self, name, mod):
-        if mod.favorite:
-            icon = '<img src=:/table_icons/favorite.png>'
-            if mod.updated:
-                icon += ' <img src=:/table_icons/updated.png>'
+    @staticmethod
+    def create_table_item_lbl(mod):
+        text = ' <b style="text-align: center; font-family: MS Shell Dlg 2; color: #FFFFFF; font-size:15px;"> ' + mod.name + '</b> '
+
+        if mod.installed and mod.favorite:
+            icon = ' <img src=:/table_icons/installed_favorite.png>'
+        elif mod.installed and not mod.favorite:
+            icon = ' <img src=:/table_icons/installed.png>'
+        elif mod.ignored and mod.favorite:
+            icon = ' <img src=:/table_icons/ignored_favorite.png>'
+        elif mod.ignored and not mod.favorite:
+            icon = ' <img src=:/table_icons/ignored.png>'
+        elif mod.favorite:
+            icon = ' <img src=:/table_icons/favorite.png>'
         elif mod.blocked:
-            icon = '<img src=:/table_icons/blocked.png>'
-        elif mod.updated:
-            icon = '<img src=:/table_icons/updated.png>'
+            icon = ' <img src=:/table_icons/blocked.png>'
         else:
-            icon = '<img src=:/table_icons/empty.png>'
+            icon = ''
 
-        if mod.ignored:
-            color = 'color: #FF7F7F;'
-        elif mod.installed:
-            color = 'color: #7FC9FF;'
-        else:
-            color = 'color: #FFFFFF;'
+        if mod.updated:
+            icon = '<img src=:/table_icons/updated.png>' + icon
 
-        lbl = QLabel(icon + ' <b style="font-family: MS Shell Dlg 2;' + color + 'font-size:15px;"> ' + name + '</b> ')
+        lbl = QLabel('<table width=\"100%\"><td width=\"50%\" align=\"left\">' + text + '</td> <td width=\"50%\" align=\"right\">' + icon + '</td></table>')
         lbl.setStyleSheet('background-color: #00000000')
+
         return lbl
 
     # ---------------------------------------
@@ -406,8 +400,10 @@ class MainWindow(QtWidgets.QMainWindow):
         opfilter += self.optional_filter('category', category, opfilter, tableas='M', novalue='Todas')
         opfilter += self.optional_filter('name',     name,     opfilter, tableas='M', like=True)
 
-        opfilter += self.optional_filter('installed', True, opfilter, tableas='ML')
-        opfilter += self.optional_filter('ignored',   True, opfilter, tableas='ML')
+        opfilter += self.optional_filter('updated', not self.ui.actionShowUpdated.isChecked(), opfilter, tableas='ML')
+        opfilter += self.optional_filter('installed', not self.ui.actionShowInstalled.isChecked(), opfilter, tableas='ML')
+        opfilter += self.optional_filter('ignored',     not self.ui.actionShowIgnored.isChecked(), opfilter, tableas='ML')
+
 
         q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked '
                   'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path'
@@ -432,13 +428,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 i = self.ui.tableMods.rowCount()
                 self.ui.tableMods.insertRow(i)
 
-                mod = Mod(q.value(5), q.value(6), q.value(7), q.value(8), q.value(9), q.value(10))
+                mod = Mod(q)
                 self.ui.tableMods.setCellWidget(i, 0, self.create_table_item_icon_btn(q.value(0), mod))
-                self.ui.tableMods.setCellWidget(i, 1, self.create_table_item_lbl(q.value(1), mod))
+                self.ui.tableMods.setCellWidget(i, 1, self.create_table_item_lbl(mod))
 
-                self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + q.value(2) + '  '))
-                self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + q.value(3) + '  '))
-                date = time.strftime('%d/%m/%Y', time.localtime(q.value(4)))
+                self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + mod.category + '  '))
+                self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
+                date = time.strftime('%d/%m/%Y', time.localtime(mod.update_date))
                 self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem('  ' + date + '  '))
 
                 self.ui.tableMods.item(i, 2).setTextAlignment(QtCore.Qt.AlignCenter)

@@ -4,9 +4,13 @@
     <file>save.png</file>
   </qresource>
   <qresource prefix="table_icons">
-    <file>updated.png</file>
     <file>empty.png</file>
-    <file>blocked.png</file>
+    <file>installed.png</file>
+    <file>installed_favorite.png</file>
+    <file>ignored.png</file>
+    <file>ignored_favorite.png</file>
+    <file>updated.png</file>
     <file>favorite.png</file>
+    <file>blocked.png</file>
   </qresource>
 </RCC>

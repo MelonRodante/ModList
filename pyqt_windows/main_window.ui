@@ -149,7 +149,7 @@
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
       <property name="rowCount">
-       <number>1</number>
+       <number>0</number>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>150</number>
@@ -166,11 +166,6 @@
       <attribute name="verticalHeaderMinimumSectionSize">
        <number>40</number>
       </attribute>
-      <row>
-       <property name="text">
-        <string>a</string>
-       </property>
-      </row>
       <column>
        <property name="text">
         <string/>
@@ -403,6 +398,7 @@
     <property name="title">
      <string>Ver</string>
     </property>
+    <addaction name="actionShowUpdated"/>
     <addaction name="actionShowInstalled"/>
     <addaction name="actionShowIgnored"/>
    </widget>
@@ -438,6 +434,17 @@
   <action name="actionMarcar_actualizado">
    <property name="text">
     <string>Marcar actualizado</string>
+   </property>
+  </action>
+  <action name="actionShowUpdated">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ver actualizables</string>
    </property>
   </action>
  </widget>
