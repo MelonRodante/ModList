@@ -43,7 +43,7 @@ class Database:
         db.setDatabaseName(Database.filename)
 
         if not db.open():
-            QMessageBox.critical(None, "ModList Error:", "Database Error: %s" % db.lastError().databaseText(), QtWidgets.QMessageBox.Cancel)
+            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Cancel)
             sys.exit(1)
         else:
             db.exec("PRAGMA foreign_keys = ON;")
@@ -53,11 +53,24 @@ class Database:
             Database.exec(db, tablemodslists)
 
     @staticmethod
+    def get_thread_sqlquery():
+        db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='thread')
+        db.setDatabaseName(Database.filename)
+        if db.open():
+            return db
+        else:
+            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Cancel)
+            sys.exit(1)
+
+
+    @staticmethod
     def exec(db, sql):
         if not db.exec(sql):
             print(db.lastError().text())
 
     @staticmethod
     def execq(q):
-        if not q.exec():
+        b = q.exec()
+        if not b:
             print(q.lastError().text())
+        return b
