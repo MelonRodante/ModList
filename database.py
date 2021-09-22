@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     list    TEXT NOT NULL,
-                    search  TEXT NOT NULL,
+                    filter  TEXT NOT NULL,
                     loader  TEXT NOT NULL DEFAULT 'Sin Loader',
                     PRIMARY KEY(list));'''
 
@@ -43,7 +43,7 @@ class Database:
         db.setDatabaseName(Database.filename)
 
         if not db.open():
-            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Cancel)
+            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
             sys.exit(1)
         else:
             db.exec("PRAGMA foreign_keys = ON;")
@@ -59,7 +59,7 @@ class Database:
         if db.open():
             return db
         else:
-            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Cancel)
+            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
             sys.exit(1)
 
 

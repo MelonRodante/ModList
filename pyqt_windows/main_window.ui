@@ -26,8 +26,8 @@
    <string>ModList</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icon/zubiaicon.ico</normaloff>:/icon/zubiaicon.ico</iconset>
+   <iconset resource="../res/icons.qrc">
+    <normaloff>:/main_windows_icons/window_icon.png</normaloff>:/main_windows_icons/window_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -394,6 +394,8 @@
     </property>
     <addaction name="actionAdminLists"/>
     <addaction name="actionSearchingNewMods"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuShow">
     <property name="title">
@@ -461,6 +463,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Salir</string>
    </property>
   </action>
  </widget>

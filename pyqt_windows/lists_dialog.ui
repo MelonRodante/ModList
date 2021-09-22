@@ -28,6 +28,10 @@
   <property name="windowTitle">
    <string>Administrar Listas</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../res/icons.qrc">
+    <normaloff>:/main_windows_icons/window_icon.png</normaloff>:/main_windows_icons/window_icon.png</iconset>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -283,6 +287,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../res/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QLabel
 from database import Database
 from other_windows.admin_list_dialog import AdminListDialog
 from other_windows.searching_dialog import SearchingDialog
+from pyqt_style import colors
 from pyqt_widgets.customwidgets import CustomButton, Mod
 from pyqt_windows.main_window import Ui_ModList
 
@@ -24,7 +25,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_ModList()
         self.ui.setupUi(self)
 
-        self.url = 'https://www.curseforge.com'
         self.selectedMod = ''
 
         self.categories = ['Sin categoria',
@@ -56,8 +56,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setupWidgets()
         self.setupEvents()
-
-        self.ui.cmbModList.setCurrentIndex(5)
 
     @staticmethod
     def create_bold_font():
@@ -92,20 +90,6 @@ class MainWindow(QtWidgets.QMainWindow):
             f.setBold(True)
             self.ui.menubar.setFont(f)
 
-            self.ui.menubar.setStyleSheet('QMenuBar {'
-                                          'background-color: #0F1A25;'
-                                          'border-color: #0F1A25; '
-                                          'border-bottom-color: #F0651F;}')
-
-            self.ui.statusbar.setStyleSheet('QStatusBar {'
-                                            'background-color: #0F1A25; '
-                                            'border-color: #0F1A25; '
-                                            'border-top-color: #F0651F;}')
-
-            self.ui.btnSaveConfig.setStyleSheet('QPushButton {border: 1px solid #F0651F; background-color: #0F1A25;} '
-                                                'QPushButton:hover {background-color: #19232D;}'
-                                                'QPushButton:pressed {background-color: #54687A;}'
-                                                'QPushButton:disabled {border: 1px solid #000000;}')
         except Exception as e:
             print('MAIN_WINDOW modify_css: ', str(e))
 
@@ -359,14 +343,14 @@ class MainWindow(QtWidgets.QMainWindow):
             p.loadFromData(icon)
             btn = CustomButton(mod)
             btn.setIcon(QtGui.QIcon(p))
-            btn.setStyleSheet('background-color: rgba(255, 255, 255, 0);')
+            btn.setStyleSheet('border: None; background-color: rgba(255, 255, 255, 0);')
 
             btn.setMinimumSize(40, 40)
             btn.setMaximumSize(40, 40)
             btn.setIconSize(QSize(36, 36))
             btn.setFlat(True)
 
-            btn.clicked.connect(lambda: os.startfile(self.url + mod.path))
+            btn.clicked.connect(lambda: os.startfile(mod.path))
 
             return btn
         except Exception as e:
@@ -375,7 +359,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @staticmethod
     def create_table_item_lbl(mod):
         try:
-            text = ' <b style="text-align: center; font-family: MS Shell Dlg 2; color: #FFFFFF; font-size:15px;"> ' + mod.name + '</b> '
+            text = ' <b style="text-align: center; font-family: MS Shell Dlg 2; color: ' + colors.TextColor + '; font-size:15px;"> ' + mod.name + '</b> '
 
             if mod.installed and mod.favorite:
                 icon = ' <img src=:/table_icons/installed_favorite.png>'
@@ -547,7 +531,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(len(lists)):
             q.prepare('INSERT INTO Lists(list, search, loader)' 'VALUES (:list, :search, :loader)')
             q.bindValue(':list', lists[i])
-            q.bindValue(':search', 'filter-game-version=2020709689%3A8203')
+            q.bindValue(':filter', 'filter-game-version=2020709689%3A8203')
             q.bindValue(':loader', loader[i])
             self.exec(q)
 
@@ -566,6 +550,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 q.prepare('INSERT INTO ModsLists(list, mod)' 'VALUES (:list, :mod)')
                 q.bindValue(':list', '1.16.5')
                 q.bindValue(':mod', mod[0])
+
                 self.exec(q)
             except Exception as e:
                 print('MAIN_WINDOW setupTestData', e)

@@ -1,9 +1,13 @@
 import sys
+import time
 from time import sleep
 
+import cloudscraper
 import requests
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSize, Qt, QThread, pyqtSignal, QByteArray
+from PyQt5.QtWidgets import QMessageBox
+from bs4 import BeautifulSoup
 from qtpy import QtSql
 
 from database import Database
@@ -14,104 +18,188 @@ class ModIndex:
     def __init__(self, path, name, update_date, icon):
         self.path = path
         self.name = name
-        self.update_date = update_date
+        self.update_date = int(update_date)
         self.icon = icon
 
         self.error = 0
         self.newmod = 0
         self.update = 0
         self.addlist = 0
+        self.ignore = 0
 
     def print(self):
-        print('error:', self.error, '| newmod:', self.newmod, '| update:', self.update, '| addlist:', self.addlist)
+        print('error:', self.error, '| newmod:', self.newmod, '| update:', self.update, '| addlist:', self.addlist, '| ignore:', self.ignore)
 
 
 class SearchThread(QThread):
+
+    url = 'https://www.curseforge.com'
+    search_url = url + '/minecraft/mc-mods'
+    posfix_url = '&filter-sort=2&page='
+
     sig_max_pages = pyqtSignal(int)
     sig_page_finish = pyqtSignal(int)
+    sig_finish_code = pyqtSignal(int)
 
     def __init__(self, modlist, max_pages):
         super(SearchThread, self).__init__()
         self.modlist = modlist
-        self.max_pages = 10
-        self.canclose = 0
+        self.filter = ''
+        self.max_pages = max_pages
+        self.canclose = False
 
     def run(self):
         try:
             db = Database.get_thread_sqlquery()
-            self.task(db)
+            self.set_filter(db)
+            scraper = self.get_scrapper()
+            self.sig_page_finish.emit(0)
+            for i in range(1, self.max_pages+1):
+                if self.canclose:
+                    self.sig_finish_code.emit(1)
+                    break
+                self.task(db, i, scraper)
+                self.sig_page_finish.emit(i)
+            self.sig_finish_code.emit(0)
         except Exception as e:
             print('SEARCHING_DIALOG run:', e)
 
-    def task(self, db):
-        path = '/minecraft/mc-mods/natures-compass'
-        name = 'Nature\'s Compass'
-        date = 162753154311
-        icon = 'https://media.forgecdn.net/avatars/thumbnails/54/102/64/64/636131217371752080.png'
+    def set_filter(self, db):
+        try:
+            q = QtSql.QSqlQuery(db)
+            q.prepare('SELECT filter FROM Lists WHERE list == :list')
+            q.bindValue(':list', self.modlist)
+            if q.exec():
+                if q.next():
+                    self.filter = q.value(0)
+                else:
+                    QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
+                    sys.exit(1)
+            else:
+                QMessageBox.critical(None, "Searching DB Error:", q.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+                sys.exit(1)
+        except Exception as e:
+            print('SEARCHING_DIALOG set_filter:', e)
 
-        mod = ModIndex(path, name, date, icon)
-        self.check_mod(db, mod)
-        mod.print()
-        self.process_mod(db, mod)
+    def get_scrapper(self):
+        try:
+            maxpages = ''
+            scraper = None
+            while not maxpages:
+                try:
+                    time.sleep(1)
+                    scraper = cloudscraper.create_scraper(delay=1)
+                    soup = BeautifulSoup(scraper.get(SearchThread.search_url + self.filter + SearchThread.posfix_url + '1').text, 'html.parser')
+                    maxpages = soup.find_all('a', class_="pagination-item").pop().find('span').text
+                except Exception as e:
+                    print('CAPTCHA ERROR')
+
+            if self.max_pages == 0:
+                self.max_pages = int(maxpages)
+            self.sig_max_pages.emit(self.max_pages)
+
+            return scraper
+        except Exception as e:
+            print('SEARCHING_DIALOG get_scrapper:', e)
+
+    def task(self, db, i, scrapper):
+        try:
+            for mod in self.get_mods(i, scrapper):
+                self.check_mod(db, mod)
+                self.process_mod(db, mod)
+        except Exception as e:
+            print('SEARCHING_DIALOG task:', e)
+
+    def get_mods(self, i, scrapper):
+        try:
+            mods = []
+            soup = BeautifulSoup(scrapper.get(SearchThread.search_url + self.filter + SearchThread.posfix_url + str(i)).text, 'html.parser')
+            for div in soup.find_all('div', class_='my-2'):
+                mods.append(ModIndex(
+                    path=SearchThread.url + div.find('a', class_="my-auto").get_attribute_list('href').pop(),
+                    name=div.find('h3', class_="font-bold text-lg").text,
+                    update_date=div.find('abbr', class_="tip standard-date standard-datetime").get_attribute_list('data-epoch').pop(),
+                    icon=div.find('img', class_="mx-auto").get_attribute_list('src').pop()))
+            return mods
+        except Exception as e:
+            print('SEARCHING_DIALOG get_mods:', e)
 
     def check_mod(self, db, mod):
-        q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT update_date, blocked FROM Mods WHERE path == :path')
-        q.bindValue(':path', mod.path)
-        q.exec()
+        try:
+            q = QtSql.QSqlQuery(db)
+            q.prepare('SELECT M.update_date, M.blocked, M.loader, L.loader FROM Mods AS M INNER JOIN Lists AS L ON L.list = :list WHERE M.path == :path')
+            q.bindValue(':path', mod.path)
+            q.bindValue(':list', self.modlist)
 
-        if q.exec():
+            if q.exec():
 
-            if q.next():
+                if q.next():
 
-                if q.value(0) != mod.update_date:
-                    mod.update = 1
+                    if q.value(0) != mod.update_date:
+                        mod.update = 1
 
-                if q.value(1) == 0:
-                    q.prepare('SELECT 1 FROM ModsLists WHERE list == :list and mod == :mod')
-                    q.bindValue(':list', self.modlist)
-                    q.bindValue(':mod', mod.path)
-                    if q.exec():
-                        if not q.next():
-                            mod.addlist = 1
-                    else:
-                        mod.error = 2
+                    if q.value(1) == 0:
+
+                        if q.value(2) not in (q.value(3), 'Sin Loader'):
+                            mod.ignore = 1
+
+                        q.prepare('SELECT 1 FROM ModsLists WHERE list == :list and mod == :mod')
+                        q.bindValue(':list', self.modlist)
+                        q.bindValue(':mod', mod.path)
+                        if q.exec():
+                            if not q.next():
+                                mod.addlist = 1
+                        else:
+                            mod.error = 2
+                            QMessageBox.critical(None, "Searching DB Error:", q.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+                            sys.exit(1)
+
+                else:
+                    mod.newmod = 1
+                    mod.addlist = 1
 
             else:
-                mod.newmod = 1
-                mod.addlist = 1
-
-        else:
-            mod.error = 1
+                mod.error = 1
+                QMessageBox.critical(None, "Searching DB Error:", q.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+                sys.exit(1)
+        except Exception as e:
+            print('SEARCHING_DIALOG check_mod:', e)
 
     def process_mod(self, db, mod):
-        if mod.error != 1:
-            db.transaction()
-            q = QtSql.QSqlQuery(db)
+        try:
+            if mod.error != 1:
+                db.transaction()
+                q = QtSql.QSqlQuery(db)
 
-            if mod.newmod:
-                q.prepare('INSERT INTO Mods(path, name, update_date, icon) VALUES (:path, :name, :update_date, :icon)')
-                q.bindValue(':path', mod.path)
-                q.bindValue(':name', mod.name)
-                q.bindValue(':update_date', mod.update_date)
-                q.bindValue(':icon', QByteArray(requests.get(mod.icon).content))
-                q.exec()
-                print('newmod')
+                if mod.newmod:
+                    q.prepare('INSERT INTO Mods(path, name, update_date, icon) VALUES (:path, :name, :update_date, :icon)')
+                    q.bindValue(':path', mod.path)
+                    q.bindValue(':name', mod.name)
+                    q.bindValue(':update_date', mod.update_date)
+                    q.bindValue(':icon', QByteArray(requests.get(mod.icon).content))
+                    q.exec()
 
-            if mod.update:
-                q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
-                q.bindValue(':mod', mod.path)
-                q.exec()
-                print('update')
+                if mod.update:
+                    q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
+                    q.bindValue(':mod', mod.path)
+                    q.exec()
 
-            if mod.addlist:
-                q.prepare('INSERT INTO ModsLists(list, mod)' 'VALUES (:list, :mod)')
-                q.bindValue(':list', self.modlist)
-                q.bindValue(':mod', mod.path)
-                q.exec()
-                print('addlist')
+                if mod.addlist:
+                    q.prepare('INSERT INTO ModsLists(list, mod, ignored)' 'VALUES (:list, :mod, :ignored)')
+                    q.bindValue(':list', self.modlist)
+                    q.bindValue(':mod', mod.path)
+                    q.bindValue(':ignored', mod.ignore)
+                    q.exec()
 
-            db.commit()
+                db.commit()
+        except Exception as e:
+            print('SEARCHING_DIALOG preocess_mod:', e)
+
+    def set_close(self):
+        try:
+            self.canclose = True
+        except Exception as e:
+            print('SEARCHING_DIALOG set_close:', e)
 
 
 class SearchingDialog(QtWidgets.QDialog):
@@ -122,30 +210,16 @@ class SearchingDialog(QtWidgets.QDialog):
         self.ui = Ui_SearchingDialog()
         self.ui.setupUi(self)
 
-        self.thread = None
-        self.worker = None
+        self.exit_code = 0
+        self.search_thread = None
 
         self.setupWidgets()
         self.setupEvents()
         self.show()
 
-        self.ui.cmbModList.setCurrentIndex(2)
-        self.ui.btnSearchNewMods.setEnabled(True)
-
     def setupWidgets(self):
         try:
-            self.modify_css()
             self.create_cmb_values_lists()
-        except Exception as e:
-            print('SEARCHING_DIALOG modify_css:', e)
-
-    def modify_css(self):
-        try:
-            self.ui.btnSearchNewMods.setStyleSheet(
-                'QPushButton {border: 1px solid #F0651F; background-color: #0F1A25;} '
-                'QPushButton:hover {background-color: #19232D;}'
-                'QPushButton:pressed {background-color: #54687A;}'
-                'QPushButton:disabled {border: 1px solid #000000;}')
         except Exception as e:
             print('SEARCHING_DIALOG modify_css:', e)
 
@@ -172,7 +246,7 @@ class SearchingDialog(QtWidgets.QDialog):
     def setupEvents(self):
         try:
             self.ui.cmbModList.currentIndexChanged.connect(self.change_cmb_modlist)
-            self.ui.btnSearchNewMods.clicked.connect(self.search_mods)
+            self.ui.btnSearchNewMods.clicked.connect(self.btn_search_mods)
         except Exception as e:
             print('SEARCHING_DIALOG setupEvents:', e)
 
@@ -182,8 +256,11 @@ class SearchingDialog(QtWidgets.QDialog):
         except Exception as e:
             print('SEARCHING_DIALOG change_cmb_modlist:', e)
 
-    def search_mods(self):
+    def btn_search_mods(self):
         try:
+            self.ui.progressBar.setEnabled(True)
+            self.ui.progressBar.setMaximum(0)
+
             self.ui.cmbModList.setEnabled(False)
             self.ui.spinPages.setEnabled(False)
             self.ui.btnSearchNewMods.setEnabled(False)
@@ -192,6 +269,7 @@ class SearchingDialog(QtWidgets.QDialog):
 
             self.search_thread.sig_max_pages.connect(self.set_max_pages)
             self.search_thread.sig_page_finish.connect(self.set_page_finish)
+            self.search_thread.sig_finish_code.connect(self.set_finish_code)
             self.search_thread.finished.connect(self.set_finish_search)
 
             self.search_thread.start()
@@ -200,7 +278,9 @@ class SearchingDialog(QtWidgets.QDialog):
 
     def set_max_pages(self, max_pages):
         try:
+            self.ui.progressBar.setValue(0)
             self.ui.progressBar.setMaximum(max_pages)
+            self.ui.progressBar.setFormat('%v/%m Procesados')
         except Exception as e:
             print('SEARCHING_DIALOG set_max_pages:', e)
 
@@ -212,16 +292,22 @@ class SearchingDialog(QtWidgets.QDialog):
 
     def set_finish_search(self):
         try:
-            self.ui.progressBar.setValue(self.ui.progressBar.maximum())
-            sleep(1)
-            self.done(0)
+            if self.exit_code == 0:
+                self.ui.progressBar.setValue(self.ui.progressBar.maximum())
+                sleep(1)
+                self.done(1)
+            else:
+                self.done(2)
         except Exception as e:
             print('SEARCHING_DIALOG set_finish_search:', e)
 
+    def set_finish_code(self, code):
+        self.exit_code = code
+
     def closeEvent(self, event):
         try:
-            if self.worker is not None:
-                self.worker.canclose = 1
+            if self.search_thread is not None:
+                self.search_thread.set_close()
                 self.ui.progressBar.setFormat('Cancelando...')
                 event.ignore()
         except Exception as e:

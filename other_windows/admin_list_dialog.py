@@ -41,16 +41,6 @@ class AdminListDialog(QtWidgets.QDialog):
         f.setBold(True)
         self.ui.tableLists.horizontalHeader().setFont(f)
 
-        self.ui.btnAddSave.setStyleSheet('QPushButton {border: 1px solid #F0651F; background-color: #0F1A25;} '
-                                         'QPushButton:hover {background-color: #19232D;}'
-                                         'QPushButton:pressed {background-color: #54687A;}'
-                                         'QPushButton:disabled {border: 1px solid #000000;}')
-
-        self.ui.btnRemove.setStyleSheet('QPushButton {border: 1px solid #F0651F; background-color: #0F1A25;} '
-                                        'QPushButton:hover {background-color: #19232D;}'
-                                        'QPushButton:pressed {background-color: #54687A;}'
-                                        'QPushButton:disabled {border: 1px solid #000000;}')
-
     # ------------------------------------------------------------------------------------------------------------------
 
     def setupEvents(self):
@@ -78,9 +68,9 @@ class AdminListDialog(QtWidgets.QDialog):
     def add_list(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('INSERT INTO Lists(list, search, loader)' 'VALUES (:list, :search, :loader)')
+            q.prepare('INSERT INTO Lists(list, filter, loader)' 'VALUES (:list, :filter, :loader)')
             q.bindValue(':list', self.ui.editList.text().strip())
-            q.bindValue(':search', self.ui.editSearch.text().strip())
+            q.bindValue(':filter', self.ui.editSearch.text().strip())
             q.bindValue(':loader', self.ui.cmbLoader.currentText())
             if q.exec():
                 self.ui.editList.setText('')
@@ -94,9 +84,9 @@ class AdminListDialog(QtWidgets.QDialog):
     def update_list(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('UPDATE Lists SET search = :search, loader = :loader WHERE list == :list;')
+            q.prepare('UPDATE Lists SET filter = :filter, loader = :loader WHERE list == :list;')
             q.bindValue(':list', self.ui.editList.text())
-            q.bindValue(':search', self.ui.editSearch.text())
+            q.bindValue(':filter', self.ui.editSearch.text())
             q.bindValue(':loader', self.ui.cmbLoader.currentText())
             if q.exec():
                 self.ui.editList.setText('')
@@ -156,7 +146,7 @@ class AdminListDialog(QtWidgets.QDialog):
     def fill_table(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('SELECT list, search, loader FROM Lists')
+            q.prepare('SELECT list, filter, loader FROM Lists')
 
             self.ui.tableLists.setRowCount(0)
             if q.exec_():

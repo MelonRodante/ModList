@@ -18,6 +18,9 @@ class Ui_AdminListDialog(object):
         AdminListDialog.resize(660, 330)
         AdminListDialog.setMinimumSize(QtCore.QSize(660, 330))
         AdminListDialog.setMaximumSize(QtCore.QSize(660, 16777215))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/main_windows_icons/window_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        AdminListDialog.setWindowIcon(icon)
         AdminListDialog.setModal(True)
         self.verticalLayout = QtWidgets.QVBoxLayout(AdminListDialog)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -148,3 +151,4 @@ class Ui_AdminListDialog(object):
         item.setText(_translate("AdminListDialog", "BUSQUEDA"))
         item = self.tableLists.horizontalHeaderItem(2)
         item.setText(_translate("AdminListDialog", "LOADER"))
+import icons_rc

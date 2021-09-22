@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="main_windows_icons">
+    <file>window_icon.png</file>
     <file>save_off.png</file>
     <file>save.png</file>
   </qresource>
