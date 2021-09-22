@@ -22,7 +22,7 @@ ColorSelectedWeak = '#D66100'
 
 personal_css = '''
 QPushButton {
-    border: 1px solid ''' + Hover_and_SelectTable + '''; 
+    border: 1px solid ''' + ColorStrong + '''; 
     background-color: ''' + DarkBackground + ''';
 } 
 
@@ -60,19 +60,20 @@ QProgressBar {
     background-color: ''' + DarkBackground + ''';
 } 
 
+QTableWidget:focus {
+    border-color: ''' + Border + ''';
+}
+
 QProgressBar:disabled {
     border: 1px solid ''' + Border + '''; 
     color: ''' + Border + ''';
 }
 
-QTableView::item:hover:selected, 
-QTableView::item:!hover:selected {
-    background-color: ''' + ColorSelectedWeak + ''';
+QTableWidget::item:hover:selected, 
+QTableWidget::item:!hover:selected {
+    background-color: ''' + ColorStrong + ''';
 }
 
-QTableView:focus {
-    border-color: ''' + Border + ''';
-}
 
 
 '''

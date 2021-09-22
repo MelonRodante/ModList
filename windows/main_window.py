@@ -1,20 +1,20 @@
 import os
-import threading
 import time
 from typing import Union
 
+import PyQt5
 import requests
 
-from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
-from PyQt5.QtCore import QByteArray, QSize, QThread
+from PyQt5 import QtWidgets, QtCore, QtSql, QtGui, Qt
+from PyQt5.QtCore import QByteArray, QSize
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QLabel
 
 from database import Database
-from other_windows.admin_list_dialog import AdminListDialog
-from other_windows.searching_dialog import SearchingDialog
+from windows.admin_list_dialog import AdminListDialog
+from windows.searching_dialog import SearchingDialog
 from pyqt_style import colors
-from pyqt_widgets.customwidgets import CustomButton, Mod
+from pyqt_widgets.customwidgets import CustomButton, Mod, TableStyleItemDelegate
 from pyqt_windows.main_window import Ui_ModList
 
 
@@ -89,6 +89,8 @@ class MainWindow(QtWidgets.QMainWindow):
             f = self.ui.menubar.font()
             f.setBold(True)
             self.ui.menubar.setFont(f)
+
+            self.ui.tableMods.setItemDelegate(TableStyleItemDelegate(self.ui.tableMods))
 
         except Exception as e:
             print('MAIN_WINDOW modify_css: ', str(e))
@@ -348,8 +350,8 @@ class MainWindow(QtWidgets.QMainWindow):
             btn.setMinimumSize(40, 40)
             btn.setMaximumSize(40, 40)
             btn.setIconSize(QSize(36, 36))
-            btn.setFlat(True)
 
+            btn.setAttribute(PyQt5.QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
             btn.clicked.connect(lambda: os.startfile(mod.path))
 
             return btn
@@ -381,7 +383,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             lbl = QLabel('<table width=\"100%\"><td width=\"50%\" align=\"left\">' + text + '</td> <td width=\"50%\" align=\"right\">' + icon + '</td></table>')
             lbl.setStyleSheet('background-color: #00000000')
-
+            lbl.setAttribute(PyQt5.QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
             return lbl
         except Exception as e:
             print('MAIN_WINDOW create_table_item_lbl: ', str(e))

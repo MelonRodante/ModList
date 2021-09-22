@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5 import QtWidgets
-from main_window import MainWindow
+from windows.main_window import MainWindow
 from pyqt_style import css
 
 if __name__ == '__main__':
