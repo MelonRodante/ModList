@@ -1,21 +1,19 @@
 import os
 import time
+import requests
 from typing import Union
 
-import PyQt5
-import requests
-
-from PyQt5 import QtWidgets, QtCore, QtSql, QtGui, Qt
-from PyQt5.QtCore import QByteArray, QSize
+from PyQt5 import QtWidgets, QtCore, QtSql
+from PyQt5.QtCore import QByteArray, QSize, Qt
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QLabel
 
 from database import Database
+from pyqt_widgets.labelbutton import Mod, ButtonLabel
+from pyqt_widgets.delegates import TableStyleItemDelegate
+from pyqt_widgets.labelicons import LabelWithIcons
+from pyqt_windows.main_window import Ui_ModList
 from windows.admin_list_dialog import AdminListDialog
 from windows.searching_dialog import SearchingDialog
-from pyqt_style import colors
-from pyqt_widgets.customwidgets import CustomButton, Mod, TableStyleItemDelegate
-from pyqt_windows.main_window import Ui_ModList
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -90,6 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):
             f.setBold(True)
             self.ui.menubar.setFont(f)
 
+            self.ui.tableMods.setMouseTracking(True)
             self.ui.tableMods.setItemDelegate(TableStyleItemDelegate(self.ui.tableMods))
 
         except Exception as e:
@@ -110,7 +109,7 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             model = self.ui.cmbLoaderConfig.model()
             for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
         except Exception as e:
             print('MAIN_WINDOW resize_combobox_loader: ', str(e))
 
@@ -139,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             model = self.ui.cmbModList.model()
             for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
         except Exception as e:
             print('MAIN_WINDOW create_cmb_values_lists: ', str(e))
 
@@ -158,11 +157,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
             model = self.ui.cmbCategoryConfig.model()
             for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
             model = self.ui.cmbCategory.model()
             for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
         except Exception as e:
             print('MAIN_WINDOW create_cmb_values_category: ', str(e))
 
@@ -190,8 +189,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionShowIgnored.triggered.connect(self.fill_table)
         except Exception as e:
             print('MAIN_WINDOW setupEvents: ', str(e))
-
-    # ---------------------------------------
 
     def change_cmb_list(self):
         try:
@@ -228,8 +225,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             print('MAIN_WINDOW clicked_table:', e)
-
-    # ---------------------------------------
 
     def save_mod_config(self):
         try:
@@ -339,71 +334,6 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW optional_filter: ', str(e))
 
-    def create_table_item_icon_btn(self, icon, mod):
-        try:
-            p = QtGui.QPixmap()
-            p.loadFromData(icon)
-            btn = CustomButton(mod)
-            btn.setIcon(QtGui.QIcon(p))
-            btn.setStyleSheet('border: None; background-color: rgba(255, 255, 255, 0);')
-
-            btn.setMinimumSize(40, 40)
-            btn.setMaximumSize(40, 40)
-            btn.setIconSize(QSize(36, 36))
-
-            btn.setAttribute(PyQt5.QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
-            btn.clicked.connect(lambda: os.startfile(mod.path))
-
-            return btn
-        except Exception as e:
-            print('MAIN_WINDOW create_table_item_icon_btn: ', str(e))
-
-    @staticmethod
-    def create_table_item_lbl(mod):
-        try:
-            text = ' <b style="text-align: center; font-family: MS Shell Dlg 2; color: ' + colors.TextColor + '; font-size:15px;"> ' + mod.name + '</b> '
-
-            if mod.installed and mod.favorite:
-                icon = ' <img src=:/table_icons/installed_favorite.png>'
-            elif mod.installed and not mod.favorite:
-                icon = ' <img src=:/table_icons/installed.png>'
-            elif mod.ignored and mod.favorite:
-                icon = ' <img src=:/table_icons/ignored_favorite.png>'
-            elif mod.ignored and not mod.favorite:
-                icon = ' <img src=:/table_icons/ignored.png>'
-            elif mod.favorite:
-                icon = ' <img src=:/table_icons/favorite.png>'
-            elif mod.blocked:
-                icon = ' <img src=:/table_icons/blocked.png>'
-            else:
-                icon = ''
-
-            if mod.updated:
-                icon = '<img src=:/table_icons/updated.png>' + icon
-
-            lbl = QLabel('<table width=\"100%\"><td width=\"50%\" align=\"left\">' + text + '</td> <td width=\"50%\" align=\"right\">' + icon + '</td></table>')
-            lbl.setStyleSheet('background-color: #00000000')
-            lbl.setAttribute(PyQt5.QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
-            return lbl
-        except Exception as e:
-            print('MAIN_WINDOW create_table_item_lbl: ', str(e))
-
-    # ---------------------------------------
-
-    def clear_selected(self):
-        try:
-            self.selectedMod = ''
-            self.ui.editNameConfig.setText('')
-            self.ui.cmbCategoryConfig.setCurrentIndex(0)
-            self.ui.cmbLoaderConfig.setCurrentIndex(0)
-            self.ui.chkInstalledConfig.setChecked(False)
-            self.ui.chkIgnoredConfig.setChecked(False)
-            self.ui.chkUpdated.setChecked(False)
-            self.ui.chkFavoriteConfig.setChecked(False)
-            self.ui.chkBlockedConfig.setChecked(False)
-        except Exception as e:
-            print('MAIN_WINDOW clear_selected: ', str(e))
-
     def prepare_fill_table_query(self, q):
         try:
             if 0 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 7:
@@ -484,8 +414,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.insertRow(i)
 
                     mod = Mod(q)
-                    self.ui.tableMods.setCellWidget(i, 0, self.create_table_item_icon_btn(q.value(0), mod))
-                    self.ui.tableMods.setCellWidget(i, 1, self.create_table_item_lbl(mod))
+
+                    self.ui.tableMods.setCellWidget(i, 0, ButtonLabel(q.value(0), mod))
+                    self.ui.tableMods.setCellWidget(i, 1, LabelWithIcons(mod))
 
                     self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + mod.category + '  '))
                     self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
@@ -497,6 +428,20 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.item(i, 4).setTextAlignment(QtCore.Qt.AlignCenter)
         except Exception as e:
             print('MAIN_WINDOW fill_table: ', str(e))
+
+    def clear_selected(self):
+        try:
+            self.selectedMod = ''
+            self.ui.editNameConfig.setText('')
+            self.ui.cmbCategoryConfig.setCurrentIndex(0)
+            self.ui.cmbLoaderConfig.setCurrentIndex(0)
+            self.ui.chkInstalledConfig.setChecked(False)
+            self.ui.chkIgnoredConfig.setChecked(False)
+            self.ui.chkUpdated.setChecked(False)
+            self.ui.chkFavoriteConfig.setChecked(False)
+            self.ui.chkBlockedConfig.setChecked(False)
+        except Exception as e:
+            print('MAIN_WINDOW clear_selected: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -565,4 +510,3 @@ class MainWindow(QtWidgets.QMainWindow):
             return b
         except Exception as e:
             print('MAIN_WINDOW modify_css', e)
-
