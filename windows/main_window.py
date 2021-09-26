@@ -3,7 +3,7 @@ import time
 from typing import Union
 
 from PyQt5 import QtWidgets, QtCore, QtSql
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QAbstractItemView
 
@@ -182,7 +182,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.cmbModList.currentIndexChanged.connect(self.change_cmb_list)
             self.ui.cmbCategory.currentIndexChanged.connect(self.fill_table)
-            self.ui.editName.textChanged.connect(self.fill_table)
+            self.ui.editName.returnPressed.connect(self.fill_table)
+            self.ui.editName.textEdited.connect(self.edit_name_clear)
             self.ui.tableMods.itemSelectionChanged.connect(self.clicked_table)
 
             self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
@@ -214,6 +215,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             print('MAIN_WINDOW change_cmb_list: ', str(e))
+
+    def edit_name_clear(self):
+        if self.ui.editName.text() == '':
+            self.fill_table()
 
     def clicked_table(self):
         try:
@@ -565,6 +570,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.prepare_fill_table_query(q)
 
             self.ui.tableMods.setRowCount(0)
+            QCoreApplication.processEvents()
             if self.exec(q):
                 i = 0
                 self.set_table_rows(q)
@@ -587,6 +593,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.item(i, 4).setTextAlignment(QtCore.Qt.AlignCenter)
 
                     i+=1
+
+                    if i%100 == 0:
+                        QCoreApplication.processEvents()
+
         except Exception as e:
             print('MAIN_WINDOW fill_table: ', str(e))
 
