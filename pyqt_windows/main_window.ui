@@ -247,10 +247,16 @@
           <normaloff>:/main_windows_icons/save.png</normaloff>
           <disabledoff>:/main_windows_icons/save_off.png</disabledoff>:/main_windows_icons/save.png</iconset>
         </property>
+        <property name="shortcut">
+         <string>Ctrl+S</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="editNameConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -271,12 +277,20 @@
       </item>
       <item>
        <widget class="QComboBox" name="cmbLoaderConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>77</width>
           <height>0</height>
          </size>
         </property>
+        <item>
+         <property name="text">
+          <string/>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string>Sin Loader</string>
@@ -309,6 +323,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="cmbCategoryConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>110</width>
@@ -363,6 +380,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="chkFavoriteConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Favorite</string>
         </property>
@@ -370,6 +390,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="chkBlockedConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Blocked</string>
         </property>
@@ -394,6 +417,8 @@
     </property>
     <addaction name="actionAdminLists"/>
     <addaction name="actionSearchingNewMods"/>
+    <addaction name="actionShowNoFindFavorites"/>
+    <addaction name="actionMultiselection"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -418,12 +443,15 @@
     <string>Administrar listas</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+A</string>
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionShowInstalled">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Ver instalados</string>
@@ -435,6 +463,9 @@
   <action name="actionShowIgnored">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Ver ignorados</string>
@@ -450,6 +481,9 @@
    <property name="checked">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Ver  instalados actualizables</string>
    </property>
@@ -462,12 +496,34 @@
     <string>Buscar nuevos mods</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Salir</string>
+   </property>
+  </action>
+  <action name="actionMultiselection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Multiseleccion</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionShowNoFindFavorites">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ver favoritos no encontrados</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>
