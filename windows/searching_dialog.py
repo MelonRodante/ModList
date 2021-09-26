@@ -8,6 +8,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSize, Qt, QThread, pyqtSignal, QByteArray
 from PyQt5.QtWidgets import QMessageBox
 from bs4 import BeautifulSoup
+from cloudscraper import CloudflareChallengeError
 from qtpy import QtSql
 
 from database import Database
@@ -91,8 +92,8 @@ class SearchThread(QThread):
                     scraper = cloudscraper.create_scraper(delay=1)
                     soup = BeautifulSoup(scraper.get(SearchThread.search_url + self.filter + SearchThread.posfix_url + '1').text, 'html.parser')
                     maxpages = soup.find_all('a', class_="pagination-item").pop().find('span').text
-                except Exception as e:
-                    print('CAPTCHA ERROR')
+                except CloudflareChallengeError as e:
+                    print('SEARCHING_DIALOG CloudflareChallengeError')
 
             if self.max_pages == 0:
                 self.max_pages = int(maxpages)
@@ -101,6 +102,7 @@ class SearchThread(QThread):
             return scraper
         except Exception as e:
             print('SEARCHING_DIALOG get_scrapper:', e)
+            QMessageBox.critical(None, "DataBase Error:", str(e), QtWidgets.QMessageBox.Close)
 
     def task(self, db, i, scrapper):
         try:

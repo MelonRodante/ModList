@@ -1,9 +1,9 @@
 import time
-import requests
+
 from typing import Union
 
 from PyQt5 import QtWidgets, QtCore, QtSql
-from PyQt5.QtCore import QByteArray, QSize, Qt
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QAbstractItemView
 
@@ -506,7 +506,8 @@ class MainWindow(QtWidgets.QMainWindow):
             opfilter += self.optional_filter('blocked',  self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 5, opfilter)
             opfilter += self.optional_filter('loader',   self.ui.cmbModList.currentIndex() >= self.ui.cmbModList.count() - 3, opfilter)
 
-            q.prepare('SELECT icon, name, category, loader, update_date, path, 0, 0, 0, favorite, blocked '
+            q.prepare('SELECT icon, name, category, loader, update_date, path, 0, 0, 0, favorite, blocked, '
+                      'COUNT(*) OVER (partition by NULL) '
                       'FROM Mods'
                       + opfilter +
                       'ORDER BY loader desc, category asc, name ASC;')
@@ -541,41 +542,8 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 opfilter += ' AND installed == 0 AND ignored == 0 '
 
-            q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked '
-                      'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path'
-                      + opfilter +
-                      'ORDER BY M.category asc, M.name ASC;')
-
-            q.bindValue(':list', modlist)
-            q.bindValue(':category', category)
-            q.bindValue(':name', '%' + name + '%')
-
-            q.bindValue(':installed', int(self.ui.actionShowInstalled.isChecked()))
-            q.bindValue(':ignored', int(self.ui.actionShowIgnored.isChecked()))
-        except Exception as e:
-            print('MAIN_WINDOW prepare_fill_table_query_modslists: ', str(e))
-    def prepare_fill_table_query_modslists(self, q):
-        try:
-            modlist = self.ui.cmbModList.currentText()
-            category = self.ui.cmbCategory.currentText()
-            name = self.ui.editName.text()
-
-            opfilter = ''
-            opfilter += self.optional_filter('list',     modlist,  opfilter, tableas='ML')
-            opfilter += self.optional_filter('category', category, opfilter, tableas='M', novalue='Todas')
-            opfilter += self.optional_filter('name',     name,     opfilter, tableas='M', like=True)
-
-
-            if self.ui.actionShowUpdated.isChecked():
-                opfilter += ' AND installed == 0 AND ignored == 0 OR installed == 1 AND updated == 1 '
-            elif self.ui.actionShowInstalled.isChecked():
-                opfilter += ' AND installed == 1 '
-            elif self.ui.actionShowIgnored.isChecked():
-                opfilter += ' AND ignored == 1 '
-            else:
-                opfilter += ' AND installed == 0 AND ignored == 0 '
-
-            q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked '
+            q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, '
+                      'COUNT(*) OVER (partition by NULL)'
                       'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path'
                       + opfilter +
                       'ORDER BY M.category asc, M.name ASC;')
@@ -597,11 +565,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.prepare_fill_table_query(q)
 
             self.ui.tableMods.setRowCount(0)
-
             if self.exec(q):
+                i = 0
+                self.set_table_rows(q)
                 while q.next():
-                    i = self.ui.tableMods.rowCount()
-                    self.ui.tableMods.insertRow(i)
+                    #i = self.ui.tableMods.rowCount()
+                    #self.ui.tableMods.insertRow(i)
 
                     mod = Mod(q)
 
@@ -617,6 +586,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.item(i, 3).setTextAlignment(QtCore.Qt.AlignCenter)
                     self.ui.tableMods.item(i, 4).setTextAlignment(QtCore.Qt.AlignCenter)
 
+                    i+=1
         except Exception as e:
             print('MAIN_WINDOW fill_table: ', str(e))
 
@@ -664,6 +634,15 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW show_searching_dialog: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
+
+    def set_table_rows(self, q):
+        if q.next():
+            self.ui.tableMods.setRowCount(q.value(11))
+            q.previous()
+        else:
+            self.ui.tableMods.setRowCount(0)
+
+
 
     def is_list(self):
         return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count()-7
