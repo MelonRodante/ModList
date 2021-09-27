@@ -90,6 +90,7 @@ class SearchThread(QThread):
                 try:
                     time.sleep(1)
                     scraper = cloudscraper.create_scraper(delay=1)
+
                     soup = BeautifulSoup(scraper.get(SearchThread.search_url + self.filter + SearchThread.posfix_url + '1').text, 'html.parser')
                     maxpages = soup.find_all('a', class_="pagination-item").pop().find('span').text
                 except CloudflareChallengeError as e:

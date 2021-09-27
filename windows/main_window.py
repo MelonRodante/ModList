@@ -687,7 +687,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_searching_dialog(self):
         try:
             dialog = SearchingDialog()
-            code = dialog.exec()
+            if dialog.exec():
+                loader = dialog.ui.cmbModList.currentText()
+                if loader != self.ui.cmbModList.currentText():
+                    self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(loader))
+                else:
+                    self.load_data()
         except Exception as e:
             print('MAIN_WINDOW show_searching_dialog: ', str(e))
 
