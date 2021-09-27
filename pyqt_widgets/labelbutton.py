@@ -6,14 +6,11 @@ from PyQt5.QtWidgets import QLabel
 
 class ButtonLabel(QLabel):
 
-    def __init__(self, icon, mod):
+    def __init__(self, mod):
         QLabel.__init__(self)
         self.mod = mod
 
-        p = QtGui.QPixmap()
-        p.loadFromData(icon)
-
-        self.setPixmap(p)
+        self.setPixmap(mod.icon)
         self.setScaledContents(True)
         self.setStyleSheet('background-color: #00000000;')
 

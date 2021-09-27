@@ -1,3 +1,4 @@
+import math
 import time
 
 from typing import Union
@@ -9,6 +10,7 @@ from PyQt5.QtWidgets import QAbstractItemView
 
 from database import Database
 from mod import Mod
+from pyqt_style.colors import ColorStrong, DarkBackground, Border
 from pyqt_widgets.labelbutton import ButtonLabel
 from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.labelicons import LabelWithIcons
@@ -19,12 +21,18 @@ from windows.searching_dialog import SearchingDialog
 
 class MainWindow(QtWidgets.QMainWindow):
 
+    rows_per_page = 100
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_ModList()
         self.ui.setupUi(self)
 
         self.selectedMods = []
+
+        self.current_page = 0
+        self.maxpages = 0
+        self.tableMods = []
 
         self.categories = ['Sin categoria',
                            'Biomas',
@@ -75,7 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.create_cmb_values_lists()
             self.resize_table()
             self.resize_combobox_loader()
-            self.fill_table()
+            self.load_data()
         except Exception as e:
             print('MAIN_WINDOW setupWidgets: ', str(e))
 
@@ -91,6 +99,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.tableMods.setMouseTracking(True)
             self.ui.tableMods.setItemDelegate(TableStyleItemDelegate(self.ui.tableMods))
+
+            self.ui.lblActualPages.setStyleSheet('QLabel {border: 1px solid ' + ColorStrong + '; background-color: ' + DarkBackground + ';} ' + 'QLabel:disabled {border: 1px solid ' + Border + '; color: ' + Border + ';}')
 
         except Exception as e:
             print('MAIN_WINDOW modify_css: ', str(e))
@@ -181,10 +191,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.chkBlockedConfig.clicked.connect(self.change_chk_blocked)
 
             self.ui.cmbModList.currentIndexChanged.connect(self.change_cmb_list)
-            self.ui.cmbCategory.currentIndexChanged.connect(self.fill_table)
-            self.ui.editName.returnPressed.connect(self.fill_table)
+            self.ui.cmbCategory.currentIndexChanged.connect(self.load_data)
+            self.ui.editName.returnPressed.connect(self.load_data)
             self.ui.editName.textEdited.connect(self.edit_name_clear)
+
             self.ui.tableMods.itemSelectionChanged.connect(self.clicked_table)
+            self.ui.btnPageLeft.clicked.connect(self.left_page)
+            self.ui.btnPageRight.clicked.connect(self.right_page)
 
             self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
             self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
@@ -205,7 +218,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def change_cmb_list(self):
         try:
-            self.fill_table()
+            self.load_data()
 
             islist = self.is_list()
             self.ui.actionShowUpdated.setEnabled(islist)
@@ -218,7 +231,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def edit_name_clear(self):
         if self.ui.editName.text() == '':
-            self.fill_table()
+            self.load_data()
 
     def clicked_table(self):
         try:
@@ -392,7 +405,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                         self.exec(q)
 
-                self.fill_table()
+                self.load_data()
 
 
         except Exception as e:
@@ -457,9 +470,33 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.ui.actionShowIgnored != action:
             self.ui.actionShowIgnored.setChecked(False)
 
-        self.fill_table()
+        self.load_data()
 
     # ------------------------------------------------------------------------------------------------------------------
+
+    def clear_selected(self):
+        try:
+            self.selectedMods = []
+            self.ui.editNameConfig.setText('')
+            self.ui.cmbCategoryConfig.setCurrentIndex(0)
+            self.ui.cmbLoaderConfig.setCurrentIndex(0)
+            self.ui.chkInstalledConfig.setChecked(False)
+            self.ui.chkIgnoredConfig.setChecked(False)
+            self.ui.chkUpdated.setChecked(False)
+            self.ui.chkFavoriteConfig.setChecked(False)
+            self.ui.chkBlockedConfig.setChecked(False)
+
+            self.ui.btnSaveConfig.setEnabled(False)
+            self.ui.editNameConfig.setEnabled(False)
+            self.ui.cmbLoaderConfig.setEnabled(False)
+            self.ui.cmbCategoryConfig.setEnabled(False)
+            self.ui.chkInstalledConfig.setEnabled(False)
+            self.ui.chkIgnoredConfig.setEnabled(False)
+            self.ui.chkUpdated.setEnabled(False)
+            self.ui.chkFavoriteConfig.setEnabled(False)
+            self.ui.chkBlockedConfig.setEnabled(False)
+        except Exception as e:
+            print('MAIN_WINDOW clear_selected: ', str(e))
 
     @staticmethod
     def optional_filter(field, value: Union[str, bool], previus_sql, tableas='', novalue='', like=False):
@@ -562,67 +599,78 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW prepare_fill_table_query_modslists: ', str(e))
 
-    def fill_table(self):
+    def load_data(self):
         try:
             self.clear_selected()
 
             q = QtSql.QSqlQuery()
             self.prepare_fill_table_query(q)
 
+            self.tableMods.clear()
+            if self.exec(q):
+                while q.next():
+                    self.tableMods.append(Mod(q))
+
+            self.current_page = 1
+            self.maxpages = math.ceil(len(self.tableMods)/MainWindow.rows_per_page)
+            self.fill_table()
+        except Exception as e:
+            print('MAIN_WINDOW load_data: ', str(e))
+
+    def fill_table(self):
+        try:
             self.ui.tableMods.setRowCount(0)
             QCoreApplication.processEvents()
-            if self.exec(q):
-                i = 0
-                self.set_table_rows(q)
-                while q.next():
-                    #i = self.ui.tableMods.rowCount()
-                    #self.ui.tableMods.insertRow(i)
 
-                    mod = Mod(q)
+            self.check_table_buttons()
 
-                    self.ui.tableMods.setCellWidget(i, 0, ButtonLabel(q.value(0), mod))
-                    self.ui.tableMods.setCellWidget(i, 1, LabelWithIcons(mod))
+            if self.maxpages > 0:
 
-                    self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + mod.category + '  '))
-                    self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
-                    date = time.strftime('%d/%m/%Y', time.localtime(mod.update_date))
+                if self.current_page != self.maxpages:
+                    max_row = MainWindow.rows_per_page
+                else:
+                    max_row = len(self.tableMods) % MainWindow.rows_per_page
+
+                m = (self.current_page-1) * MainWindow.rows_per_page
+
+                self.ui.lblActualPages.setText('%d - %d / %d' % (m+1, m+max_row, len(self.tableMods)))
+
+                self.ui.tableMods.setRowCount(max_row)
+                for i in range(max_row):
+
+                    self.ui.tableMods.setCellWidget(i, 0, ButtonLabel(self.tableMods[m]))
+                    self.ui.tableMods.setCellWidget(i, 1, LabelWithIcons(self.tableMods[m]))
+
+                    self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].category + '  '))
+                    self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].loader + '  '))
+                    date = time.strftime('%d/%m/%Y', time.localtime(self.tableMods[m].update_date))
                     self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem('  ' + date + '  '))
 
                     self.ui.tableMods.item(i, 2).setTextAlignment(QtCore.Qt.AlignCenter)
                     self.ui.tableMods.item(i, 3).setTextAlignment(QtCore.Qt.AlignCenter)
                     self.ui.tableMods.item(i, 4).setTextAlignment(QtCore.Qt.AlignCenter)
 
-                    i+=1
+                    m += 1
 
-                    if i%100 == 0:
-                        QCoreApplication.processEvents()
-
+            else:
+                self.ui.lblActualPages.setText('0 / 0')
         except Exception as e:
             print('MAIN_WINDOW fill_table: ', str(e))
 
-    def clear_selected(self):
-        try:
-            self.selectedMods = []
-            self.ui.editNameConfig.setText('')
-            self.ui.cmbCategoryConfig.setCurrentIndex(0)
-            self.ui.cmbLoaderConfig.setCurrentIndex(0)
-            self.ui.chkInstalledConfig.setChecked(False)
-            self.ui.chkIgnoredConfig.setChecked(False)
-            self.ui.chkUpdated.setChecked(False)
-            self.ui.chkFavoriteConfig.setChecked(False)
-            self.ui.chkBlockedConfig.setChecked(False)
+    def left_page(self):
+        if 1 < self.current_page:
+            self.current_page -= 1
+        self.fill_table()
 
-            self.ui.btnSaveConfig.setEnabled(False)
-            self.ui.editNameConfig.setEnabled(False)
-            self.ui.cmbLoaderConfig.setEnabled(False)
-            self.ui.cmbCategoryConfig.setEnabled(False)
-            self.ui.chkInstalledConfig.setEnabled(False)
-            self.ui.chkIgnoredConfig.setEnabled(False)
-            self.ui.chkUpdated.setEnabled(False)
-            self.ui.chkFavoriteConfig.setEnabled(False)
-            self.ui.chkBlockedConfig.setEnabled(False)
-        except Exception as e:
-            print('MAIN_WINDOW clear_selected: ', str(e))
+    def right_page(self):
+        if self.current_page < self.maxpages:
+            self.current_page += 1
+        self.fill_table()
+
+    def check_table_buttons(self):
+        self.ui.btnPageLeft.setEnabled(1 < self.current_page)
+        self.ui.btnPageRight.setEnabled(self.current_page < self.maxpages)
+        self.ui.lblActualPages.setEnabled(self.maxpages > 0)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -644,15 +692,6 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW show_searching_dialog: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
-
-    def set_table_rows(self, q):
-        if q.next():
-            self.ui.tableMods.setRowCount(q.value(11))
-            q.previous()
-        else:
-            self.ui.tableMods.setRowCount(0)
-
-
 
     def is_list(self):
         return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count()-7

@@ -1,12 +1,18 @@
 from typing import Union
 
 from PyQt5 import QtSql
+from qtpy import QtGui
 
 
 class Mod:
     def __init__(self, arg: Union[QtSql.QSqlQuery, list]):
 
         if isinstance(arg, QtSql.QSqlQuery):
+
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(arg.value(0))
+
+            self.icon = pixmap
             self.name = arg.value(1)
             self.category = arg.value(2)
             self.loader = arg.value(3)
