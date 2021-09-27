@@ -21,7 +21,7 @@ from windows.searching_dialog import SearchingDialog
 
 class MainWindow(QtWidgets.QMainWindow):
 
-    rows_per_page = 100
+    rows_per_page = 300
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -143,9 +143,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbModList.addItem('Favoritos')
             self.ui.cmbModList.addItem('Bloqueados')
             self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
+            self.ui.cmbModList.addItem('Sin Loader')
             self.ui.cmbModList.addItem('Forge')
             self.ui.cmbModList.addItem('Fabric')
-            self.ui.cmbModList.addItem('Sin Loader')
+            self.ui.cmbModList.addItem('Ambos')
+
 
             model = self.ui.cmbModList.model()
             for i in range(model.rowCount()):
@@ -218,14 +220,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def change_cmb_list(self):
         try:
-            self.load_data()
-
             islist = self.is_list()
             self.ui.actionShowUpdated.setEnabled(islist)
             self.ui.actionShowInstalled.setEnabled(islist)
             self.ui.actionShowIgnored.setEnabled(islist)
             self.ui.actionShowNoFindFavorites.setEnabled(islist)
+            self.ui.actionIgnoreNoLoader.setEnabled(islist)
 
+            self.load_data()
         except Exception as e:
             print('MAIN_WINDOW change_cmb_list: ', str(e))
 
@@ -527,7 +529,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def prepare_fill_table_query(self, q):
         try:
-            if 0 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 7:
+            if self.is_list():
                 self.prepare_fill_table_query_modslists(q)
             else:
                 self.prepare_fill_table_query_mods(q)
@@ -544,15 +546,23 @@ class MainWindow(QtWidgets.QMainWindow):
             opfilter += self.optional_filter('category', category, opfilter, novalue='Todas')
             opfilter += self.optional_filter('name',     name,     opfilter, like=True)
 
-            opfilter += self.optional_filter('favorite', self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 6, opfilter)
-            opfilter += self.optional_filter('blocked',  self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 5, opfilter)
-            opfilter += self.optional_filter('loader',   self.ui.cmbModList.currentIndex() >= self.ui.cmbModList.count() - 3, opfilter)
+            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 7:
+                opfilter += self.optional_filter('favorite', True, opfilter)
+                orderby = 'ORDER BY name ASC;'
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 6:
+                opfilter += self.optional_filter('blocked', True, opfilter)
+                orderby = 'ORDER BY name ASC;'
+            elif self.ui.cmbModList.currentIndex() >= self.ui.cmbModList.count() - 4:
+                opfilter += self.optional_filter('loader', True, opfilter)
+                orderby = 'ORDER BY favorite DESC, name ASC;'
+            else:
+                orderby = 'ORDER BY favorite DESC, blocked ASC, name ASC;'
 
             q.prepare('SELECT icon, name, category, loader, update_date, path, 0, 0, 0, favorite, blocked, '
                       'COUNT(*) OVER (partition by NULL) '
                       'FROM Mods'
-                      + opfilter +
-                      'ORDER BY loader desc, category asc, name ASC;')
+                      + opfilter
+                      + orderby)
 
             q.bindValue(':category', category)
             q.bindValue(':name', '%' + name + '%')
@@ -574,21 +584,24 @@ class MainWindow(QtWidgets.QMainWindow):
             opfilter += self.optional_filter('category', category, opfilter, tableas='M', novalue='Todas')
             opfilter += self.optional_filter('name',     name,     opfilter, tableas='M', like=True)
 
-
             if self.ui.actionShowUpdated.isChecked():
                 opfilter += ' AND installed == 0 AND ignored == 0 OR installed == 1 AND updated == 1 '
+                orderby = 'ORDER BY ML.installed DESC, ML.updated DESC, M.favorite DESC, M.name ASC;'
             elif self.ui.actionShowInstalled.isChecked():
                 opfilter += ' AND installed == 1 '
+                orderby = 'ORDER BY M.favorite DESC, M.name ASC;'
             elif self.ui.actionShowIgnored.isChecked():
                 opfilter += ' AND ignored == 1 '
+                orderby = 'ORDER BY M.favorite DESC, M.name ASC;'
             else:
                 opfilter += ' AND installed == 0 AND ignored == 0 '
+                orderby = 'ORDER BY M.favorite DESC, M.name ASC;'
 
             q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, '
                       'COUNT(*) OVER (partition by NULL)'
                       'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path'
-                      + opfilter +
-                      'ORDER BY M.category asc, M.name ASC;')
+                      + opfilter
+                      + orderby)
 
             q.bindValue(':list', modlist)
             q.bindValue(':category', category)
@@ -699,7 +712,7 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     def is_list(self):
-        return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count()-7
+        return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count()-8
 
     def exec(self, q):
         try:

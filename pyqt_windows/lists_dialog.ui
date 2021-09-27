@@ -117,11 +117,6 @@
        </property>
        <item>
         <property name="text">
-         <string>Sin Loader</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>Forge</string>
         </property>
        </item>

@@ -51,7 +51,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Lista de Mods</string>
+         <string>Lista de Mods:</string>
         </property>
        </widget>
       </item>
@@ -396,6 +396,11 @@
           <string>Fabric</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Ambos</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
@@ -501,14 +506,12 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuConfiguration">
+   <widget class="QMenu" name="menuArchive">
     <property name="title">
-     <string>Configuracion</string>
+     <string>Archivo</string>
     </property>
     <addaction name="actionAdminLists"/>
     <addaction name="actionSearchingNewMods"/>
-    <addaction name="actionShowNoFindFavorites"/>
-    <addaction name="actionMultiselection"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -519,9 +522,19 @@
     <addaction name="actionShowUpdated"/>
     <addaction name="actionShowInstalled"/>
     <addaction name="actionShowIgnored"/>
+    <addaction name="separator"/>
+    <addaction name="actionMultiselection"/>
    </widget>
-   <addaction name="menuConfiguration"/>
+   <widget class="QMenu" name="menuAdministrar_lista">
+    <property name="title">
+     <string>Administrar lista</string>
+    </property>
+    <addaction name="actionShowNoFindFavorites"/>
+    <addaction name="actionIgnoreNoLoader"/>
+   </widget>
+   <addaction name="menuArchive"/>
    <addaction name="menuShow"/>
+   <addaction name="menuAdministrar_lista"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
@@ -602,7 +615,7 @@
     <string>Multiseleccion</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Ctrl+A</string>
    </property>
   </action>
   <action name="actionShowNoFindFavorites">
@@ -614,6 +627,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionIgnoreNoLoader">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Marcar ignorado Loader no correspondiente</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

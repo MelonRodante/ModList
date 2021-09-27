@@ -120,7 +120,7 @@ class SearchThread(QThread):
             for div in soup.find_all('div', class_='my-2'):
                 mods.append(ModIndex(
                     path=SearchThread.url + div.find('a', class_="my-auto").get_attribute_list('href').pop(),
-                    name=div.find('h3', class_="font-bold text-lg").text,
+                    name=div.find('h3', class_="font-bold text-lg").text.strip(),
                     update_date=div.find('abbr', class_="tip standard-date standard-datetime").get_attribute_list('data-epoch').pop(),
                     icon=div.find('img', class_="mx-auto").get_attribute_list('src').pop()))
             return mods
@@ -143,7 +143,7 @@ class SearchThread(QThread):
 
                     if q.value(1) == 0:
 
-                        if q.value(2) not in (q.value(3), 'Sin Loader'):
+                        if q.value(2) not in (q.value(3), 'Sin Loader', 'Ambos'):
                             mod.ignore = 1
 
                         q.prepare('SELECT 1 FROM ModsLists WHERE list == :list and mod == :mod')
