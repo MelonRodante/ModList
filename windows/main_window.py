@@ -39,6 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
                            'Mecanica simple',
                            'Elemento simple',
                            'Utilidad Server',
+                           'Crafteos',
                            'Variado',
                            '-',
                            'Herramientas',
@@ -62,7 +63,9 @@ class MainWindow(QtWidgets.QMainWindow):
                            'API',
                            'Addon',
                            'Optimizacion',
+                           '-',
                            'Client',
+                           'Keybinding',
                            'Menu']
 
         self.bold_font = self.create_bold_font()
