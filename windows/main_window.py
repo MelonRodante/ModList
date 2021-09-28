@@ -35,26 +35,35 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tableMods = []
 
         self.categories = ['Sin categoria',
-                           'Biomas',
-                           'Estructuras',
-                           'Dimensiones',
-                           'Mobs',
-                           'Decoracion',
-                           'Comida',
+                           '-',
+                           'Mecanica simple',
+                           'Elemento simple',
+                           'Utilidad Server',
+                           'Variado',
+                           '-',
                            'Herramientas',
-                           'Magia',
-                           'RPG',
+                           'Comida',
+                           'Encantamientos',
+                           'Decoracion',
+                           '-',
                            'Maquinaria',
                            'Almacenamiento',
                            'Redstone',
-                           'Variado',
                            'Transporte',
-                           'Basico',
-                           'Utilidad',
-                           'Utilidad Server',
+                           'Magia',
+                           'RPG',
+                           '-',
+                           'Mobs',
+                           'Biomas',
+                           'Estructuras',
+                           'Dimensiones',
+                           'Ores',
+                           '-',
+                           'API',
                            'Addon',
-                           'API'
-                           ]
+                           'Optimizacion',
+                           'Client',
+                           'Menu']
 
         self.bold_font = self.create_bold_font()
 
@@ -163,11 +172,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbCategory.addItem('Todas')
             self.ui.cmbCategoryConfig.addItem('')
             for cat in self.categories:
-                self.ui.cmbCategory.addItem(cat)
-                self.ui.cmbCategoryConfig.addItem(cat)
-
-            self.ui.cmbCategory.insertSeparator(2)
-            self.ui.cmbCategoryConfig.insertSeparator(2)
+                if cat == '-':
+                    self.ui.cmbCategory.insertSeparator(self.ui.cmbCategory.count())
+                    self.ui.cmbCategoryConfig.insertSeparator(self.ui.cmbCategoryConfig.count())
+                else:
+                    self.ui.cmbCategory.addItem(cat)
+                    self.ui.cmbCategoryConfig.addItem(cat)
 
             model = self.ui.cmbCategoryConfig.model()
             for i in range(model.rowCount()):
@@ -287,7 +297,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     state = Mod(self.selectedMods)
 
-                    self.ui.editNameConfig.setText(' - VARIOS - ')
+                    self.ui.editNameConfig.setText(' - VARIOS (%d) - ' % len(self.selectedMods))
 
                     if state.loader is not None:
                         self.ui.cmbLoaderConfig.setCurrentIndex(self.ui.cmbLoaderConfig.findText(state.loader))
@@ -554,7 +564,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 orderby = 'ORDER BY name ASC;'
             elif self.ui.cmbModList.currentIndex() >= self.ui.cmbModList.count() - 4:
                 opfilter += self.optional_filter('loader', True, opfilter)
-                orderby = 'ORDER BY favorite DESC, name ASC;'
+                orderby = 'ORDER BY favorite DESC, blocked ASC, name ASC;'
             else:
                 orderby = 'ORDER BY favorite DESC, blocked ASC, name ASC;'
 
@@ -643,6 +653,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     max_row = MainWindow.rows_per_page
                 else:
                     max_row = len(self.tableMods) % MainWindow.rows_per_page
+                    if max_row == 0:
+                        max_row = MainWindow.rows_per_page
 
                 m = (self.current_page-1) * MainWindow.rows_per_page
 
