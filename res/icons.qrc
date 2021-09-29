@@ -9,6 +9,7 @@
     <file>states/updated.png</file>
   </qresource>
   <qresource prefix="categories">
+    <file>categories/empty.png</file>
     <file>categories/adventure-rpg.png</file>
     <file>categories/armor-weapons-tools.png</file>
     <file>categories/cosmetic.png</file>

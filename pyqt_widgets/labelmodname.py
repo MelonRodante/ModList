@@ -39,4 +39,4 @@ class LabelModName(QLabel):
             self.setAttribute(PyQt5.QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
 
         except Exception as e:
-            print('CustomButton: ', str(e))
+            print('LabelModName: ', str(e))

@@ -13,6 +13,7 @@ from mod import Mod
 from pyqt_style.colors import ColorStrong, DarkBackground, Border
 from pyqt_widgets.labelbutton import ButtonLabel
 from pyqt_widgets.delegates import TableStyleItemDelegate
+from pyqt_widgets.labelmodcategories import LabelModCategories
 from pyqt_widgets.labelmodname import LabelModName
 from pyqt_windows.main_window import Ui_ModList
 from windows.admin_list_dialog import AdminListDialog
@@ -669,12 +670,14 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.setCellWidget(i, 0, ButtonLabel(self.tableMods[m]))
                     self.ui.tableMods.setCellWidget(i, 1, LabelModName(self.tableMods[m]))
 
-                    self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].category + '  '))
+                    #self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].category + '  '))
+                    self.ui.tableMods.setCellWidget(i, 2, LabelModCategories(self.tableMods[m].category))
+
                     self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].loader + '  '))
                     date = time.strftime('%d/%m/%Y', time.localtime(self.tableMods[m].update_date))
                     self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem('  ' + date + '  '))
 
-                    self.ui.tableMods.item(i, 2).setTextAlignment(QtCore.Qt.AlignCenter)
+                    #self.ui.tableMods.item(i, 2).setTextAlignment(QtCore.Qt.AlignCenter)
                     self.ui.tableMods.item(i, 3).setTextAlignment(QtCore.Qt.AlignCenter)
                     self.ui.tableMods.item(i, 4).setTextAlignment(QtCore.Qt.AlignCenter)
 
