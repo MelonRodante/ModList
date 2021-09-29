@@ -13,7 +13,7 @@ from mod import Mod
 from pyqt_style.colors import ColorStrong, DarkBackground, Border
 from pyqt_widgets.labelbutton import ButtonLabel
 from pyqt_widgets.delegates import TableStyleItemDelegate
-from pyqt_widgets.labelicons import LabelWithIcons
+from pyqt_widgets.labelmodname import LabelModName
 from pyqt_windows.main_window import Ui_ModList
 from windows.admin_list_dialog import AdminListDialog
 from windows.searching_dialog import SearchingDialog
@@ -667,7 +667,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 for i in range(max_row):
 
                     self.ui.tableMods.setCellWidget(i, 0, ButtonLabel(self.tableMods[m]))
-                    self.ui.tableMods.setCellWidget(i, 1, LabelWithIcons(self.tableMods[m]))
+                    self.ui.tableMods.setCellWidget(i, 1, LabelModName(self.tableMods[m]))
 
                     self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].category + '  '))
                     self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + self.tableMods[m].loader + '  '))

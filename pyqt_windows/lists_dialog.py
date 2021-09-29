@@ -19,7 +19,7 @@ class Ui_AdminListDialog(object):
         AdminListDialog.setMinimumSize(QtCore.QSize(660, 330))
         AdminListDialog.setMaximumSize(QtCore.QSize(660, 16777215))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/main_windows_icons/window_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/widgets/widgets/window_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         AdminListDialog.setWindowIcon(icon)
         AdminListDialog.setModal(True)
         self.verticalLayout = QtWidgets.QVBoxLayout(AdminListDialog)

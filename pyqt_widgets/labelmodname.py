@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QLabel
 from pyqt_style import colors
 
 
-class LabelWithIcons(QLabel):
+class LabelModName(QLabel):
     def __init__(self, mod):
         try:
             QLabel.__init__(self)
@@ -17,22 +17,22 @@ class LabelWithIcons(QLabel):
                    '</b> '
 
             if mod.installed and mod.favorite:
-                icon = ' <img src=:/table_icons/installed_favorite.png>'
+                icon = ' <img src=:/states/states/installed_favorite.png>'
             elif mod.installed and not mod.favorite:
-                icon = ' <img src=:/table_icons/installed.png>'
+                icon = ' <img src=:/states/states/installed.png>'
             elif mod.ignored and mod.favorite:
-                icon = ' <img src=:/table_icons/ignored_favorite.png>'
+                icon = ' <img src=:/states/states/ignored_favorite.png>'
             elif mod.ignored and not mod.favorite:
-                icon = ' <img src=:/table_icons/ignored.png>'
+                icon = ' <img src=:/states/states/ignored.png>'
             elif mod.favorite:
-                icon = ' <img src=:/table_icons/favorite.png>'
+                icon = ' <img src=:/states/states/favorite.png title="this will be displayed as a tooltip">'
             elif mod.blocked:
-                icon = ' <img src=:/table_icons/blocked.png>'
+                icon = ' <img src=:/states/states/blocked.png>'
             else:
                 icon = ''
 
             if mod.updated:
-                icon = '<img src=:/table_icons/updated.png>' + icon
+                icon = '<img src=:/states/states/updated.png>' + icon
 
             self.setText('<table width=\"100%\"><td width=\"50%\" align=\"left\">' + text + '</td> <td width=\"50%\" align=\"right\">' + icon + '</td></table>')
             self.setStyleSheet('background-color: #00000000')

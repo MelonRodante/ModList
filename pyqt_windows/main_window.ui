@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../res/icons.qrc">
-    <normaloff>:/main_windows_icons/window_icon.png</normaloff>:/main_windows_icons/window_icon.png</iconset>
+    <normaloff>:/widgets/widgets/window_icon.png</normaloff>:/widgets/widgets/window_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -147,8 +147,8 @@
         </property>
         <property name="icon">
          <iconset resource="../res/icons.qrc">
-          <normaloff>:/main_windows_icons/arrow_left.png</normaloff>
-          <disabledoff>:/main_windows_icons/arrow_left_off.png</disabledoff>:/main_windows_icons/arrow_left.png</iconset>
+          <normaloff>:/widgets/widgets/arrow_left.png</normaloff>
+          <disabledoff>:/widgets/widgets/arrow_left_off.png</disabledoff>:/widgets/widgets/arrow_left.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -190,8 +190,8 @@
         </property>
         <property name="icon">
          <iconset resource="../res/icons.qrc">
-          <normaloff>:/main_windows_icons/arrow_right.png</normaloff>
-          <disabledoff>:/main_windows_icons/arrow_right_off.png</disabledoff>:/main_windows_icons/arrow_right.png</iconset>
+          <normaloff>:/widgets/widgets/arrow_right.png</normaloff>
+          <disabledoff>:/widgets/widgets/arrow_right_off.png</disabledoff>:/widgets/widgets/arrow_right.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -334,8 +334,8 @@
         </property>
         <property name="icon">
          <iconset resource="../res/icons.qrc">
-          <normaloff>:/main_windows_icons/save.png</normaloff>
-          <disabledoff>:/main_windows_icons/save_off.png</disabledoff>:/main_windows_icons/save.png</iconset>
+          <normaloff>:/widgets/widgets/save.png</normaloff>
+          <disabledoff>:/widgets/widgets/save_off.png</disabledoff>:/widgets/widgets/save.png</iconset>
         </property>
         <property name="shortcut">
          <string>Ctrl+S</string>
