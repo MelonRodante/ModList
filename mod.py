@@ -1,6 +1,8 @@
 from typing import Union
 
+import PyQt5
 from PyQt5 import QtSql
+from PyQt5.QtCore import QByteArray
 from qtpy import QtGui
 
 
@@ -10,7 +12,10 @@ class Mod:
         if isinstance(arg, QtSql.QSqlQuery):
 
             pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(arg.value(0))
+            if isinstance(arg.value(0), PyQt5.QtCore.QByteArray):
+                pixmap.loadFromData(arg.value(0))
+            else:
+                pixmap.load(':/widgets/widgets/noicon.png')
 
             self.icon = pixmap
             self.name = arg.value(1)

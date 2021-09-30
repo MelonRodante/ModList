@@ -519,11 +519,14 @@
     <property name="title">
      <string>Ver</string>
     </property>
+    <addaction name="actionWithoutLoader"/>
+    <addaction name="actionForgeLoader"/>
+    <addaction name="actionFabricLoader"/>
+    <addaction name="actionBothLoader"/>
+    <addaction name="separator"/>
     <addaction name="actionShowUpdated"/>
     <addaction name="actionShowInstalled"/>
     <addaction name="actionShowIgnored"/>
-    <addaction name="separator"/>
-    <addaction name="actionMultiselection"/>
    </widget>
    <widget class="QMenu" name="menuAdministrar_lista">
     <property name="title">
@@ -531,6 +534,8 @@
     </property>
     <addaction name="actionShowNoFindFavorites"/>
     <addaction name="actionIgnoreNoLoader"/>
+    <addaction name="separator"/>
+    <addaction name="actionMultiselection"/>
    </widget>
    <addaction name="menuArchive"/>
    <addaction name="menuShow"/>
@@ -582,13 +587,13 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Ver  instalados actualizables</string>
+    <string>Ver actualizables</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+1</string>
@@ -638,6 +643,67 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionLoaderAll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ver Todos</string>
+   </property>
+  </action>
+  <action name="actionForgeLoader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Forge</string>
+   </property>
+  </action>
+  <action name="actionFabricLoader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fabric</string>
+   </property>
+  </action>
+  <action name="actionBothLoader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Forge / Fabric</string>
+   </property>
+  </action>
+  <action name="actionWithoutLoader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sin Loader</string>
    </property>
   </action>
  </widget>

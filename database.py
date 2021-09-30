@@ -13,10 +13,10 @@ tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     path        TEXT NOT NULL,
                     name	    TEXT NOT NULL,
-                    category    TEXT NOT NULL DEFAULT 'Sin categoria',
+                    categories  TEXT NOT NULL DEFAULT 'without-category',
                     loader	    TEXT NOT NULL DEFAULT 'Sin Loader',
                     update_date INT NOT NULL,
-                    icon	    BLOB NOT NULL,
+                    icon	    BLOB,
                     favorite    INTEGER NOT NULL DEFAULT 0,
                     blocked	    INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY(path));'''

@@ -22,12 +22,15 @@ from windows.searching_dialog import SearchingDialog
 
 class MainWindow(QtWidgets.QMainWindow):
 
-    rows_per_page = 300
+    rows_per_page = 500
 
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_ModList()
         self.ui.setupUi(self)
+
+        self.showlist_state = (self.ui.actionShowUpdated, self.ui.actionShowInstalled, self.ui.actionShowIgnored)
+        self.showlist_loader = (self.ui.actionWithoutLoader, self.ui.actionForgeLoader, self.ui.actionFabricLoader, self.ui.actionBothLoader)
 
         self.selectedMods = []
 
@@ -155,11 +158,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
             self.ui.cmbModList.addItem('Favoritos')
             self.ui.cmbModList.addItem('Bloqueados')
-            self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
-            self.ui.cmbModList.addItem('Sin Loader')
-            self.ui.cmbModList.addItem('Forge')
-            self.ui.cmbModList.addItem('Fabric')
-            self.ui.cmbModList.addItem('Ambos')
 
 
             model = self.ui.cmbModList.model()
@@ -220,9 +218,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.actionMultiselection.triggered.connect(self.action_table_multiselection)
 
-            self.ui.actionShowUpdated.triggered.connect(lambda: self.change_action_chk_show(self.ui.actionShowUpdated))
-            self.ui.actionShowInstalled.triggered.connect(lambda: self.change_action_chk_show(self.ui.actionShowInstalled))
-            self.ui.actionShowIgnored.triggered.connect(lambda: self.change_action_chk_show(self.ui.actionShowIgnored))
+            self.ui.actionShowUpdated.triggered.connect(lambda: self.change_action_chk_show_state(self.ui.actionShowUpdated))
+            self.ui.actionShowInstalled.triggered.connect(lambda: self.change_action_chk_show_state(self.ui.actionShowInstalled))
+            self.ui.actionShowIgnored.triggered.connect(lambda: self.change_action_chk_show_state(self.ui.actionShowIgnored))
+
+            self.ui.actionLoaderAll.triggered.connect(lambda: self.change_action_chk_show_loader(self.ui.actionLoaderAll))
+            self.ui.actionWithoutLoader.triggered.connect(lambda: self.change_action_chk_show_loader(self.ui.actionWithoutLoader))
+            self.ui.actionForgeLoader.triggered.connect(lambda: self.change_action_chk_show_loader(self.ui.actionForgeLoader))
+            self.ui.actionFabricLoader.triggered.connect(lambda: self.change_action_chk_show_loader(self.ui.actionFabricLoader))
+            self.ui.actionBothLoader.triggered.connect(lambda: self.change_action_chk_show_loader(self.ui.actionBothLoader))
+
         except Exception as e:
             print('MAIN_WINDOW setupEvents: ', str(e))
 
@@ -238,6 +243,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionShowUpdated.setEnabled(islist)
             self.ui.actionShowInstalled.setEnabled(islist)
             self.ui.actionShowIgnored.setEnabled(islist)
+
+            self.ui.actionLoaderAll.setEnabled(islist)
+            self.ui.actionWithoutLoader.setEnabled(islist)
+            self.ui.actionForgeLoader.setEnabled(islist)
+            self.ui.actionFabricLoader.setEnabled(islist)
+            self.ui.actionBothLoader.setEnabled(islist)
+
             self.ui.actionShowNoFindFavorites.setEnabled(islist)
             self.ui.actionIgnoreNoLoader.setEnabled(islist)
 
@@ -476,15 +488,21 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW change_chk_blocked: ', str(e))
 
-    def change_action_chk_show(self, action):
-        if self.ui.actionShowUpdated != action:
-            self.ui.actionShowUpdated.setChecked(False)
+    def change_action_chk_show_loader(self, action):
+        for chk in self.showlist_loader:
+            if chk != action:
+                chk.setChecked(False)
 
-        if self.ui.actionShowInstalled != action:
-            self.ui.actionShowInstalled.setChecked(False)
+        if not self.ui.actionLoaderAll.isChecked() and not self.ui.actionWithoutLoader.isChecked() and not self.ui.actionForgeLoader.isChecked() and not self.ui.actionFabricLoader.isChecked() and not self.ui.actionBothLoader.isChecked():
+            self.ui.actionLoaderAll.setChecked(True)
 
-        if self.ui.actionShowIgnored != action:
-            self.ui.actionShowIgnored.setChecked(False)
+
+        self.load_data()
+
+    def change_action_chk_show_state(self, action):
+        for chk in self.showlist_state:
+            if chk != action:
+                chk.setChecked(False)
 
         self.load_data()
 
@@ -541,6 +559,19 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW optional_filter: ', str(e))
 
+    def basic_filter(self):
+
+        opfilter = ''
+        opfilter += self.optional_filter('categories', self.ui.cmbCategory.currentText(), opfilter, novalue='Todas', tableas='M')
+        opfilter += self.optional_filter('name', self.ui.editName.text(), opfilter, like=True, tableas='M')
+
+        for loader in self.showlist_loader:
+            if loader.isChecked():
+                opfilter += self.optional_filter('loader', loader.text(), opfilter, tableas='M')
+                return opfilter, loader.text()
+
+        return opfilter, ''
+
     def prepare_fill_table_query(self, q):
         try:
             if self.is_list():
@@ -552,51 +583,36 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def prepare_fill_table_query_mods(self, q):
         try:
-            loader = self.ui.cmbModList.currentText()
-            category = self.ui.cmbCategory.currentText()
-            name = self.ui.editName.text()
+            opfilter, loader = self.basic_filter()
 
-            opfilter = ''
-            opfilter += self.optional_filter('category', category, opfilter, novalue='Todas')
-            opfilter += self.optional_filter('name',     name,     opfilter, like=True)
-
-            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 7:
+            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
                 opfilter += self.optional_filter('favorite', True, opfilter)
                 orderby = 'ORDER BY name ASC;'
-            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 6:
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
                 opfilter += self.optional_filter('blocked', True, opfilter)
                 orderby = 'ORDER BY name ASC;'
-            elif self.ui.cmbModList.currentIndex() >= self.ui.cmbModList.count() - 4:
-                opfilter += self.optional_filter('loader', True, opfilter)
-                orderby = 'ORDER BY favorite DESC, blocked ASC, name ASC;'
             else:
                 orderby = 'ORDER BY favorite DESC, blocked ASC, name ASC;'
 
-            q.prepare('SELECT icon, name, category, loader, update_date, path, 0, 0, 0, favorite, blocked, '
+            q.prepare('SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, '
                       'COUNT(*) OVER (partition by NULL) '
-                      'FROM Mods'
+                      'FROM Mods as M'
                       + opfilter
                       + orderby)
 
-            q.bindValue(':category', category)
-            q.bindValue(':name', '%' + name + '%')
+            q.bindValue(':loader', loader)
+            q.bindValue(':categories', self.ui.cmbCategory.currentText())
+            q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
             q.bindValue(':favorite', 1)
             q.bindValue(':blocked', 1)
-            q.bindValue(':loader', loader)
+
         except Exception as e:
             print('MAIN_WINDOW prepare_fill_table_query_mods: ', str(e))
 
     def prepare_fill_table_query_modslists(self, q):
         try:
-            modlist = self.ui.cmbModList.currentText()
-            category = self.ui.cmbCategory.currentText()
-            name = self.ui.editName.text()
-
-            opfilter = ''
-            opfilter += self.optional_filter('list',     modlist,  opfilter, tableas='ML')
-            opfilter += self.optional_filter('category', category, opfilter, tableas='M', novalue='Todas')
-            opfilter += self.optional_filter('name',     name,     opfilter, tableas='M', like=True)
+            opfilter, loader = self.basic_filter()
 
             if self.ui.actionShowUpdated.isChecked():
                 opfilter += ' AND installed == 0 AND ignored == 0 OR installed == 1 AND updated == 1 '
@@ -611,18 +627,16 @@ class MainWindow(QtWidgets.QMainWindow):
                 opfilter += ' AND installed == 0 AND ignored == 0 '
                 orderby = 'ORDER BY M.favorite DESC, M.name ASC;'
 
-            q.prepare('SELECT M.icon, M.name, M.category, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, '
+            q.prepare('SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, '
                       'COUNT(*) OVER (partition by NULL)'
                       'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path'
                       + opfilter
                       + orderby)
 
-            q.bindValue(':list', modlist)
-            q.bindValue(':category', category)
-            q.bindValue(':name', '%' + name + '%')
+            q.bindValue(':loader', loader)
+            q.bindValue(':categories', self.ui.cmbCategory.currentText())
+            q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
-            q.bindValue(':installed', int(self.ui.actionShowInstalled.isChecked()))
-            q.bindValue(':ignored', int(self.ui.actionShowIgnored.isChecked()))
         except Exception as e:
             print('MAIN_WINDOW prepare_fill_table_query_modslists: ', str(e))
 
@@ -730,7 +744,7 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     def is_list(self):
-        return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count()-8
+        return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count()-3
 
     def exec(self, q):
         try:

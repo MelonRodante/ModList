@@ -39,6 +39,7 @@
     <file>categories/world-structures.png</file>
   </qresource>
   <qresource prefix="widgets">
+    <file>widgets/noicon.png</file>
     <file>widgets/arrow_left.png</file>
     <file>widgets/arrow_left_off.png</file>
     <file>widgets/arrow_right.png</file>

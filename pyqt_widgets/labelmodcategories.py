@@ -7,7 +7,6 @@ from pyqt_widgets.labelmodname import LabelModName
 categories_dict = {
         'world-gen':
             ('World Gen', '<img src=:/categories/categories/world-gen.png>'),
-
         'world-biomes':
             ('Biomes', '<img src=:/categories/categories/world-biomes.png>'),
         'world-ores-resources':
@@ -62,6 +61,7 @@ categories_dict = {
             ('Twitch Integration', '<img src=:/categories/categories/twitch-integration.png>')
     }
 
+
 class LabelModCategories(QLabel):
 
     def __init__(self, mod_categories):
@@ -74,7 +74,7 @@ class LabelModCategories(QLabel):
                     categories += ' '
                 if cat in categories_dict:
                     categories += categories_dict[cat][1]
-                else:
+                elif cat != 'mc-creator':
                     categories += '<div style="text-align: center; font-family: MS Shell Dlg 2; color: ' + colors.TextColor + '; font-size:12px;">Sin categoria</div>'
 
             self.setText(categories)
