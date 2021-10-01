@@ -9,6 +9,6 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication([])
 
     main_window = MainWindow()
-    app.setStyleSheet(css.style)
-    main_window.show()
+    #app.setStyleSheet(css.style)
+    #main_window.show()
     sys.exit(app.exec())
