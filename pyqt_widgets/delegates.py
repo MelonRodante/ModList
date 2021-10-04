@@ -1,5 +1,5 @@
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import QPushButton, QStyledItemDelegate, QTableWidgetItem, QStyle, QTableWidget
+from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QTableWidget
 from qtpy.QtWidgets import QStyleOptionViewItem
 
 

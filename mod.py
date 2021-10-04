@@ -2,7 +2,7 @@ from typing import Union
 
 import PyQt5
 from PyQt5 import QtSql
-from PyQt5.QtCore import QByteArray
+from PyQt5.QtCore import QByteArray, Qt
 from qtpy import QtGui
 
 from pyqt_widgets.labelbutton import LabelButton
@@ -21,6 +21,8 @@ class Mod:
                 else:
                     pixmap.load(':/widgets/widgets/noicon.png')
 
+                pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio)
+
                 self.icon = pixmap
                 self.name = arg.value(1)
                 self.categories = arg.value(2)
@@ -32,10 +34,6 @@ class Mod:
                 self.updated = arg.value(8)
                 self.favorite = arg.value(9)
                 self.blocked = arg.value(10)
-
-                self.lblIcon = LabelButton(self)
-                self.lblName = LabelModName(self)
-                self.lblCategories = LabelModCategories(self.categories)
 
             else:
                 self.loader = arg[0].loader
@@ -56,7 +54,7 @@ class Mod:
             if self.loader != mod.loader:
                 self.loader = None
 
-            if self.categories != mod.category:
+            if self.categories != mod.categories:
                 self.categories = None
 
             if self.update_date != mod.update_date:

@@ -79,7 +79,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="cmbCategory">
+       <widget class="QComboBox" name="cmbCategories">
         <property name="minimumSize">
          <size>
           <width>150</width>
@@ -238,16 +238,16 @@
        <number>150</number>
       </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>17</number>
+       <number>18</number>
       </attribute>
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
-       <number>40</number>
+       <number>41</number>
       </attribute>
       <attribute name="verticalHeaderMinimumSectionSize">
-       <number>40</number>
+       <number>41</number>
       </attribute>
       <column>
        <property name="text">
@@ -296,6 +296,11 @@
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string/>
        </property>
       </column>
      </widget>
@@ -417,7 +422,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="cmbCategoryConfig">
+       <widget class="QComboBox" name="cmbCategoriesConfig">
         <property name="enabled">
          <bool>false</bool>
         </property>

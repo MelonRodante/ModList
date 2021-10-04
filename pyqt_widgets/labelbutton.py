@@ -1,5 +1,7 @@
 import os
 
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QLabel
 
 base_url = 'https://www.curseforge.com'
@@ -28,6 +30,7 @@ class LabelButton(QLabel):
             os.startfile(base_url+self.mod.path)
         except Exception as e:
             print(e)
+
 
 
 

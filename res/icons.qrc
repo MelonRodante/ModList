@@ -1,12 +1,18 @@
 <RCC>
   <qresource prefix="states">
     <file>states/blocked.png</file>
+    <file>states/empty.png</file>
     <file>states/favorite.png</file>
+    <file>states/favorite_ignored.png</file>
+    <file>states/favorite_installed.png</file>
     <file>states/ignored.png</file>
-    <file>states/ignored_favorite.png</file>
     <file>states/installed.png</file>
-    <file>states/installed_favorite.png</file>
+    <file>states/update_favorite_ignored.png</file>
     <file>states/updated.png</file>
+    <file>states/updated_favorite.png</file>
+    <file>states/updated_favorite_installed.png</file>
+    <file>states/updated_ignored.png</file>
+    <file>states/updated_installed.png</file>
   </qresource>
   <qresource prefix="categories">
     <file>categories/empty.png</file>
