@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QPainter
 base_url = 'https://www.curseforge.com'
 categories_icons = {}
 
+
 class TableItemButton(QtWidgets.QTableWidgetItem):
 
     def __init__(self, mod):
@@ -23,6 +24,11 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
             os.startfile(base_url+self.mod.path)
         except Exception as e:
             print(e)
+
+    @staticmethod
+    def click_icon_table(item):
+        if isinstance(item, TableItemButton):
+            item.click()
 
 
 class TableItemName(QtWidgets.QTableWidgetItem):
@@ -44,9 +50,7 @@ class TableItemCategories(QtWidgets.QTableWidgetItem):
             if categories != 'without-category':
                 cat = categories.split(',')
                 painter = QPainter(pm)
-
-                start = 0 #((5 - len(cat)) * 29)/2
-
+                # start = ((5 - len(cat)) * 29)/2
                 for i, c in enumerate(cat):
                     px = QPixmap(':/categories/categories/' + c + '.png')
                     painter.drawPixmap(

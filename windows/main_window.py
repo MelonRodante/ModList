@@ -233,7 +233,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.editName.returnPressed.connect(self.filter_change)
             self.ui.editName.textEdited.connect(self.edit_name_clear)
 
-            self.ui.tableMods.itemSelectionChanged.connect(self.clicked_table)
+            self.ui.tableMods.itemSelectionChanged.connect(self.change_table_selection)
+            self.ui.tableMods.itemClicked.connect(TableItemButton.click_icon_table)
+
             self.ui.btnPageLeft.clicked.connect(self.left_page)
             self.ui.btnPageRight.clicked.connect(self.right_page)
 
@@ -316,7 +318,17 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.ui.editName.text() == '':
             self.filter_change()
 
-    def clicked_table(self):
+    def left_page(self):
+        if 0 < self.current_page:
+            self.current_page -= 1
+        self.load_data()
+
+    def right_page(self):
+        if self.current_page < self.maxpages:
+            self.current_page += 1
+        self.load_data()
+
+    def change_table_selection(self):
         try:
             self.selectedMods = []
 
@@ -430,16 +442,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             print('MAIN_WINDOW clicked_table:', e)
-
-    def left_page(self):
-        if 0 < self.current_page:
-            self.current_page -= 1
-        self.load_data()
-
-    def right_page(self):
-        if self.current_page < self.maxpages:
-            self.current_page += 1
-        self.load_data()
 
     # ------------------------------------------------------------------------------------------------------------------
 
