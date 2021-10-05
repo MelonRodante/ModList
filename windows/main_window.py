@@ -1,5 +1,3 @@
-from datetime import datetime
-import math
 import time
 import traceback
 
@@ -7,15 +5,16 @@ from typing import Union
 
 from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 from PyQt5.QtCore import QSize, Qt, QCoreApplication
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QAbstractItemView
+from qtpy.QtWidgets import QStyleOptionViewItem
 
 from database import Database
 from mod import Mod
 from pyqt_style import css
 from pyqt_style.colors import ColorStrong, DarkBackground, Border
 from pyqt_widgets.delegates import TableStyleItemDelegate
-from pyqt_widgets.tableitems import TableItemName, TableItemButton
+from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
 from pyqt_windows.main_window import Ui_ModList
 from windows.admin_list_dialog import AdminListDialog
 from windows.searching_dialog import SearchingDialog
@@ -23,7 +22,7 @@ from windows.searching_dialog import SearchingDialog
 
 class MainWindow(QtWidgets.QMainWindow):
 
-    rows_per_page = 500
+    rows_per_page = 100
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -153,15 +152,15 @@ class MainWindow(QtWidgets.QMainWindow):
             header = self.ui.tableMods.horizontalHeader()
             header.setSectionResizeMode(0, QtWidgets.QHeaderView.Fixed)
             header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-            header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+            header.setSectionResizeMode(2, QtWidgets.QHeaderView.Fixed)
             header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
             header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
             header.setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
 
-            self.ui.tableMods.setColumnWidth(0, 41)
+            self.ui.tableMods.setColumnWidth(0, 33)
+            self.ui.tableMods.setColumnWidth(2, 147)
             self.ui.tableMods.setColumnWidth(5, 23)
-            self.ui.tableMods.setIconSize(QSize(40, 40))
-            self.ui.tableMods.horizontalHeader().setStyleSheet('QTableWidget::item{padding: 0px; }')
+            self.ui.tableMods.setIconSize(QSize(64, 64))
         except Exception as e:
             print('MAIN_WINDOW resize_table: ', str(e))
 
@@ -340,8 +339,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.chkFavoriteConfig.setTristate(False)
                 self.ui.chkBlockedConfig.setTristate(False)
 
-                if len(self.ui.tableMods.selectedIndexes()) == 6:
-                    mod = self.ui.tableMods.indexWidget(self.ui.tableMods.selectedIndexes()[0]).mod
+                if len(self.ui.tableMods.selectedItems()) == 6:
+                    #mod = self.ui.tableMods.indexWidget(self.ui.tableMods.selectedIndexes()[0]).mod
+                    mod = self.ui.tableMods.selectedItems()[0].mod
 
                     self.selectedMods.append(mod)
                     self.ui.editNameConfig.setText(mod.name)
@@ -365,7 +365,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     for r in self.ui.tableMods.selectedRanges():
                         for i in range(r.topRow(), r.bottomRow()+1):
-                            self.selectedMods.append(self.ui.tableMods.cellWidget(i, 0).mod)
+                            #self.selectedMods.append(self.ui.tableMods.cellWidget(i, 0).mod)
+                            self.selectedMods.append(self.ui.tableMods.item(i, 0).mod)
 
                     state = Mod(self.selectedMods)
 
@@ -717,7 +718,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.setItem(i, 0, TableItemButton(mod))
                     self.ui.tableMods.setItem(i, 1, TableItemName(mod.name, self.bold_font))
 
-                    self.ui.tableMods.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
+                    self.ui.tableMods.setItem(i, 2, TableItemCategories(mod.categories))
 
                     self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
                     self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem('  ' + time.strftime('%d/%m/%Y', time.localtime(mod.update_date)) + '  '))

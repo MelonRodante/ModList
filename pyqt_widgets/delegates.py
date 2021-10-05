@@ -1,4 +1,5 @@
 from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QTableWidget
 from qtpy.QtWidgets import QStyleOptionViewItem
 
@@ -13,6 +14,14 @@ class TableStyleItemDelegate(QStyledItemDelegate):
         self.table.setMouseTracking(True)
         self.table.cellEntered.connect(self.cellEntered)
         self.table.itemEntered.connect(self.itemEntered)
+
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        if index.column() == 0:
+            option.decorationPosition = QStyleOptionViewItem.Top
+            option.decorationAlignment = Qt.AlignHCenter | Qt.AlignCenter
+        elif index.column() == 2:
+            option.decorationSize = QSize(140, 24)
 
     def cellEntered(self, row, column):
         self.row = row

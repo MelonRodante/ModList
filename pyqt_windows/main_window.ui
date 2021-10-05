@@ -244,10 +244,10 @@
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
-       <number>41</number>
+       <number>35</number>
       </attribute>
       <attribute name="verticalHeaderMinimumSectionSize">
-       <number>41</number>
+       <number>35</number>
       </attribute>
       <column>
        <property name="text">
@@ -267,7 +267,7 @@
       </column>
       <column>
        <property name="text">
-        <string>   CATEGORIA   </string>
+        <string>   CATEGORIAS   </string>
        </property>
        <property name="font">
         <font>
@@ -403,7 +403,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Ambos</string>
+          <string>Forge / Fabric</string>
          </property>
         </item>
        </widget>

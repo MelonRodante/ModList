@@ -5,10 +5,6 @@ from PyQt5 import QtSql
 from PyQt5.QtCore import QByteArray, Qt
 from qtpy import QtGui
 
-from pyqt_widgets.labelbutton import LabelButton
-from pyqt_widgets.labelmodcategories import LabelModCategories
-from pyqt_widgets.labelmodname import LabelModName
-
 
 class Mod:
     def __init__(self, arg: Union[QtSql.QSqlQuery, list]):
@@ -21,11 +17,17 @@ class Mod:
                 else:
                     pixmap.load(':/widgets/widgets/noicon.png')
 
-                pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio)
+                pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio)
 
                 self.icon = pixmap
                 self.name = arg.value(1)
-                self.categories = arg.value(2)
+
+
+                # self.categories = arg.value(2)
+                cat = arg.value(2).split(',')
+                cat.sort()
+                self.categories = ",".join(cat)
+
                 self.loader = arg.value(3)
                 self.update_date = arg.value(4)
                 self.path = arg.value(5)
