@@ -219,6 +219,12 @@
       <property name="styleSheet">
        <string notr="true"/>
       </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="autoScroll">
+       <bool>true</bool>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
@@ -231,6 +237,9 @@
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerItem</enum>
+      </property>
       <property name="rowCount">
        <number>0</number>
       </property>
@@ -238,7 +247,7 @@
        <number>150</number>
       </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>18</number>
+       <number>20</number>
       </attribute>
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
