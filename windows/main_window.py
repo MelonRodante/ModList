@@ -5,7 +5,7 @@ from typing import Union
 
 from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 from PyQt5.QtCore import QSize, Qt, QCoreApplication, QTimer
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QAbstractItemView
 from qtpy.QtWidgets import QStyleOptionViewItem
 
@@ -23,35 +23,36 @@ from windows.searching_dialog import SearchingDialog
 class MainWindow(QtWidgets.QMainWindow):
 
     rows_per_page = 100
-    categories = {
-        'world-gen': ['World Gen', None],
-        'world-biomes': ['Biomas', None],
-        'world-ores-resources': ['Ores and Resources', None],
-        'world-structures': ['Structures', None],
-        'world-dimensions': ['Dimensiones', None],
-        'world-mobs': ['Mobs', None],
-        'technology': ['Technology', None],
-        'technology-processing': ['Processing', None],
-        'technology-player-transport': ['Player Transport', None],
-        'technology-item-fluid-energy-transport': ['I/F/E Transport', None],
-        'technology-farming': ['Farming', None],
-        'technology-energy': ['Energy', None],
-        'technology-genetics': ['Genetics', None],
-        'technology-automation': ['Automation', None],
-        'magic': ['Magic', None],
-        'storage': ['Storage', None],
-        'library-api': ['API and Library', None],
-        'adventure-rpg': ['Adventure and RPG', None],
-        'map-information': ['Map and Information', None],
-        'cosmetic': ['Cosmetic', None],
-        'mc-miscellaneous': ['Miscellaneous', None],
-        'mc-addons': ['Addon', None],
-        'armor-weapons-tools': ['Armor / Tools / Weapons', None],
-        'server-utility': ['Server Utility', None],
-        'mc-food': ['Food', None],
-        'redstone': ['Redstone', None],
-        'twitch-integration': ['Twitch Integration', None],
-    }
+    categories = [
+        ['Sin categoria', 'without-category', None],
+        ['World Gen', 'world-gen', None],
+        ['Biomas', 'world-biomes', None],
+        ['Ores and Resources', 'world-ores-resources', None],
+        ['Structures', 'world-structures', None],
+        ['Dimensiones', 'world-dimensions', None],
+        ['Mobs', 'world-mobs', None],
+        ['Technology', 'technology', None],
+        ['Processing', 'technology-processing', None],
+        ['Player Transport', 'technology-player-transport', None],
+        ['I/F/E Transport', 'technology-item-fluid-energy-transport', None],
+        ['Farming', 'technology-farming', None],
+        ['Energy', 'technology-energy', None],
+        ['Genetics', 'technology-genetics', None],
+        ['Automation', 'technology-automation', None],
+        ['Magic', 'magic', None],
+        ['Storage', 'storage', None],
+        ['API and Library', 'library-api', None],
+        ['Adventure and RPG', 'adventure-rpg', None],
+        ['Map and Information', 'map-information', None],
+        ['Cosmetic', 'cosmetic', None],
+        ['Miscellaneous', 'mc-miscellaneous', None],
+        ['Addon', 'mc-addons', None],
+        ['Armor / Tools / Weapons', 'armor-weapons-tools', None],
+        ['Server Utility', 'server-utility', None],
+        ['Food', 'mc-food', None],
+        ['Redstone', 'redstone', None],
+        ['Twitch Integration', 'twitch-integration', None]
+    ]
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -200,14 +201,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbCategoriesConfig.clear()
 
             self.ui.cmbCategories.addItem('Todas')
+            self.ui.cmbCategories.insertSeparator(1)
+
             self.ui.cmbCategoriesConfig.addItem('')
-            for cat in self.categories:
-                if cat == '-':
-                    self.ui.cmbCategories.insertSeparator(self.ui.cmbCategories.count())
-                    self.ui.cmbCategoriesConfig.insertSeparator(self.ui.cmbCategoriesConfig.count())
-                else:
-                    self.ui.cmbCategories.addItem(cat)
-                    self.ui.cmbCategoriesConfig.addItem(cat)
+            self.ui.cmbCategoriesConfig.insertSeparator(1)
+
+            for cat in MainWindow.categories:
+                self.ui.cmbCategories.addItem(QIcon(':/categories/categories/'+cat[1]+'.png'), cat[0])
+                self.ui.cmbCategoriesConfig.addItem(cat[0])
+
 
             model = self.ui.cmbCategoriesConfig.model()
             for i in range(model.rowCount()):
@@ -595,7 +597,7 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def optional_filter(field, value: Union[str, int], previus_sql, tableas='', novalue='', like=False):
+    def optional_filter(field, value: Union[bool, str, int], previus_sql, tableas='', novalue='', like=False):
         try:
             field = field.strip()
 
@@ -621,22 +623,32 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW optional_filter: ', str(e))
 
+    @staticmethod
+    def actual_category_filter(text, compare_index=0):
+        for cat in MainWindow.categories:
+            if cat[compare_index] == text:
+                return cat
+        return ['', '', None]
+
     def query_create_basic_where(self):
         try:
             where = ''
             where += self.optional_filter('loader', self.get_loader(), where, tableas='M')
-            where += self.optional_filter('categories', self.ui.cmbCategories.currentText(), where, novalue='Todas', tableas='M')
+            where += self.optional_filter('categories', self.ui.cmbCategories.currentText(), where, like=True, novalue='Todas', tableas='M')
             where += self.optional_filter('name', self.ui.editName.text(), where, like=True, tableas='M')
             return where
         except Exception as e:
             print('MAIN_WINDOW query_where_order: ', str(e))
 
     def query_bind_basic_where(self, q):
-        q.bindValue(':loader', self.get_loader())
-        q.bindValue(':categories', self.ui.cmbCategories.currentText())
-        q.bindValue(':name', '%' + self.ui.editName.text() + '%')
+        try:
+            q.bindValue(':loader', self.get_loader())
+            q.bindValue(':categories', '%' + MainWindow.actual_category_filter(self.ui.cmbCategories.currentText())[1] + '%')
+            q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
-        q.bindValue(':list', self.ui.cmbModList.currentText())
+            q.bindValue(':list', self.ui.cmbModList.currentText())
+        except Exception as e:
+            print('MAIN_WINDOW query_bind_basic_where: ', str(e))
 
     def prepare_fill_table_query(self, q, count=False):
         try:
