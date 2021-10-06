@@ -11,8 +11,8 @@ from qtpy.QtWidgets import QStyleOptionViewItem
 
 from database import Database
 from mod import Mod
-from pyqt_style import css
-from pyqt_style.colors import ColorStrong, DarkBackground, Border
+from pyqt_style import css, colors
+from pyqt_style.colors import ColorStrong, DarkBackground, Border, Background
 from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
 from pyqt_windows.main_window import Ui_ModList
@@ -64,6 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.showlist_state = (self.ui.actionShowUpdated, self.ui.actionShowInstalled, self.ui.actionShowIgnored)
         self.showlist_loader = (self.ui.actionWithoutLoader, self.ui.actionForgeLoader, self.ui.actionFabricLoader, self.ui.actionBothLoader)
+        self.chks_categories = {}
 
         self.current_page = 0
         self.maxpages = 0
@@ -117,9 +118,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def setupWidgets(self):
         try:
             self.modify_css()
-            self.create_cmb_values_categories()
-            self.create_cmb_values_lists()
             self.resize_table()
+            self.create_cmb_values_lists()
+            self.create_cmb_values_categories()
+            self.create_chk_values_categories_config()
             self.resize_combobox_loader()
         except Exception as e:
             print('MAIN_WINDOW setupWidgets: ', str(e))
@@ -140,6 +142,43 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.tableMods.setItemDelegate(TableStyleItemDelegate(self.ui.tableMods))
 
             self.ui.lblActualPages.setStyleSheet('QLabel {border: 1px solid ' + ColorStrong + '; background-color: ' + DarkBackground + ';} ' + 'QLabel:disabled {border: 1px solid ' + Border + '; color: ' + Border + ';}')
+
+            self.ui.tbtnCategoryConfig.setStyleSheet('''
+                            QToolButton[popupMode="1"] {
+                              color: ''' + colors.TextColor + ''';
+                              border: 1px solid ''' + Border + ''';
+                              border-radius: 0;
+                              background-color: ''' + Background + ''';
+                              selection-background-color: ''' + colors.Hover_and_SelectTable + ''';
+                            }
+                            
+                            QToolButton[popupMode="1"]:focus {
+                              border: 1px solid ''' + colors.Focus_and_HoverMenus + ''';
+                            }
+                            
+                            QToolButton[popupMode="1"]:hover {
+                              border: 1px solid ''' + colors.Hover_and_SelectTable + ''';
+                            }
+                            
+                            QToolButton[popupMode="1"]:disabled {
+                              color: ''' + colors.DeactivatedTextColor + ''';
+                            }
+                            
+                            QToolButton[popupMode="1"]::menu-button {
+                              border: none;
+                              border-left: 1px solid ''' + colors.Border + ''';
+                              border-radius: 0;
+                            }
+        
+                            QToolButton[popupMode="1"]::menu-arrow {
+                              image: url(":/qss_icons/dark/rc/arrow_down_disabled.png");
+                            }
+                            
+                            QToolButton[popupMode="1"]::menu-arrow:hover {
+                              image: url(":/qss_icons/dark/rc/arrow_down.png");
+                            }
+        
+                            ''')
 
         except Exception as e:
             print('MAIN_WINDOW modify_css: ', str(e))
@@ -198,28 +237,55 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_cmb_values_categories(self):
         try:
             self.ui.cmbCategories.clear()
-            self.ui.cmbCategoriesConfig.clear()
 
             self.ui.cmbCategories.addItem('Todas')
             self.ui.cmbCategories.insertSeparator(1)
 
-            self.ui.cmbCategoriesConfig.addItem('')
-            self.ui.cmbCategoriesConfig.insertSeparator(1)
-
             for cat in MainWindow.categories:
                 self.ui.cmbCategories.addItem(QIcon(':/categories/categories/'+cat[1]+'.png'), cat[0])
-                self.ui.cmbCategoriesConfig.addItem(cat[0])
-
-
-            model = self.ui.cmbCategoriesConfig.model()
-            for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
             model = self.ui.cmbCategories.model()
             for i in range(model.rowCount()):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
+
         except Exception as e:
             print('MAIN_WINDOW create_cmb_values_categories: ', str(e))
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def create_chkbox_action(self, menu, cat, state=False):
+        action = QtWidgets.QWidgetAction(menu)
+
+        chk = QtWidgets.QCheckBox("{:<38}".format(cat[0]))
+        chk.setStyleSheet("QCheckBox {spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;} QCheckBox:hover {background-color: red;}")  # background-color: red;")
+        chk.setFixedHeight(24)
+        chk.setChecked(state)
+        if cat[1]:
+            chk.setIcon(QIcon(':/categories/categories/'+cat[1]+'.png'))
+        else:
+            f = chk.font()
+            f.setBold(True)
+            chk.setFont(f)
+
+        self.chks_categories[cat[1]] = chk
+        action.setDefaultWidget(chk)
+        return action
+
+    def create_chk_values_categories_config(self):
+        try:
+            menu = QtWidgets.QMenu()
+            menu.setStyleSheet(self.styleSheet() + 'QMenu {border: 1px solid ' + ColorStrong + ';}')
+
+            menu.addAction(self.create_chkbox_action(menu, ['NO MODIFICAR', '', None], state=True))
+            menu.addSeparator()
+            for cat in MainWindow.categories:
+                menu.addAction(self.create_chkbox_action(menu, cat))
+
+            self.ui.tbtnCategoryConfig.setMenu(menu)
+            self.ui.tbtnCategoryConfig.clicked.connect(self.ui.tbtnCategoryConfig.showMenu)
+
+        except Exception as e:
+            print('MAIN_WINDOW create_chk_values_categories_config: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -457,7 +523,7 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
                 self.selectedMods = []
                 self.ui.editNameConfig.setText('')
-                self.ui.cmbCategoriesConfig.setCurrentIndex(0)
+                #self.ui.cmbCategoriesConfig.setCurrentIndex(0)
                 self.ui.cmbLoaderConfig.setCurrentIndex(0)
                 self.ui.chkInstalledConfig.setChecked(False)
                 self.ui.chkIgnoredConfig.setChecked(False)
@@ -468,7 +534,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.btnSaveConfig.setEnabled(False)
                 self.ui.editNameConfig.setEnabled(False)
                 self.ui.cmbLoaderConfig.setEnabled(False)
-                self.ui.cmbCategoriesConfig.setEnabled(False)
+                #self.ui.cmbCategoriesConfig.setEnabled(False)
                 self.ui.chkInstalledConfig.setEnabled(False)
                 self.ui.chkIgnoredConfig.setEnabled(False)
                 self.ui.chkUpdated.setEnabled(False)

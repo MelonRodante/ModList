@@ -2204,4 +2204,4 @@ PlotWidget {
 QMenu::item {
     padding: 4px 24px 4px 6px;
 }
-''' + colors.personal_css
+''' + colors.custom_css

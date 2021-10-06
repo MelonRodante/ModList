@@ -20,7 +20,7 @@ Focus_and_HoverMenus = '#FD884C'   # '#1A72BB' Focus de componentes y hover menu
 
 ColorSelectedWeak = '#D66100'
 
-personal_css = '''
+custom_css = '''
 QPushButton {
     border: 1px solid ''' + ColorStrong + '''; 
     background-color: ''' + DarkBackground + ''';
@@ -74,6 +74,7 @@ QTableWidget::item:!hover:selected {
     background-color: ''' + ColorStrong + ''';
 }
 
-
-
 '''
+
+
+
