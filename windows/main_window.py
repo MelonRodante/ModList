@@ -3,16 +3,16 @@ import traceback
 
 from typing import Union
 
-from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
-from PyQt5.QtCore import QSize, Qt, QCoreApplication, QTimer
+from PyQt5 import QtWidgets, QtCore, QtSql
+from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QAbstractItemView
-from qtpy.QtWidgets import QStyleOptionViewItem, QButtonGroup
+from qtpy.QtWidgets import QButtonGroup
 
 from database import Database
+from icon_utils import IconUtils
 from mod import Mod
-from pyqt_style import css, colors
-from pyqt_style.colors import ColorStrong, DarkBackground, Border, Background
+from pyqt_style import colors
 from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
 from pyqt_windows.main_window import Ui_ModList
@@ -95,23 +95,23 @@ class MainWindow(QtWidgets.QMainWindow):
     @staticmethod
     def create_state_icons():
         return {
-            'e': QtGui.QIcon(QtGui.QPixmap(":/state/state/empty.png")),
+            'e': IconUtils.getNormalIcon(":/state/state/empty.png"),
 
-            'f': QtGui.QIcon(QtGui.QPixmap(":/states/states/favorite.png")),
-            'b': QtGui.QIcon(QtGui.QPixmap(":/states/states/blocked.png")),
+            'f': IconUtils.getNormalIcon(":/states/states/favorite.png"),
+            'b': IconUtils.getNormalIcon(":/states/states/blocked.png"),
 
-            'u': QtGui.QIcon(QtGui.QPixmap(":/states/states/updated.png")),
-            'uf': QtGui.QIcon(QtGui.QPixmap(":/states/states/updated_favorite.png")),
+            'u': IconUtils.getNormalIcon(":/states/states/updated.png"),
+            'uf': IconUtils.getNormalIcon(":/states/states/updated_favorite.png"),
 
-            'i': QtGui.QIcon(QtGui.QPixmap(":/states/states/installed.png")),
-            'ui': QtGui.QIcon(QtGui.QPixmap(":/states/states/updated_installed.png")),
-            'fi': QtGui.QIcon(QtGui.QPixmap(":/states/states/favorite_installed.png")),
-            'ufi': QtGui.QIcon(QtGui.QPixmap(":/states/states/updated_favorite_installed.png")),
+            'i': IconUtils.getNormalIcon(":/states/states/installed.png"),
+            'ui': IconUtils.getNormalIcon(":/states/states/updated_installed.png"),
+            'fi': IconUtils.getNormalIcon(":/states/states/favorite_installed.png"),
+            'ufi': IconUtils.getNormalIcon(":/states/states/updated_favorite_installed.png"),
 
-            'g': QtGui.QIcon(QtGui.QPixmap(":/states/states/ignored.png")),
-            'ug': QtGui.QIcon(QtGui.QPixmap(":/states/states/updated_ignored.png")),
-            'fg': QtGui.QIcon(QtGui.QPixmap(":/states/states/favorite_ignored.png")),
-            'ufg': QtGui.QIcon(QtGui.QPixmap(":/states/states/updated_favorite_ignored.png"))
+            'g': IconUtils.getNormalIcon(":/states/states/ignored.png"),
+            'ug': IconUtils.getNormalIcon(":/states/states/updated_ignored.png"),
+            'fg': IconUtils.getNormalIcon(":/states/states/favorite_ignored.png"),
+            'ufg': IconUtils.getNormalIcon(":/states/states/updated_favorite_ignored.png")
         }
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -129,8 +129,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def modify_css(self):
         try:
-            self.setStyleSheet(css.style)
-
             f = self.ui.tableMods.horizontalHeader().font()
             f.setBold(True)
             self.ui.tableMods.horizontalHeader().setFont(f)
@@ -143,14 +141,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.tableMods.setItemDelegate(TableStyleItemDelegate(self.ui.tableMods))
 
             self.ui.lblActualPages.setStyleSheet(
-                'QLabel {border: 1px solid ' + ColorStrong + '; background-color: ' + DarkBackground + ';} ' + 'QLabel:disabled {border: 1px solid ' + Border + '; color: ' + Border + ';}')
+                'QLabel {border: 1px solid ' + colors.ColorStrong + '; background-color: ' + colors.DarkBackground + ';} '
+                'QLabel:disabled {border: 1px solid ' + colors.Border + '; color: ' + colors.Border + ';}')
 
             self.ui.tbtnCategoryConfig.setStyleSheet('''
                             QToolButton[popupMode="1"] {
                               color: ''' + colors.TextColor + ''';
-                              border: 1px solid ''' + Border + ''';
+                              border: 1px solid ''' + colors.Border + ''';
                               border-radius: 0;
-                              background-color: ''' + Background + ''';
+                              background-color: ''' + colors.Background + ''';
                               selection-background-color: ''' + colors.Hover_and_SelectTable + ''';
                             }
                             
@@ -257,18 +256,19 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_chkbox_action(self, menu, cat, state=False):
         action = QtWidgets.QWidgetAction(menu)
 
+        height = 26
         chk = QtWidgets.QCheckBox("{:<38}".format(cat[0]))
         chk.setStyleSheet(
             'QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}'
             'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
-                                                                 'QCheckBox:focus {background-color: #844426;}'
-                                                                 'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
-                                                                 'QCheckBox::indicator {height: 24px;}'
+            'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
+            'QCheckBox::indicator {height: %dpx;}' % height
         )
-        chk.setFixedHeight(24)
+        chk.setFixedHeight(height)
         chk.setChecked(state)
+        chk.setFocusPolicy(Qt.NoFocus)
         if cat[1]:
-            chk.setIcon(QIcon(':/categories/categories/' + cat[1] + '.png'))
+            chk.setIcon(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'))
         else:
             f = chk.font()
             f.setBold(True)
@@ -282,7 +282,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_chk_values_categories_config(self):
         try:
             menu = QtWidgets.QMenu()
-            menu.setStyleSheet(self.styleSheet() + 'QMenu {border: 1px solid ' + ColorStrong + ';}')
+            menu.setStyleSheet('QMenu {border: 1px solid ' + colors.ColorStrong + ';}')
 
             menu.addAction(self.create_chkbox_action(menu, ['NO MODIFICAR', '', None], state=True))
             menu.addSeparator()
@@ -302,16 +302,28 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             chk.nextCheckState()
 
-            if chk == self.chks_categories['without-category'] and chk.isChecked():
+            if chk == self.chks_categories['']:
                 for c in self.chks_categories.values():
                     c.setChecked(False)
                 chk.setChecked(True)
-
-            i = 0
-            for c in self.chks_categories.values():
-                if c.isChecked() and chk != self.chks_categories['']:
-                    i += 1
-            self.chks_categories[''].setChecked(i == 0)
+            else:
+                i = 0
+                for c in self.chks_categories.values():
+                    if c.isChecked() and c != self.chks_categories['']:
+                        i += 1
+                if i == 0:
+                    self.chks_categories[''].setChecked(i == 0)
+                else:
+                    if chk == self.chks_categories['without-category']:
+                        if chk.isChecked:
+                            for c in self.chks_categories.values():
+                                c.setChecked(False)
+                            chk.setChecked(True)
+                    elif i >= 6:
+                        chk.setChecked(False)
+                    else:
+                        self.chks_categories[''].setChecked(False)
+                        self.chks_categories['without-category'].setChecked(False)
 
             self.change_state_categories_config()
             chk.nextCheckState()
@@ -321,11 +333,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def change_state_categories_config(self):
         try:
             if self.chks_categories[''].isChecked():
-                self.ui.tbtnCategoryConfig.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
+                self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonTextOnly)
                 self.ui.tbtnCategoryConfig.setText('NO MODIFICAR')
             else:
-                self.ui.tbtnCategoryConfig.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-                self.ui.tbtnCategoryConfig.setIcon(QIcon(TableItemCategories.get_large_icon(self.get_categories_from_checks(), center=True)))
+                self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
+                self.ui.tbtnCategoryConfig.setIcon(QIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True)))
         except Exception as e:
             print('MAIN_WINDOW change_state_categories_config: ', str(e))
 
@@ -455,7 +467,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     self.selection_range(islist)
             else:
-                self.selection_widgets_none()
+                self.clear_selected()
 
         except Exception as e:
             print('MAIN_WINDOW change_table_selection:', e)
@@ -578,20 +590,6 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW selection_widgets_select:', e)
 
-    def selection_widgets_none(self):
-        try:
-            self.ui.editNameConfig.setEnabled(False)
-            self.ui.cmbLoaderConfig.setEnabled(False)
-            self.ui.tbtnCategoryConfig.setEnabled(False)
-            self.ui.tbtnCategoryConfig.setText('')
-            self.ui.chkFavoriteConfig.setEnabled(False)
-            self.ui.chkBlockedConfig.setEnabled(False)
-            self.ui.chkInstalledConfig.setEnabled(False)
-            self.ui.chkIgnoredConfig.setEnabled(False)
-            self.ui.chkUpdated.setEnabled(False)
-        except Exception as e:
-            print('MAIN_WINDOW selection_widgets_none:', e)
-
     # ------------------------------------------------------------------------------------------------------------------
 
     def clear_selected(self):
@@ -600,6 +598,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.editNameConfig.setText('')
             self.ui.cmbLoaderConfig.setCurrentIndex(0)
+
+            self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonTextOnly)
             self.ui.tbtnCategoryConfig.setText('')
 
             self.ui.btnSaveConfig.setEnabled(False)
