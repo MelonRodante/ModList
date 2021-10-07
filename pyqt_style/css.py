@@ -1232,7 +1232,7 @@ QComboBox QAbstractItemView {
   border: 1px solid ''' + colors.Border + ''';
   border-radius: 0;
   background-color: ''' + colors.Background + ''';
-  selection-background-color: ''' + colors.Hover_and_SelectTable + ''';
+  selection-background-color: ''' + colors.Hover_Combo + ''';
 }
 
 QComboBox QAbstractItemView:hover {

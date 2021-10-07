@@ -40,23 +40,33 @@ class TableItemName(QtWidgets.QTableWidgetItem):
 class TableItemCategories(QtWidgets.QTableWidgetItem):
     def __init__(self, categories):
         QtWidgets.QTableWidgetItem.__init__(self)
-        # self.setIcon(QIcon(':/categories/categories/library-api.png'))
         self.setIcon(QIcon(self.get_large_icon(categories)))
 
-    def get_large_icon(self, categories):
-        icon = categories_icons.get(categories)
+    @staticmethod
+    def get_large_icon(categories, center=False):
+        if center:
+            icon = categories_icons.get('|center|'+categories)
+        else:
+            icon = categories_icons.get(categories)
+
         if not isinstance(icon, QPixmap):
             pm = QPixmap(':/categories/categories/empty.png')
+            painter = QPainter(pm)
             if categories != 'without-category':
                 cat = categories.split(',')
-                painter = QPainter(pm)
-                # start = ((5 - len(cat)) * 29)/2
+                start = 0
+                if center:
+                    start = ((5 - len(cat)) * 29)/2
+
                 for i, c in enumerate(cat):
                     px = QPixmap(':/categories/categories/' + c + '.png')
                     painter.drawPixmap(
-                        QRectF(i*(px.rect().width()+5), 0, 24, 24),
+                        QRectF(start + (i*(px.rect().width()+5)), 0, 24, 24),
                         px,
                         QRectF(px.rect()))
+            else:
+                px = QPixmap(':/categories/categories/' + categories + '.png')
+                painter.drawPixmap(QRectF(pm.width()/2 - px.width()/2, 0, 24, 24), px, QRectF(px.rect()))
             categories_icons[categories] = pm
             return pm
         else:
