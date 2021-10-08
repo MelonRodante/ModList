@@ -15,9 +15,9 @@ class Ui_SearchingDialog(object):
     def setupUi(self, SearchingDialog):
         SearchingDialog.setObjectName("SearchingDialog")
         SearchingDialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        SearchingDialog.resize(380, 105)
-        SearchingDialog.setMinimumSize(QtCore.QSize(380, 105))
-        SearchingDialog.setMaximumSize(QtCore.QSize(380, 105))
+        SearchingDialog.resize(410, 105)
+        SearchingDialog.setMinimumSize(QtCore.QSize(410, 105))
+        SearchingDialog.setMaximumSize(QtCore.QSize(410, 105))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/widgets/widgets/window_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         SearchingDialog.setWindowIcon(icon)

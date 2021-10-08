@@ -34,9 +34,8 @@ class SearchingDialog(QtWidgets.QDialog):
             q.prepare('select list from Lists')
 
             self.ui.cmbModList.clear()
-
             self.ui.cmbModList.addItem('')
-            self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
+            self.ui.cmbModList.addItem('Buscar Mods (Filtro Forge y Fabric)')
 
             if q.exec_():
                 while q.next():
@@ -45,6 +44,10 @@ class SearchingDialog(QtWidgets.QDialog):
                 model = self.ui.cmbModList.model()
                 for i in range(model.rowCount()):
                     model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
+
+            if self.ui.cmbModList.count() > 2:
+                self.ui.cmbModList.insertSeparator(2)
+
         except Exception as e:
             print('SEARCHING_DIALOG create_cmb_values_lists:', e)
 
@@ -70,7 +73,10 @@ class SearchingDialog(QtWidgets.QDialog):
             self.ui.spinPages.setEnabled(False)
             self.ui.btnSearchNewMods.setEnabled(False)
 
-            self.search_thread = SearchThread(self.ui.cmbModList.currentText().strip(), self.ui.spinPages.value())
+            if self.ui.cmbModList.currentIndex() == 1:
+                self.search_thread = SearchThread(None, self.ui.spinPages.value())
+            else:
+                self.search_thread = SearchThread(self.ui.cmbModList.currentText().strip(), self.ui.spinPages.value())
 
             self.search_thread.sig_max_pages.connect(self.set_max_pages)
             self.search_thread.sig_page_finish.connect(self.set_page_finish)
