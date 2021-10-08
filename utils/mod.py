@@ -76,3 +76,21 @@ class Mod:
 
             if self.blocked != mod.blocked:
                 self.blocked = None
+
+
+class ModIndex:
+    def __init__(self, path, name, categories, update_date, icon):
+        self.path = path
+        self.name = name
+        self.categories = categories
+        self.update_date = int(update_date)
+        self.icon = icon
+
+        self.error = 0
+        self.newmod = 0
+        self.update = 0
+        self.addlist = 0
+        self.ignore = 0
+
+    def print(self):
+        print('error:', self.error, '| newmod:', self.newmod, '| update:', self.update, '| addlist:', self.addlist, '| ignore:', self.ignore)

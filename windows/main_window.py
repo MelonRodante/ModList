@@ -5,13 +5,13 @@ from typing import Union
 
 from PyQt5 import QtWidgets, QtCore, QtSql
 from PyQt5.QtCore import QSize, Qt, QCoreApplication
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QAbstractItemView
 from qtpy.QtWidgets import QButtonGroup
 
-from database import Database
-from icon_utils import IconUtils
-from mod import Mod
+from utils.database import Database
+from utils.icon_utils import IconUtils
+from utils.mod import Mod
 from pyqt_style import colors
 from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
@@ -243,7 +243,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbCategories.insertSeparator(1)
 
             for cat in MainWindow.categories:
-                self.ui.cmbCategories.addItem(QIcon(':/categories/categories/' + cat[1] + '.png'), cat[0])
+                self.ui.cmbCategories.addItem(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'), cat[0])
 
             model = self.ui.cmbCategories.model()
             for i in range(model.rowCount()):
@@ -338,7 +338,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tbtnCategoryConfig.setText('')
             else:
                 self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
-                self.ui.tbtnCategoryConfig.setIcon(QIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True)))
+                self.ui.tbtnCategoryConfig.setIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
         except Exception as e:
             print('MAIN_WINDOW change_state_categories_config: ', str(e))
 

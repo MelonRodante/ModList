@@ -1,3 +1,4 @@
+import os
 import sys
 
 from PyQt5 import QtSql, QtWidgets
@@ -34,8 +35,9 @@ tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
 
 
 class Database:
-
-    filename = 'modlist.db'
+    # filename = os.getenv('LOCALAPPDATA') + '/MelonRodante/ModList/modlist.db'
+    # os.makedirs(os.path.dirname(filename), exist_ok=True)
+    filename = './modlist.db'
 
     @staticmethod
     def connect_db():
