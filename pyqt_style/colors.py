@@ -14,7 +14,8 @@ DarkBackground = '#0F1A25'          # '#0F1A25'
 C20 = '#26486B'  # '#26486B' TabBar, Slider, ProgressBar
 C70 = '#259AE9'  # '#259AE9' TabBar y otros
 
-ColorStrong = '#F0651F'  # '#F0651F'
+TableSelect = '#FF7F3F'  # '#F0651F' F0651F
+ColorStrong = '#F0651F'  # '#F0651F' F0651F
 Hover_and_SelectTable = '#FFA375'  # '#346792' Hover de componentes y select de tabla
 Hover_Combo = '#844426'
 Focus_and_HoverMenus = '#FD884C'   # '#1A72BB' Focus de componentes y hover menus
@@ -76,7 +77,7 @@ QTableWidget::item:hover:!selected{
 
 QTableWidget::item:hover:selected, 
 QTableWidget::item:!hover:selected {
-    background-color: ''' + ColorStrong + ''';
+    background-color: ''' + TableSelect + ''';
 }
 
 '''

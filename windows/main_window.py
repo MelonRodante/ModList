@@ -203,6 +203,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def resize_combobox_loader(self):
         try:
+            self.ui.cmbLoaderConfig.insertSeparator(1)
             model = self.ui.cmbLoaderConfig.model()
             for i in range(model.rowCount()):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
@@ -334,7 +335,7 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             if self.chks_categories[''].isChecked():
                 self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonTextOnly)
-                self.ui.tbtnCategoryConfig.setText('NO MODIFICAR')
+                self.ui.tbtnCategoryConfig.setText('')
             else:
                 self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
                 self.ui.tbtnCategoryConfig.setIcon(QIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True)))
@@ -628,7 +629,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 for mod in self.selectedMods:
                     q.prepare(
-                        'UPDATE Mods SET  loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked WHERE path == :path;')
+                        'UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked WHERE path == :path;')
                     q.bindValue(':path', mod.path)
 
                     if self.ui.cmbLoaderConfig.currentIndex() != 0:
