@@ -60,7 +60,7 @@ class SearchingDialog(QtWidgets.QDialog):
 
     def change_cmb_modlist(self):
         try:
-            self.ui.btnSearchNewMods.setEnabled(self.ui.cmbModList.currentIndex() > 1)
+            self.ui.btnSearchNewMods.setEnabled(self.ui.cmbModList.currentIndex() > 0)
         except Exception as e:
             print('SEARCHING_DIALOG change_cmb_modlist:', e)
 
