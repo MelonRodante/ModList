@@ -18,6 +18,9 @@ class SearchThread(QThread):
     search_url = url + '/minecraft/mc-mods'
     posfix_url = '&filter-sort=2&page='
 
+    filter_forge = ''
+    filter_fabric = ''
+
     sig_max_pages = pyqtSignal(int)
     sig_page_finish = pyqtSignal(int)
     sig_finish_code = pyqtSignal(int)
@@ -26,9 +29,12 @@ class SearchThread(QThread):
         super(SearchThread, self).__init__()
         self.cscraper = None
 
-        self.modlist = modlist
-        self.filter = ''
         self.max_pages = max_pages
+        self.maxpages_forge = max_pages
+        self.maxpages_fabric = max_pages
+        self.modlist = modlist
+
+        self.filter = ''
         self.canclose = False
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -80,11 +86,22 @@ class SearchThread(QThread):
         try:
             if self.max_pages == 0:
                 soup = BeautifulSoup(
-                    self.execCscraper(SearchThread.search_url + self.filter + SearchThread.posfix_url + '1'),
-                    'html.parser')
+                    self.execCscraper(SearchThread.search_url + self.filter + SearchThread.posfix_url + '1'), 'html.parser')
                 maxpages = soup.find_all('a', class_="pagination-item").pop().find('span').text
                 self.max_pages = int(maxpages)
             self.sig_max_pages.emit(self.max_pages)
+        except Exception as e:
+            print('SEARCHING_DIALOG set_maxpages:', e)
+
+    # noinspection PyUnresolvedReferences
+    def setMaxpagesForgeFabric(self):
+        try:
+            if self.max_pages == 0:
+                soup = BeautifulSoup(self.execCscraper(SearchThread.search_url + SearchThread.filter_forge + SearchThread.posfix_url + '1'), 'html.parser')
+                self.maxpages_forge = int(soup.find_all('a', class_="pagination-item").pop().find('span').text)
+                soup = BeautifulSoup(self.execCscraper(SearchThread.search_url + SearchThread.filter_fabric + SearchThread.posfix_url + '1'), 'html.parser')
+                self.maxpages_fabric = int(soup.find_all('a', class_="pagination-item").pop().find('span').text)
+            self.sig_max_pages.emit(self.maxpages_forge + self.maxpages_fabric)
         except Exception as e:
             print('SEARCHING_DIALOG set_maxpages:', e)
 
@@ -181,6 +198,22 @@ class SearchThread(QThread):
     # noinspection PyUnresolvedReferences
     def run(self):
         try:
+            if self.modlist is None:
+                self.search_mods()
+            else:
+                self.search_modslist()
+        except Exception as e:
+            print('SEARCHING_DIALOG run:', e)
+
+    def search_mods(self):
+        db = Database.get_thread_sqlquery()
+        self.setCscraper()
+        self.setMaxpagesForgeFabric()
+        self.sig_page_finish.emit(0)
+
+
+    def search_modslist(self):
+        try:
             db = Database.get_thread_sqlquery()
             self.setFilter(db)
             self.setCscraper()
@@ -195,7 +228,7 @@ class SearchThread(QThread):
                     self.sig_page_finish.emit(i)
             self.sig_finish_code.emit(0)
         except Exception as e:
-            print('SEARCHING_DIALOG run:', e)
+            print('SEARCHING_DIALOG search_modslist:', e)
 
     def process_page(self, db, i):
         try:
