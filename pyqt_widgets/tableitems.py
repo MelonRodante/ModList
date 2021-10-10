@@ -5,8 +5,6 @@ from PyQt5.QtGui import QIcon
 
 from utils.icon_utils import IconUtils
 
-base_url = 'https://www.curseforge.com'
-
 
 class TableItemButton(QtWidgets.QTableWidgetItem):
 
@@ -20,7 +18,7 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
 
     def click(self):
         try:
-            os.startfile(base_url+self.mod.path)
+            os.startfile(self.mod.path)
         except Exception as e:
             print(e)
 

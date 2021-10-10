@@ -20,6 +20,7 @@ tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     icon	    BLOB,
                     favorite    INTEGER NOT NULL DEFAULT 0,
                     blocked	    INTEGER NOT NULL DEFAULT 0,
+                    projectid   INTEGER NOT NULL DEFAULT 0,    
                     PRIMARY KEY(path));'''
 
 tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (

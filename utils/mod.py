@@ -95,6 +95,7 @@ class ModIndex:
                   'crafttweaker')
 
     def __init__(self, mod: dict):
+        self.projectid = mod.get('id')
         self.path = mod.get('websiteUrl')
         self.name = mod.get('name')
         self.loader = mod.get('modLoaders')
@@ -140,8 +141,7 @@ class ModIndex:
             if isinstance(self.icon, list):
                 for attach in self.icon:
                     if attach.get('isDefault') is True:
-                        QByteArray(requests.get(attach.get('thumbnailUrl')).content)
-
+                        self.icon = QByteArray(requests.get(attach.get('thumbnailUrl')).content)
             else:
                 self.update_date = QByteArray()
         except:

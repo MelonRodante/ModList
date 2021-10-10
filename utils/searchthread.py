@@ -2,9 +2,8 @@ import sys
 
 import requests
 from PyQt5 import QtSql, QtWidgets
-from PyQt5.QtCore import QThread, QByteArray, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox, QWidget
-from bs4 import BeautifulSoup
 
 from utils.database import Database
 from utils.mod import ModIndex
@@ -73,26 +72,34 @@ class SearchThread(QThread):
             i = 0
             returned_mods = 1
             while returned_mods > 0:
+                if self.canclose:
+                    break
                 returned_mods = self.get_mods_from_page(i)
-                i+= SearchThread.pagesize
-            self.sig_max_pages.emit(len(self.mods))
-            self.sig_page_finish.emit(0)
+                i += 1
+
+            if not self.canclose:
+                self.sig_max_pages.emit(len(self.mods))
+                self.sig_page_finish.emit(0)
 
             for i, mod in enumerate(self.mods):
                 if self.canclose:
-                    self.sig_finish_code.emit(1)
                     break
                 else:
                     self.check_mod(db, mod)
                     self.process_mod(db, mod)
                     self.sig_page_finish.emit(i)
-            self.sig_finish_code.emit(0)
+
+            if self.canclose:
+                self.sig_finish_code.emit(1)
+            else:
+                self.sig_finish_code.emit(0)
         except Exception as e:
             print('SEARCH_THREAD search_modslist:', e)
 
     def get_mods_from_page(self, i):
         try:
             url = SearchThread.url + SearchThread.filter + self.filter + self.index + str(SearchThread.pagesize * i)
+            print(url)
             mods = requests.get(url, headers=SearchThread.header).json()
             for mod in mods:
                 self.mods.append(ModIndex(mod))
@@ -149,13 +156,14 @@ class SearchThread(QThread):
                     mod.setCategories()
                     mod.setIcon()
 
-                    q.prepare('INSERT INTO Mods(path, name, loader, categories, update_date, icon) VALUES (:path, :name, :loader, :categories, :update_date, :icon)')
+                    q.prepare('INSERT INTO Mods(path, name, loader, categories, update_date, icon, projectid) VALUES (:path, :name, :loader, :categories, :update_date, :icon, :projectid)')
                     q.bindValue(':path', mod.path)
                     q.bindValue(':name', mod.name)
                     q.bindValue(':loader', mod.loader)
                     q.bindValue(':categories', mod.categories)
                     q.bindValue(':update_date', mod.update_date)
                     q.bindValue(':icon', mod.icon)
+                    q.bindValue(':projectid', mod.projectid)
                     q.exec()
 
                 if mod.update:
