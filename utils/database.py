@@ -6,10 +6,10 @@ from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import QMessageBox
 
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
-                    list    TEXT NOT NULL,
-                    filter  TEXT NOT NULL,
+                    listname   TEXT NOT NULL,
+                    version  TEXT NOT NULL,
                     loader  TEXT NOT NULL DEFAULT 'Sin Loader',
-                    PRIMARY KEY(list));'''
+                    PRIMARY KEY(listname));'''
 
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     path        TEXT NOT NULL,
@@ -29,7 +29,7 @@ tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
                     ignored     INTEGER NOT NULL DEFAULT 0,
                     updated     INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY(list, mod),
-                    FOREIGN KEY(list) REFERENCES Lists(list) ON DELETE CASCADE
+                    FOREIGN KEY(list) REFERENCES Lists(listname) ON DELETE CASCADE
                     FOREIGN KEY(mod) REFERENCES Mods(path) ON DELETE CASCADE
                     );'''
 

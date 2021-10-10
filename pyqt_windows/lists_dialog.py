@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\soporte\PycharmProjects\ModList\pyqt_windows\lists_dialog.ui'
+# Form implementation generated from reading ui file 'F:\Melon\Documentos\Python Proyects\ModList\pyqt_windows\lists_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -66,21 +66,22 @@ class Ui_AdminListDialog(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.lblSearch = QtWidgets.QLabel(AdminListDialog)
-        self.lblSearch.setMinimumSize(QtCore.QSize(85, 0))
-        self.lblSearch.setMaximumSize(QtCore.QSize(77, 16777215))
+        self.lblVersion = QtWidgets.QLabel(AdminListDialog)
+        self.lblVersion.setMinimumSize(QtCore.QSize(85, 0))
+        self.lblVersion.setMaximumSize(QtCore.QSize(77, 16777215))
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
-        self.lblSearch.setFont(font)
-        self.lblSearch.setObjectName("lblSearch")
-        self.horizontalLayout.addWidget(self.lblSearch)
-        self.editSearch = QtWidgets.QLineEdit(AdminListDialog)
-        self.editSearch.setEnabled(False)
-        self.editSearch.setMinimumSize(QtCore.QSize(387, 0))
-        self.editSearch.setMaximumSize(QtCore.QSize(387, 16777215))
-        self.editSearch.setObjectName("editSearch")
-        self.horizontalLayout.addWidget(self.editSearch)
+        self.lblVersion.setFont(font)
+        self.lblVersion.setObjectName("lblVersion")
+        self.horizontalLayout.addWidget(self.lblVersion)
+        self.editVersion = QtWidgets.QLineEdit(AdminListDialog)
+        self.editVersion.setEnabled(False)
+        self.editVersion.setMinimumSize(QtCore.QSize(387, 0))
+        self.editVersion.setMaximumSize(QtCore.QSize(387, 16777215))
+        self.editVersion.setText("")
+        self.editVersion.setObjectName("editVersion")
+        self.horizontalLayout.addWidget(self.editVersion)
         self.btnAddSave = QtWidgets.QPushButton(AdminListDialog)
         self.btnAddSave.setEnabled(False)
         self.btnAddSave.setMinimumSize(QtCore.QSize(75, 23))
@@ -135,18 +136,28 @@ class Ui_AdminListDialog(object):
         _translate = QtCore.QCoreApplication.translate
         AdminListDialog.setWindowTitle(_translate("AdminListDialog", "Administrar Listas"))
         self.lblList.setText(_translate("AdminListDialog", "Nombre Lista:"))
-        self.editList.setPlaceholderText(_translate("AdminListDialog", "Forge 1.XX.X"))
+        self.editList.setPlaceholderText(_translate("AdminListDialog", "Forge 1.12.2 "))
         self.lblLoader.setText(_translate("AdminListDialog", "Loader:"))
         self.cmbLoader.setItemText(0, _translate("AdminListDialog", "Forge"))
         self.cmbLoader.setItemText(1, _translate("AdminListDialog", "Fabric"))
-        self.lblSearch.setText(_translate("AdminListDialog", "Busqueda:"))
-        self.editSearch.setPlaceholderText(_translate("AdminListDialog", "?filter-game-version=2020709689%3A8152"))
+        self.lblVersion.setText(_translate("AdminListDialog", "Version:"))
+        self.editVersion.setPlaceholderText(_translate("AdminListDialog", "1.12.2"))
         self.btnAddSave.setText(_translate("AdminListDialog", "Añadir"))
         self.btnRemove.setText(_translate("AdminListDialog", "Borrar"))
         item = self.tableLists.horizontalHeaderItem(0)
         item.setText(_translate("AdminListDialog", "LISTA"))
         item = self.tableLists.horizontalHeaderItem(1)
-        item.setText(_translate("AdminListDialog", "BUSQUEDA"))
+        item.setText(_translate("AdminListDialog", "VERSION"))
         item = self.tableLists.horizontalHeaderItem(2)
         item.setText(_translate("AdminListDialog", "LOADER"))
 import icons_rc
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    AdminListDialog = QtWidgets.QDialog()
+    ui = Ui_AdminListDialog()
+    ui.setupUi(AdminListDialog)
+    AdminListDialog.show()
+    sys.exit(app.exec_())

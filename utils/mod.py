@@ -1,6 +1,8 @@
+from datetime import datetime
 from typing import Union
 
 import PyQt5
+import requests
 from PyQt5 import QtSql
 from PyQt5.QtCore import QByteArray, Qt
 from qtpy import QtGui
@@ -79,12 +81,26 @@ class Mod:
 
 
 class ModIndex:
-    def __init__(self, path, name, categories, update_date, icon):
-        self.path = path
-        self.name = name
-        self.categories = categories
-        self.update_date = int(update_date)
-        self.icon = icon
+
+    ignore_cat = ('mc-addons',
+                  'addons-thermalexpansion',
+                  'addons-tinkers-construct',
+                  'addons-industrialcraft',
+                  'addons-thaumcraft',
+                  'addons-buildcraft',
+                  'addons-forestry',
+                  'blood-magic',
+                  'lucky-blocks',
+                  'applied-energistics-2',
+                  'crafttweaker')
+
+    def __init__(self, mod: dict):
+        self.path = mod.get('websiteUrl')
+        self.name = mod.get('name')
+        self.loader = mod.get('modLoaders')
+        self.categories = mod.get('categories')
+        self.update_date = mod.get('dateModified')
+        self.icon = mod.get('attachments')
 
         self.error = 0
         self.newmod = 0
@@ -92,5 +108,62 @@ class ModIndex:
         self.addlist = 0
         self.ignore = 0
 
-    def print(self):
-        print('error:', self.error, '| newmod:', self.newmod, '| update:', self.update, '| addlist:', self.addlist, '| ignore:', self.ignore)
+    def setCategories(self):
+        categories = set()
+        if isinstance(self.categories, list):
+            for cat in self.categories:
+                cat = cat.get('slug')
+                if cat != 'mc-creator':
+                    if cat in ModIndex.ignore_cat:
+                        categories.add('mc-addons')
+                    else:
+                        categories.add(cat)
+        categories = list(categories)
+        categories.sort()
+
+        if len(categories) > 0:
+            self.categories = ','.join(categories)
+        else:
+            self.categories = 'without-category'
+
+    def setDate(self):
+        if isinstance(self.update_date, str):
+            try:
+                self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S.%f%z').timestamp())
+            except:
+                self.update_date = 0
+        else:
+            self.update_date = 0
+
+    def setIcon(self):
+        try:
+            if isinstance(self.icon, list):
+                for attach in self.icon:
+                    if attach.get('isDefault') is True:
+                        QByteArray(requests.get(attach.get('thumbnailUrl')).content)
+
+            else:
+                self.update_date = QByteArray()
+        except:
+            self.update_date = QByteArray()
+
+    def setLoader(self):
+        if isinstance(self.loader, list):
+            i = 0
+            for loa in self.loader:
+                if loa == 'Forge':
+                    i+=1
+                elif loa == 'Fabric':
+                    i+=10
+
+            if i == 0:
+                self.loader = 'Sin Loader'
+            elif i == 1:
+                self.loader = 'Forge'
+            elif i == 10:
+                self.loader = 'Fabric'
+            elif i == 11:
+                self.loader = 'Forge / Fabric'
+
+        else:
+            self.loader = 'Sin Loader'

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\soporte\PycharmProjects\ModList\pyqt_windows\searching_dialog.ui'
+# Form implementation generated from reading ui file 'F:\Melon\Documentos\Python Proyects\ModList\pyqt_windows\searching_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -42,23 +42,6 @@ class Ui_SearchingDialog(object):
         self.cmbModList.setSizePolicy(sizePolicy)
         self.cmbModList.setObjectName("cmbModList")
         self.horizontalLayout_3.addWidget(self.cmbModList)
-        self.lblPages = QtWidgets.QLabel(SearchingDialog)
-        self.lblPages.setMinimumSize(QtCore.QSize(50, 0))
-        self.lblPages.setMaximumSize(QtCore.QSize(50, 16777215))
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        self.lblPages.setFont(font)
-        self.lblPages.setObjectName("lblPages")
-        self.horizontalLayout_3.addWidget(self.lblPages)
-        self.spinPages = QtWidgets.QSpinBox(SearchingDialog)
-        self.spinPages.setEnabled(True)
-        self.spinPages.setMinimumSize(QtCore.QSize(60, 0))
-        self.spinPages.setMaximumSize(QtCore.QSize(60, 16777215))
-        self.spinPages.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.spinPages.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.spinPages.setObjectName("spinPages")
-        self.horizontalLayout_3.addWidget(self.spinPages)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.btnSearchNewMods = QtWidgets.QPushButton(SearchingDialog)
         self.btnSearchNewMods.setEnabled(False)
@@ -91,6 +74,15 @@ class Ui_SearchingDialog(object):
         _translate = QtCore.QCoreApplication.translate
         SearchingDialog.setWindowTitle(_translate("SearchingDialog", "Buscar nuevos mods"))
         self.lblModList.setText(_translate("SearchingDialog", "ModList:"))
-        self.lblPages.setText(_translate("SearchingDialog", "Paginas:"))
         self.btnSearchNewMods.setText(_translate("SearchingDialog", "Buscar nuevos mods"))
 import icons_rc
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    SearchingDialog = QtWidgets.QDialog()
+    ui = Ui_SearchingDialog()
+    ui.setupUi(SearchingDialog)
+    SearchingDialog.show()
+    sys.exit(app.exec_())

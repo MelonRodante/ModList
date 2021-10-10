@@ -81,7 +81,7 @@
         </size>
        </property>
        <property name="placeholderText">
-        <string>Forge 1.XX.X</string>
+        <string>Forge 1.12.2 </string>
        </property>
       </widget>
      </item>
@@ -135,7 +135,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QLabel" name="lblSearch">
+      <widget class="QLabel" name="lblVersion">
        <property name="minimumSize">
         <size>
          <width>85</width>
@@ -155,12 +155,12 @@
         </font>
        </property>
        <property name="text">
-        <string>Busqueda:</string>
+        <string>Version:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="editSearch">
+      <widget class="QLineEdit" name="editVersion">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -176,8 +176,11 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="text">
+        <string/>
+       </property>
        <property name="placeholderText">
-        <string>?filter-game-version=2020709689%3A8152</string>
+        <string>1.12.2</string>
        </property>
       </widget>
      </item>
@@ -258,7 +261,7 @@
      </column>
      <column>
       <property name="text">
-       <string>BUSQUEDA</string>
+       <string>VERSION</string>
       </property>
       <property name="font">
        <font>

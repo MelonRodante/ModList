@@ -213,7 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_cmb_values_lists(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('select list from Lists')
+            q.prepare('select listname from Lists')
 
             self.ui.cmbModList.clear()
 

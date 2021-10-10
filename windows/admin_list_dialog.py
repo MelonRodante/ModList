@@ -54,7 +54,7 @@ class AdminListDialog(QtWidgets.QDialog):
             if len(self.ui.tableLists.selectedItems()) > 0:
                 fila = self.ui.tableLists.selectedItems()
                 self.ui.editList.setText(fila[0].text().strip())
-                self.ui.editSearch.setText(fila[1].text().strip())
+                self.ui.editVersion.setText(fila[1].text().strip())
                 self.ui.cmbLoader.setCurrentIndex(self.ui.cmbLoader.findText(fila[2].text().strip()))
         except Exception as e:
             print('ERROR clicked_table:', e)
@@ -68,13 +68,13 @@ class AdminListDialog(QtWidgets.QDialog):
     def add_list(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('INSERT INTO Lists(list, filter, loader)' 'VALUES (:list, :filter, :loader)')
-            q.bindValue(':list', self.ui.editList.text().strip())
-            q.bindValue(':filter', self.ui.editSearch.text().strip())
+            q.prepare('INSERT INTO Lists(listname, version, loader)' 'VALUES (:listname, :version, :loader)')
+            q.bindValue(':listname', self.ui.editList.text().strip())
+            q.bindValue(':version', self.ui.editVersion.text().strip())
             q.bindValue(':loader', self.ui.cmbLoader.currentText())
             if q.exec():
                 self.ui.editList.setText('')
-                self.ui.editSearch.setText('')
+                self.ui.editVersion.setText('')
                 self.ui.cmbLoader.setCurrentIndex(0)
                 self.fill_table()
                 self.exitcode = 1
@@ -84,13 +84,13 @@ class AdminListDialog(QtWidgets.QDialog):
     def update_list(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('UPDATE Lists SET filter = :filter, loader = :loader WHERE list == :list;')
-            q.bindValue(':list', self.ui.editList.text())
-            q.bindValue(':filter', self.ui.editSearch.text())
+            q.prepare('UPDATE Lists SET version = :version, loader = :loader WHERE listname == :listname;')
+            q.bindValue(':listname', self.ui.editList.text())
+            q.bindValue(':version', self.ui.editVersion.text())
             q.bindValue(':loader', self.ui.cmbLoader.currentText())
             if q.exec():
                 self.ui.editList.setText('')
-                self.ui.editSearch.setText('')
+                self.ui.editVersion.setText('')
                 self.ui.cmbLoader.setCurrentIndex(0)
                 self.fill_table()
                 self.exitcode = 1
@@ -100,11 +100,11 @@ class AdminListDialog(QtWidgets.QDialog):
     def remove_list(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('DELETE FROM Lists WHERE list == :list;')
-            q.bindValue(':list', self.ui.editList.text())
+            q.prepare('DELETE FROM Lists WHERE list == :listname;')
+            q.bindValue(':listname', self.ui.editList.text())
             if q.exec():
                 self.ui.editList.setText('')
-                self.ui.editSearch.setText('')
+                self.ui.editVersion.setText('')
                 self.ui.cmbLoader.setCurrentIndex(0)
                 self.fill_table()
                 self.exitcode = 1
@@ -115,7 +115,7 @@ class AdminListDialog(QtWidgets.QDialog):
         try:
             if self.ui.editList.text():
                 self.ui.btnAddSave.setEnabled(True)
-                self.ui.editSearch.setEnabled(True)
+                self.ui.editVersion.setEnabled(True)
                 for i in range(self.ui.tableLists.rowCount()):
                     if self.ui.editList.text().strip() == self.ui.tableLists.item(i, 0).text().strip():
                         self.ui.btnAddSave.setText('Guardar')
@@ -130,7 +130,7 @@ class AdminListDialog(QtWidgets.QDialog):
                 self.ui.btnAddSave.setText('Añadir')
                 self.ui.cmbLoader.setEnabled(False)
                 self.ui.btnAddSave.setEnabled(False)
-                self.ui.editSearch.setEnabled(False)
+                self.ui.editVersion.setEnabled(False)
                 self.ui.btnRemove.setEnabled(False)
         except Exception as e:
             print('ERROR change_edit_name:', e)
@@ -146,7 +146,7 @@ class AdminListDialog(QtWidgets.QDialog):
     def fill_table(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('SELECT list, filter, loader FROM Lists')
+            q.prepare('SELECT listname, version, loader FROM Lists')
 
             self.ui.tableLists.setRowCount(0)
             if q.exec_():
@@ -157,8 +157,8 @@ class AdminListDialog(QtWidgets.QDialog):
                     self.ui.tableLists.setItem(i, 1, QtWidgets.QTableWidgetItem('  ' + q.value(1)))
                     self.ui.tableLists.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + q.value(2) + '  '))
 
-                    self.ui.tableLists.item(i, 0).setTextAlignment(QtCore.Qt.AlignCenter)
-                    self.ui.tableLists.item(i, 1).setTextAlignment(QtCore.Qt.AlignCenter)
-                    self.ui.tableLists.item(i, 2).setTextAlignment(QtCore.Qt.AlignCenter)
+                    self.ui.tableLists.item(i, 0).setTextAlignment(Qt.AlignCenter)
+                    self.ui.tableLists.item(i, 1).setTextAlignment(Qt.AlignCenter)
+                    self.ui.tableLists.item(i, 2).setTextAlignment(Qt.AlignCenter)
         except Exception as e:
             print('ERROR fill_table:', e)
