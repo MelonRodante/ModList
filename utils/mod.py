@@ -13,11 +13,11 @@ class Mod:
         try:
             if isinstance(arg, QtSql.QSqlQuery):
 
-                pixmap = QtGui.QPixmap()
                 if isinstance(arg.value(0), PyQt5.QtCore.QByteArray):
+                    pixmap = QtGui.QPixmap()
                     pixmap.loadFromData(arg.value(0))
                 else:
-                    pixmap.load(':/widgets/widgets/noicon.png')
+                    pixmap = QtGui.QPixmap(':/widgets/widgets/noicon.png')
 
                 pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio)
 

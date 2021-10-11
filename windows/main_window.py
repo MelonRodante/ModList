@@ -881,16 +881,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if self.found_results > 0:
 
-                start = self.current_page * MainWindow.rows_per_page
+                start = self.current_page * MainWindow.rows_per_page + 1
                 finish = (self.current_page + 1) * MainWindow.rows_per_page
                 if finish > self.found_results:
-                    self.ui.lblActualPages.setText('%d - %d / %d' % (start + 1, self.found_results, self.found_results))
-                    self.ui.tableMods.setRowCount(self.found_results - start)
-                    finish = self.found_results + 1
+                    self.ui.lblActualPages.setText('%d - %d / %d' % (start, self.found_results, self.found_results))
                 else:
-                    self.ui.lblActualPages.setText('%d - %d / %d' % (start + 1, finish, self.found_results))
-                    self.ui.tableMods.setRowCount(finish - start)
+                    self.ui.lblActualPages.setText('%d - %d / %d' % (start, finish, self.found_results))
 
+                self.ui.tableMods.setRowCount(len(self.tableMods))
                 for i, mod in enumerate(self.tableMods):
                     self.ui.tableMods.setItem(i, 0, TableItemButton(mod))
                     self.ui.tableMods.setItem(i, 1, TableItemName(mod.name, self.bold_font))
