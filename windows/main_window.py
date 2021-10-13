@@ -630,8 +630,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 q = QtSql.QSqlQuery()
 
                 for mod in self.selectedMods:
-                    q.prepare(
-                        'UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
+                    q.prepare('UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)
 
                     if self.ui.cmbLoaderConfig.currentIndex() != 0:
@@ -661,8 +660,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         q.bindValue(':mod', mod.path)
                         self.exec(q)
                     elif self.is_list():
-                        q.prepare(
-                            'UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
+                        q.prepare('UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
                         q.bindValue(':list', self.ui.cmbModList.currentText())
 
                         q.bindValue(':mod', mod.path)
@@ -849,7 +847,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.found_results = q.value(0)
                 self.maxpages = int(q.value(0) / MainWindow.rows_per_page)
 
-                if (q.value(0) % MainWindow.rows_per_page) == 0:
+                if (q.value(0) % MainWindow.rows_per_page) == 0 and self.maxpages > 0:
                     self.maxpages -= 1
 
             else:
@@ -869,7 +867,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.prepare_fill_table_query(q)
 
         if self.exec(q):
-            print(q.lastQuery())
             while q.next():
                 self.tableMods.append(Mod(q))
 
