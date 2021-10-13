@@ -86,13 +86,14 @@ class SearchingDialog(QtWidgets.QDialog):
         try:
             self.ui.progressBar.setValue(0)
             self.ui.progressBar.setMaximum(max_pages)
-            self.ui.progressBar.setFormat('%v/%m Procesados')
+            self.ui.progressBar.setFormat('Buscando Mods... (%m Encontrados)')
         except Exception as e:
             print('SEARCHING_DIALOG set_max_pages:', e)
 
     def set_page_finish(self, page_finish):
         try:
             self.ui.progressBar.setValue(page_finish)
+            self.ui.progressBar.setFormat('%v/%m Procesados')
         except Exception as e:
             print('SEARCHING_DIALOG set_page_finish:', e)
 

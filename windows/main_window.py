@@ -21,7 +21,7 @@ from windows.searching_dialog import SearchingDialog
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    rows_per_page = 100
+    rows_per_page = 50
     categories = [
         ['Sin categoria', 'without-category', None],
         ['World Gen', 'world-gen', None],
@@ -142,7 +142,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.lblActualPages.setStyleSheet(
                 'QLabel {border: 1px solid ' + colors.ColorStrong + '; background-color: ' + colors.DarkBackground + ';} '
-                'QLabel:disabled {border: 1px solid ' + colors.Border + '; color: ' + colors.Border + ';}')
+                                                                                                                     'QLabel:disabled {border: 1px solid ' + colors.Border + '; color: ' + colors.Border + ';}')
 
             self.ui.tbtnCategoryConfig.setStyleSheet('''
                             QToolButton[popupMode="1"] {
@@ -226,6 +226,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if self.ui.cmbModList.count() > 2:
                 self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
+            self.ui.cmbModList.addItem('Nuevos Mods')
             self.ui.cmbModList.addItem('Favoritos')
             self.ui.cmbModList.addItem('Bloqueados')
 
@@ -243,7 +244,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbCategories.insertSeparator(1)
 
             for cat in MainWindow.categories:
-                self.ui.cmbCategories.addItem(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'), cat[0])
+                self.ui.cmbCategories.addItem(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'),
+                                              cat[0])
 
             model = self.ui.cmbCategories.model()
             for i in range(model.rowCount()):
@@ -262,8 +264,8 @@ class MainWindow(QtWidgets.QMainWindow):
         chk.setStyleSheet(
             'QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}'
             'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
-            'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
-            'QCheckBox::indicator {height: %dpx;}' % height
+                                                                 'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
+                                                                 'QCheckBox::indicator {height: %dpx;}' % height
         )
         chk.setFixedHeight(height)
         chk.setChecked(state)
@@ -338,7 +340,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tbtnCategoryConfig.setText('')
             else:
                 self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
-                self.ui.tbtnCategoryConfig.setIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
+                self.ui.tbtnCategoryConfig.setIcon(
+                    IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
         except Exception as e:
             print('MAIN_WINDOW change_state_categories_config: ', str(e))
 
@@ -403,14 +406,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.ui.actionLoaderAll.isChecked() and not self.ui.actionWithoutLoader.isChecked() and not self.ui.actionForgeLoader.isChecked() and not self.ui.actionFabricLoader.isChecked() and not self.ui.actionBothLoader.isChecked():
             self.ui.actionLoaderAll.setChecked(True)
 
-        self.load_data()
+        self.load_pages()
 
     def change_action_chk_show_state(self, action):
         for chk in self.showlist_state:
             if chk != action:
                 chk.setChecked(False)
 
-        self.load_data()
+        self.load_pages()
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -428,11 +431,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionShowInstalled.setEnabled(islist)
             self.ui.actionShowIgnored.setEnabled(islist)
 
-            self.ui.actionLoaderAll.setEnabled(islist)
-            self.ui.actionWithoutLoader.setEnabled(islist)
-            self.ui.actionForgeLoader.setEnabled(islist)
-            self.ui.actionFabricLoader.setEnabled(islist)
-            self.ui.actionBothLoader.setEnabled(islist)
+            if islist is False:
+                self.ui.actionShowUpdated.setChecked(False)
+                self.ui.actionShowInstalled.setChecked(False)
+                self.ui.actionShowIgnored.setChecked(False)
 
             self.ui.actionShowNoFindFavorites.setEnabled(islist)
             self.ui.actionIgnoreNoLoader.setEnabled(islist)
@@ -629,8 +631,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 for mod in self.selectedMods:
                     q.prepare(
-                        'UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked WHERE path == :path;')
-                    q.bindValue(':path', mod.path)
+                        'UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', mod.projectid)
 
                     if self.ui.cmbLoaderConfig.currentIndex() != 0:
                         q.bindValue(':loader', self.ui.cmbLoaderConfig.currentText())
@@ -791,8 +793,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def query_bind_basic_where(self, q):
         try:
             q.bindValue(':loader', self.get_loader())
-            q.bindValue(':categories',
-                        '%' + MainWindow.actual_category_filter(self.ui.cmbCategories.currentText())[1] + '%')
+            q.bindValue(':categories', '%' + MainWindow.actual_category_filter(self.ui.cmbCategories.currentText())[1] + '%')
             q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
             q.bindValue(':list', self.ui.cmbModList.currentText())
@@ -805,8 +806,8 @@ class MainWindow(QtWidgets.QMainWindow):
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
             if self.is_list():
-                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked '
-                from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.path'
+                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid '
+                from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.projectid'
                 where_q += self.optional_filter('list', self.ui.cmbModList.currentText(), where_q, tableas='ML')
                 if self.ui.actionShowUpdated.isChecked():
                     where_q += ' AND ((installed == 0 AND ignored == 0) OR (installed == 1 AND updated == 1)) '
@@ -819,9 +820,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     where_q += ' AND installed == 0 AND ignored == 0 '
 
             else:
-                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked '
+                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid '
                 from_q = 'FROM Mods as M'
-                if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
+                if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 3:
+                    where_q += self.optional_filter('newmod', 1, where_q)
+                elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
                     where_q += self.optional_filter('favorite', 1, where_q)
                 elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
                     where_q += self.optional_filter('blocked', 1, where_q)
@@ -830,8 +833,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if count:
                 select_q = 'SELECT COUNT(M.path) '
             else:
-                offset_q = 'LIMIT ' + str(MainWindow.rows_per_page) + ' OFFSET ' + str(
-                    self.current_page * MainWindow.rows_per_page) + ';'
+                offset_q = 'LIMIT ' + str(MainWindow.rows_per_page) + ' OFFSET ' + str(self.current_page * MainWindow.rows_per_page) + ';'
 
             q.prepare(select_q + from_q + where_q + orderby_q + offset_q)
             self.query_bind_basic_where(q)
@@ -867,6 +869,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.prepare_fill_table_query(q)
 
         if self.exec(q):
+            print(q.lastQuery())
             while q.next():
                 self.tableMods.append(Mod(q))
 
@@ -894,8 +897,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.setItem(i, 1, TableItemName(mod.name, self.bold_font))
                     self.ui.tableMods.setItem(i, 2, TableItemCategories(mod.categories))
                     self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
-                    self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem(
-                        '  ' + time.strftime('%d/%m/%Y', time.localtime(mod.update_date)) + '  '))
+
+                    try:
+                        date = '  ' + time.strftime('%d/%m/%Y', time.localtime(mod.update_date)) + '  '
+                    except Exception:
+                        date = '  -  '
+                    self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem(date))
                     self.ui.tableMods.setItem(i, 5, QtWidgets.QTableWidgetItem(self.get_state_icon(mod), ''))
 
                     self.ui.tableMods.item(i, 3).setTextAlignment(QtCore.Qt.AlignCenter)
@@ -932,7 +939,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if loader != self.ui.cmbModList.currentText():
                     self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(loader))
                 else:
-                    self.load_data()
+                    self.load_pages()
         except Exception as e:
             print('MAIN_WINDOW show_searching_dialog: ', str(e))
 

@@ -1,6 +1,4 @@
-import json
 import sys
-import traceback
 
 import requests
 from PyQt5 import QtSql, QtWidgets
@@ -80,7 +78,7 @@ class SearchThread(QThread):
                     break
                 returned_mods = self.get_mods_from_page(i)
                 i += 1
-                self.sig_max_pages.emit(len(self.mods))
+                break
 
             if not self.canclose:
                 self.sig_max_pages.emit(len(self.mods))
@@ -104,23 +102,25 @@ class SearchThread(QThread):
 
     def get_mods_from_page(self, i):
         try:
-            url = SearchThread.url + SearchThread.filter + self.list_version + self.index + str(SearchThread.pagesize * i)
+            url = SearchThread.url + SearchThread.filter + self.filter + self.index + str(SearchThread.pagesize * i)
             mods = requests.get(url, headers=SearchThread.header).json()
             for mod in mods:
                 self.mods.append(ModIndex(mod))
             return len(mods)
-        except json.decoder.JSONDecodeError:
-            QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
-            return 0
+
         except Exception as e:
-            print('SEARCH_THREAD get_mods_from_page:', e) #, traceback.format_exc())
+            print('SEARCHING_DIALOG get_mods_from_page:', e)
 
     def check_mod(self, db, mod):
         q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT M.update_date, M.blocked FROM Mods AS M WHERE M.projectid == :projectid')
-        q.bindValue(':projectid', mod.projectid)
+        q.prepare('SELECT M.update_date, M.blocked FROM Mods AS M WHERE M.path == :path')
+        q.bindValue(':path', mod.path)
 
+        mod.setLoader()
         mod.setDate()
+
+        if mod.loader not in self.valid_loaders:
+            mod.ignore = 1
 
         if q.exec():
             if q.next():
@@ -133,9 +133,6 @@ class SearchThread(QThread):
             else:
                 mod.newmod = 1
                 mod.addlist = 1
-
-            if mod.loader not in self.valid_loaders:
-                mod.addlist = 0
 
         else:
             mod.error = 1
@@ -153,7 +150,7 @@ class SearchThread(QThread):
                 if mod.newmod:
                     mod.setCategories()
                     mod.setIcon()
-                    q.prepare('INSERT OR IGNORE INTO Mods(path, name, loader, categories, update_date, icon, projectid) VALUES (:path, :name, :loader, :categories, :update_date, :icon, :projectid)')
+                    q.prepare('INSERT INTO Mods(path, name, loader, categories, update_date, icon, projectid) VALUES (:path, :name, :loader, :categories, :update_date, :icon, :projectid)')
                     q.bindValue(':path',        mod.path)
                     q.bindValue(':name',        mod.name)
                     q.bindValue(':loader',      mod.loader)
@@ -164,39 +161,23 @@ class SearchThread(QThread):
                     if not q.exec():
                         print('DB NewMod:', q.lastError().text(), mod.projectid, mod.name)
 
-                    mod.setDependencies()
-                    if len(mod.dependencies) > 0:
-                        for dep in mod.dependencies:
-                            q.prepare('INSERT OR IGNORE INTO Dependencies(mod, dependency) VALUES (:mod, :dependency)')
-                            q.bindValue(':mod', mod.projectid)
-                            q.bindValue(':dependency', dep)
-                            if not q.exec():
-                                print('DB NewMod:', q.lastError().text(), mod.projectid, mod.name)
-
                 if mod.update:
                     q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
-                    q.bindValue(':mod', mod.projectid)
+                    q.bindValue(':mod', mod.path)
                     if not q.exec():
                         print('DB Update:', q.lastError().text(), mod.projectid, mod.name)
 
                 if mod.addlist:
-                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod)' 'VALUES (:list, :mod)')
+                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, ignored)' 'VALUES (:list, :mod, :ignored)')
                     q.bindValue(':list',    self.modlist)
-                    q.bindValue(':mod',     mod.projectid)
+                    q.bindValue(':mod',     mod.path)
+                    q.bindValue(':ignored', mod.ignore)
                     if not q.exec():
                         print('DB AddList:', q.lastError().text(), mod.projectid, mod.name)
 
                 db.commit()
         except Exception as e:
-            print('SEARCH_THREAD process_mod:', e) # , traceback.format_exc())
-            print('     ', mod.projectid)
-            print('     ', mod.path)
-            print('     ', mod.name)
-            print('     ', mod.loader)
-            print('     ', mod.categories)
-            print('     ', mod.update_date)
-            print('     ', mod.icon)
-            print()
+            print('SEARCH_THREAD preocess_mod:', e)
 
     def set_close(self):
         try:

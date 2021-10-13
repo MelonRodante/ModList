@@ -12,26 +12,34 @@ tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     PRIMARY KEY(listname));'''
 
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
-                    path        TEXT NOT NULL,
-                    name	    TEXT NOT NULL,
+                    projectid   INTEGER NOT NULL, 
+                    path        TEXT NOT NULL DEFAULT 'no-path',
+                    name	    TEXT NOT NULL DEFAULT 'no-name',
                     categories  TEXT NOT NULL DEFAULT 'without-category',
                     loader	    TEXT NOT NULL DEFAULT 'Sin Loader',
                     update_date INT NOT NULL,
                     icon	    BLOB,
                     favorite    INTEGER NOT NULL DEFAULT 0,
                     blocked	    INTEGER NOT NULL DEFAULT 0,
-                    projectid   INTEGER NOT NULL DEFAULT 0,    
-                    PRIMARY KEY(path));'''
+                    newmod      INTEGER NOT NULL DEFAULT 1,
+                    PRIMARY KEY(projectid));'''
+
+tabledependencies = '''CREATE TABLE IF NOT EXISTS Dependencies (
+                    mod         INTEGER NOT NULL,
+                    dependency  INTEGER NOT NULL,
+                    PRIMARY KEY(mod, dependency),
+                    FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
+                    );'''
 
 tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
                     list        TEXT NOT NULL,
-                    mod	        TEXT NOT NULL,
+                    mod	        INTEGER NOT NULL,
                     installed   INTEGER NOT NULL DEFAULT 0,
                     ignored     INTEGER NOT NULL DEFAULT 0,
                     updated     INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY(list, mod),
-                    FOREIGN KEY(list) REFERENCES Lists(listname) ON DELETE CASCADE
-                    FOREIGN KEY(mod) REFERENCES Mods(path) ON DELETE CASCADE
+                    FOREIGN KEY(list) REFERENCES Lists(listname) ON DELETE CASCADE ON UPDATE CASCADE,
+                    FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
                     );'''
 
 
@@ -53,7 +61,10 @@ class Database:
             db = QSqlQuery()
             Database.exec(db, tablelists)
             Database.exec(db, tablemods)
+            Database.exec(db, tabledependencies)
             Database.exec(db, tablemodslists)
+            Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderMods" ON "Mods" ("favorite"	DESC, "blocked"	ASC, "name"	ASC);')
+            Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderModsLists" ON "Mods" ("installed" DESC, "updated" DESC, "name" ASC);')
 
     @staticmethod
     def get_thread_sqlquery():

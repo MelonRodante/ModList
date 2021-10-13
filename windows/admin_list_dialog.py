@@ -100,7 +100,7 @@ class AdminListDialog(QtWidgets.QDialog):
     def remove_list(self):
         try:
             q = QtSql.QSqlQuery()
-            q.prepare('DELETE FROM Lists WHERE list == :listname;')
+            q.prepare('DELETE FROM Lists WHERE listname == :listname;')
             q.bindValue(':listname', self.ui.editList.text())
             if q.exec():
                 self.ui.editList.setText('')
@@ -118,20 +118,24 @@ class AdminListDialog(QtWidgets.QDialog):
                 self.ui.editVersion.setEnabled(True)
                 for i in range(self.ui.tableLists.rowCount()):
                     if self.ui.editList.text().strip() == self.ui.tableLists.item(i, 0).text().strip():
-                        self.ui.btnAddSave.setText('Guardar')
+                        self.ui.btnAddSave.setEnabled(False)
                         self.ui.btnRemove.setEnabled(True)
-                        self.ui.cmbLoader.setEnabled(self.ui.tableLists.item(i, 2).text().strip() == 'Sin Loader')
+                        self.ui.cmbLoader.setEnabled(False)
+                        self.ui.editVersion.setEnabled(False)
                         return
 
-                self.ui.btnAddSave.setText('Añadir')
                 self.ui.cmbLoader.setEnabled(True)
                 self.ui.btnRemove.setEnabled(False)
+                self.ui.cmbLoader.setEnabled(True)
+                self.ui.editVersion.setEnabled(True)
             else:
-                self.ui.btnAddSave.setText('Añadir')
                 self.ui.cmbLoader.setEnabled(False)
                 self.ui.btnAddSave.setEnabled(False)
                 self.ui.editVersion.setEnabled(False)
                 self.ui.btnRemove.setEnabled(False)
+
+                self.ui.cmbLoader.setCurrentIndex(0)
+                self.ui.editVersion.setText('')
         except Exception as e:
             print('ERROR change_edit_name:', e)
 

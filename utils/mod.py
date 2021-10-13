@@ -24,7 +24,6 @@ class Mod:
                 self.icon = pixmap
                 self.name = arg.value(1)
 
-
                 # self.categories = arg.value(2)
                 cat = arg.value(2).split(',')
                 cat.sort()
@@ -38,6 +37,7 @@ class Mod:
                 self.updated = arg.value(8)
                 self.favorite = arg.value(9)
                 self.blocked = arg.value(10)
+                self.projectid = arg.value(11)
 
             else:
                 self.loader = arg[0].loader
@@ -81,6 +81,51 @@ class Mod:
 
 
 class ModIndex:
+    cat_id = {
+        406:  "world-gen",
+        407:  "world-biomes",
+        408:  "world-ores-resources",
+        409:  "world-structures",
+        410:  "world-dimensions",
+        411:  "world-mobs",
+
+        412:  "technology",
+        413:  "technology-processing",
+        414:  "technology-player-transport",
+        415:  "technology-item-fluid-energy-transport",
+        416:  "technology-farming",
+        417:  "technology-energy",
+        418:  "technology-genetics",
+        4843: "technology-automation",
+
+        419:  "magic",
+        420:  "storage",
+        421:  "library-api",
+        422:  "adventure-rpg",
+        423:  "map-information",
+        424:  "cosmetic",
+        425:  "mc-miscellaneous",
+
+        426:  "mc-addons",
+        427:  "mc-addons",  # "addons-thermalexpansion",
+        428:  "mc-addons",  # "addons-tinkers-construct",
+        429:  "mc-addons",  # "addons-industrialcraft",
+        430:  "mc-addons",  # "addons-thaumcraft",
+        432:  "mc-addons",  # "addons-buildcraft",
+        433:  "mc-addons",  # "addons-forestry",
+        4485: "mc-addons",  # "blood-magic",
+        4486: "mc-addons",  # "[4486]lucky-blocks",
+        4545: "mc-addons",  # "applied-energistics-2",
+        4773: "mc-addons",  # "crafttweaker",
+
+        434:  "armor-weapons-tools",
+        435:  "server-utility",
+        436:  "mc-food",
+        4558: "redstone",
+        4671: "twitch-integration",
+        4906: None,  # "mc-creator",
+        4780: None,  # "[4780]fabric",
+    }
 
     ignore_cat = ('mc-addons',
                   'addons-thermalexpansion',
@@ -95,46 +140,53 @@ class ModIndex:
                   'crafttweaker')
 
     def __init__(self, mod: dict):
-        self.projectid = mod.get('id')
-        self.path = mod.get('websiteUrl')
-        self.name = mod.get('name')
-        self.loader = mod.get('modLoaders')
-        self.categories = mod.get('categories')
-        self.update_date = mod.get('dateModified')
-        self.icon = mod.get('attachments')
+        try:
+            self.projectid = mod.get('id')
+            self.path = mod.get('websiteUrl')
+            self.name = mod.get('name')
+            self.loader = ModIndex.getLoader(mod)
+            self.categories = mod.get('categories')
+            self.update_date = mod.get('dateModified')
+            self.icon = mod.get('attachments')
+            self.dependencies = mod.get('latestFiles')
 
-        self.error = 0
-        self.newmod = 0
-        self.update = 0
-        self.addlist = 0
-        self.ignore = 0
+            self.error = 0
+            self.newmod = 0
+            self.update = 0
+            self.addlist = 0
+
+        except Exception as e:
+            print('ModIndex __init__:', e)
 
     def setCategories(self):
-        categories = set()
-        if isinstance(self.categories, list):
-            for cat in self.categories:
-                cat = cat.get('slug')
-                if cat != 'mc-creator':
-                    if cat in ModIndex.ignore_cat:
-                        categories.add('mc-addons')
-                    else:
+        try:
+            categories = set()
+            if isinstance(self.categories, list):
+                for cat in self.categories:
+                    cat = ModIndex.cat_id.get(cat.get('categoryId'))
+                    if cat is not None:
                         categories.add(cat)
-        categories = list(categories)
-        categories.sort()
+            categories = list(categories)
+            categories.sort()
 
-        if len(categories) > 0:
-            self.categories = ','.join(categories)
-        else:
-            self.categories = 'without-category'
+            if len(categories) > 0:
+                self.categories = ','.join(categories)
+            else:
+                self.categories = 'without-category'
+        except:
+            self.categories = 'error'
 
     def setDate(self):
-        if isinstance(self.update_date, str):
-            try:
-                self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S.%f%z').timestamp())
-            except:
+        try:
+            if isinstance(self.update_date, str):
+                if self.update_date.__contains__('.'):
+                    self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S.%f%z').timestamp())
+                else:
+                    self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S%z').timestamp())
+            else:
                 self.update_date = 0
-        else:
-            self.update_date = 0
+        except:
+            self.update_date = -1
 
     def setIcon(self):
         try:
@@ -147,23 +199,50 @@ class ModIndex:
         except:
             self.update_date = QByteArray()
 
-    def setLoader(self):
-        if isinstance(self.loader, list):
-            i = 0
-            for loa in self.loader:
-                if loa == 'Forge':
-                    i+=1
-                elif loa == 'Fabric':
-                    i+=10
+    def setDependencies(self):
+        try:
+            dependencies = set()
+            if self.dependencies is not None:
+                for file in self.dependencies:
+                    if file.get('dependencies') is not None:
+                        for dep in file.get('dependencies'):
+                            if dep.get('addonId') is not None:
+                                dependencies.add(dep.get('addonId'))
+            self.dependencies = list(dependencies)
+        except Exception as e:
+            print('ModIndex setDependencies:', e)
+            self.dependencies = []
 
-            if i == 0:
-                self.loader = 'Sin Loader'
-            elif i == 1:
-                self.loader = 'Forge'
-            elif i == 10:
-                self.loader = 'Fabric'
-            elif i == 11:
-                self.loader = 'Forge / Fabric'
+    @staticmethod
+    def getLoader(mod):
+        try:
+            forge = False
+            fabric = False
 
-        else:
-            self.loader = 'Sin Loader'
+
+            if mod.get('modLoaders') is not None:
+                for loader in mod.get('modLoaders'):
+                    if loader == 'Forge':
+                        forge = True
+                    elif loader == 'Fabric':
+                        fabric = True
+
+            elif mod.get('gameVersionLatestFiles') is not None:
+                for file in mod.get('gameVersionLatestFiles'):
+                    if file.get('modLoader') == 1:
+                        forge = True
+                    elif file.get('modLoader') == 4:
+                        fabric = True
+
+
+            if forge and fabric:
+                return 'Forge / Fabric'
+            elif forge:
+                return 'Forge'
+            elif fabric:
+                return 'Fabric'
+            else:
+                return 'Sin Loader'
+        except Exception as e:
+            print('ModIndex getLoader:', e)
+            return 'error'
