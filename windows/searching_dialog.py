@@ -71,7 +71,7 @@ class SearchingDialog(QtWidgets.QDialog):
             self.ui.cmbModList.setEnabled(False)
             self.ui.btnSearchNewMods.setEnabled(False)
 
-            self.search_thread = SearchThread(self.ui.cmbModList.currentText().strip())
+            self.search_thread = SearchThread(self.ui.cmbModList.currentText(), self.ui.chkSeachNewUpdate.isChecked())
 
             self.search_thread.sig_max_pages.connect(self.set_max_pages)
             self.search_thread.sig_page_finish.connect(self.set_page_finish)

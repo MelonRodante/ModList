@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\Melon\Documentos\Python Proyects\ModList\pyqt_windows\searching_dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\soporte\PycharmProjects\ModList\pyqt_windows\searching_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -15,9 +15,9 @@ class Ui_SearchingDialog(object):
     def setupUi(self, SearchingDialog):
         SearchingDialog.setObjectName("SearchingDialog")
         SearchingDialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        SearchingDialog.resize(410, 105)
-        SearchingDialog.setMinimumSize(QtCore.QSize(410, 105))
-        SearchingDialog.setMaximumSize(QtCore.QSize(410, 105))
+        SearchingDialog.resize(410, 128)
+        SearchingDialog.setMinimumSize(QtCore.QSize(410, 0))
+        SearchingDialog.setMaximumSize(QtCore.QSize(410, 16777215))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/widgets/widgets/window_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         SearchingDialog.setWindowIcon(icon)
@@ -43,6 +43,13 @@ class Ui_SearchingDialog(object):
         self.cmbModList.setObjectName("cmbModList")
         self.horizontalLayout_3.addWidget(self.cmbModList)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.chkSeachNewUpdate = QtWidgets.QCheckBox(SearchingDialog)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.chkSeachNewUpdate.setFont(font)
+        self.chkSeachNewUpdate.setObjectName("chkSeachNewUpdate")
+        self.verticalLayout.addWidget(self.chkSeachNewUpdate)
         self.btnSearchNewMods = QtWidgets.QPushButton(SearchingDialog)
         self.btnSearchNewMods.setEnabled(False)
         self.btnSearchNewMods.setMinimumSize(QtCore.QSize(0, 23))
@@ -74,15 +81,6 @@ class Ui_SearchingDialog(object):
         _translate = QtCore.QCoreApplication.translate
         SearchingDialog.setWindowTitle(_translate("SearchingDialog", "Buscar nuevos mods"))
         self.lblModList.setText(_translate("SearchingDialog", "ModList:"))
+        self.chkSeachNewUpdate.setText(_translate("SearchingDialog", "Buscar solo nuevos / actualizables"))
         self.btnSearchNewMods.setText(_translate("SearchingDialog", "Buscar nuevos mods"))
 import icons_rc
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    SearchingDialog = QtWidgets.QDialog()
-    ui = Ui_SearchingDialog()
-    ui.setupUi(SearchingDialog)
-    SearchingDialog.show()
-    sys.exit(app.exec_())

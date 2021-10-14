@@ -1,5 +1,4 @@
 import time
-import traceback
 
 from typing import Union
 
@@ -630,7 +629,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 q = QtSql.QSqlQuery()
 
                 for mod in self.selectedMods:
-                    q.prepare('UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
+                    q.prepare(
+                        'UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)
 
                     if self.ui.cmbLoaderConfig.currentIndex() != 0:
@@ -660,7 +660,8 @@ class MainWindow(QtWidgets.QMainWindow):
                         q.bindValue(':mod', mod.path)
                         self.exec(q)
                     elif self.is_list():
-                        q.prepare('UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
+                        q.prepare(
+                            'UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
                         q.bindValue(':list', self.ui.cmbModList.currentText())
 
                         q.bindValue(':mod', mod.path)
@@ -791,7 +792,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def query_bind_basic_where(self, q):
         try:
             q.bindValue(':loader', self.get_loader())
-            q.bindValue(':categories', '%' + MainWindow.actual_category_filter(self.ui.cmbCategories.currentText())[1] + '%')
+            q.bindValue(':categories',
+                        '%' + MainWindow.actual_category_filter(self.ui.cmbCategories.currentText())[1] + '%')
             q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
             q.bindValue(':list', self.ui.cmbModList.currentText())
@@ -831,7 +833,8 @@ class MainWindow(QtWidgets.QMainWindow):
             if count:
                 select_q = 'SELECT COUNT(M.path) '
             else:
-                offset_q = 'LIMIT ' + str(MainWindow.rows_per_page) + ' OFFSET ' + str(self.current_page * MainWindow.rows_per_page) + ';'
+                offset_q = 'LIMIT ' + str(MainWindow.rows_per_page) + ' OFFSET ' + str(
+                    self.current_page * MainWindow.rows_per_page) + ';'
 
             q.prepare(select_q + from_q + where_q + orderby_q + offset_q)
             self.query_bind_basic_where(q)
@@ -847,7 +850,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.found_results = q.value(0)
                 self.maxpages = int(q.value(0) / MainWindow.rows_per_page)
 
-                if (q.value(0) % MainWindow.rows_per_page) == 0 and self.maxpages > 0:
+                if self.maxpages > 0 and (q.value(0) % MainWindow.rows_per_page) == 0:
                     self.maxpages -= 1
 
             else:
@@ -856,6 +859,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if self.current_page > self.maxpages:
                 self.current_page = self.maxpages
+
             self.load_data()
 
         except Exception as e:
@@ -867,6 +871,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.prepare_fill_table_query(q)
 
         if self.exec(q):
+            # print(self.current_page, q.lastQuery())
             while q.next():
                 self.tableMods.append(Mod(q))
 
@@ -897,7 +902,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     try:
                         date = '  ' + time.strftime('%d/%m/%Y', time.localtime(mod.update_date)) + '  '
-                    except Exception:
+                    except:
                         date = '  -  '
                     self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem(date))
                     self.ui.tableMods.setItem(i, 5, QtWidgets.QTableWidgetItem(self.get_state_icon(mod), ''))
@@ -909,7 +914,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.lblActualPages.setText('0 / 0')
 
         except Exception as e:
-            print('MAIN_WINDOW load_data: ', str(traceback.format_exc()))
+            print('MAIN_WINDOW load_data: ', e)
 
     def check_table_buttons(self):
         self.ui.btnPageLeft.setEnabled(0 < self.current_page)
@@ -981,7 +986,8 @@ class MainWindow(QtWidgets.QMainWindow):
         c.sort()
         return ",".join(c)
 
-    def exec(self, q):
+    @staticmethod
+    def exec(q):
         try:
             b = q.exec_()
             if b is False:

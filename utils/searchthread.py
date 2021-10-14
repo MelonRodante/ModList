@@ -29,12 +29,15 @@ class SearchThread(QThread):
     sig_page_finish = pyqtSignal(int)
     sig_finish_code = pyqtSignal(int)
 
-    def __init__(self, modlist):
+    def __init__(self, modlist, searchnewupdate):
         super(SearchThread, self).__init__()
 
         self.modlist = modlist
+        self.searchnewupdate = searchnewupdate
+
         self.list_version = ''
         self.valid_loaders = ''
+        self.last_update_date = 0
         self.canclose = False
 
         self.mods = []
@@ -50,12 +53,15 @@ class SearchThread(QThread):
     def getListInfo(self, db):
         try:
             q = QtSql.QSqlQuery(db)
-            q.prepare('SELECT version, loader FROM Lists WHERE listname == :listname')
+            q.prepare('SELECT L.version, L.loader, MAX(M.update_date) '
+                      'FROM Lists as L INNER JOIN ModsLists as ML ON L.listname = ML.list INNER JOIN Mods as M ON ML.mod = M.projectid '
+                      'WHERE L.listname == :listname')
             q.bindValue(':listname', self.modlist)
             if q.exec():
                 if q.next():
                     self.list_version = q.value(0)
                     self.valid_loaders = [q.value(1), 'Sin Loader', 'Forge / Fabric']
+                    self.last_update_date = q.value(2)
                 else:
                     QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
                     print("Searching DB Error:", 'No hay una lista seleccionada')
@@ -74,13 +80,11 @@ class SearchThread(QThread):
             self.getListInfo(db)
 
             i = 0
-            returned_mods = 1
-            while returned_mods > 0:
-                if self.canclose:
-                    break
-                returned_mods = self.get_mods_from_page(i)
+            while self.get_mods_from_page(i):
                 i += 1
                 self.sig_max_pages.emit(len(self.mods))
+                if self.canclose:
+                    break
 
             if not self.canclose:
                 self.sig_max_pages.emit(len(self.mods))
@@ -107,7 +111,12 @@ class SearchThread(QThread):
             url = SearchThread.url + SearchThread.filter + self.list_version + self.index + str(SearchThread.pagesize * i)
             mods = requests.get(url, headers=SearchThread.header).json()
             for mod in mods:
-                self.mods.append(ModIndex(mod))
+                m = ModIndex(mod)
+                if self.searchnewupdate:
+                    m.setDate()
+                    if m.update_date < self.last_update_date:
+                        return 0
+                self.mods.append(m)
             return len(mods)
         except json.decoder.JSONDecodeError:
             QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
@@ -188,7 +197,7 @@ class SearchThread(QThread):
 
                 db.commit()
         except Exception as e:
-            print('SEARCH_THREAD process_mod:', e) # , traceback.format_exc())
+            print('SEARCH_THREAD process_mod:', e)  # , traceback.format_exc())
             print('     ', mod.projectid)
             print('     ', mod.path)
             print('     ', mod.name)

@@ -180,10 +180,10 @@ class ModIndex:
         try:
             if isinstance(self.update_date, str):
                 if self.update_date.__contains__('.'):
-                    self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S.%f%z').timestamp())
+                    self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S.%f%z').replace(microsecond=0).timestamp())
                 else:
-                    self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S%z').timestamp())
-            else:
+                    self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S%z').replace(microsecond=0).timestamp())
+            elif not isinstance(self.update_date, int):
                 self.update_date = 0
         except:
             self.update_date = -1
