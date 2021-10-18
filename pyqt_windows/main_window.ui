@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>980</width>
-    <height>600</height>
+    <width>1080</width>
+    <height>641</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -512,6 +512,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="chkPreIgnore">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Pre-Ignore</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="chkFavoriteConfig">
         <property name="enabled">
          <bool>false</bool>
@@ -540,7 +550,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>980</width>
+     <width>1080</width>
      <height>21</height>
     </rect>
    </property>

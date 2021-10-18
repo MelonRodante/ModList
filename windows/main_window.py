@@ -226,6 +226,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.ui.cmbModList.count() > 2:
                 self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
             self.ui.cmbModList.addItem('Nuevos Mods')
+            self.ui.cmbModList.addItem('Pre-Ignorados')
             self.ui.cmbModList.addItem('Favoritos')
             self.ui.cmbModList.addItem('Bloqueados')
 
@@ -464,10 +465,12 @@ class MainWindow(QtWidgets.QMainWindow):
             if len(self.ui.tableMods.selectedIndexes()) > 0:
                 islist = self.is_list()
                 self.selection_widgets_select(islist)
+
                 if len(self.ui.tableMods.selectedItems()) == 6:
                     self.selection_single(islist)
                 else:
                     self.selection_range(islist)
+
             else:
                 self.clear_selected()
 
@@ -502,6 +505,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.chkIgnoredConfig.setChecked(False)
                 self.ui.chkUpdated.setChecked(False)
 
+            self.ui.chkPreIgnore.setChecked(bool(mod.preignore))
             self.ui.chkFavoriteConfig.setChecked(bool(mod.favorite))
             self.ui.chkBlockedConfig.setChecked(bool(mod.blocked))
         except Exception as e:
@@ -556,6 +560,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.chkIgnoredConfig.setChecked(False)
                 self.ui.chkUpdated.setChecked(False)
 
+            if state.preignore is not None:
+                self.ui.chkPreIgnore.setChecked(bool(state.preignore))
+            else:
+                self.ui.chkPreIgnore.setTristate(True)
+                self.ui.chkPreIgnore.setCheckState(Qt.PartiallyChecked)
+
             if state.favorite is not None:
                 self.ui.chkFavoriteConfig.setChecked(bool(state.favorite))
             else:
@@ -578,12 +588,14 @@ class MainWindow(QtWidgets.QMainWindow):
             for chk in self.chks_categories.values():
                 chk.setChecked(False)
 
+            self.ui.chkPreIgnore.setEnabled(True)
             self.ui.chkFavoriteConfig.setEnabled(True)
             self.ui.chkBlockedConfig.setEnabled(True)
             self.ui.chkInstalledConfig.setEnabled(islist)
             self.ui.chkIgnoredConfig.setEnabled(islist)
             self.ui.chkUpdated.setEnabled(islist)
 
+            self.ui.chkPreIgnore.setTristate(False)
             self.ui.chkFavoriteConfig.setTristate(False)
             self.ui.chkBlockedConfig.setTristate(False)
             self.ui.chkInstalledConfig.setTristate(False)
@@ -612,12 +624,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.chkInstalledConfig.setChecked(False)
             self.ui.chkIgnoredConfig.setChecked(False)
             self.ui.chkUpdated.setChecked(False)
+            self.ui.chkPreIgnore.setChecked(False)
             self.ui.chkFavoriteConfig.setChecked(False)
             self.ui.chkBlockedConfig.setChecked(False)
 
             self.ui.chkInstalledConfig.setEnabled(False)
             self.ui.chkIgnoredConfig.setEnabled(False)
             self.ui.chkUpdated.setEnabled(False)
+            self.ui.chkPreIgnore.setEnabled(False)
             self.ui.chkFavoriteConfig.setEnabled(False)
             self.ui.chkBlockedConfig.setEnabled(False)
         except Exception as e:
@@ -630,7 +644,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 for mod in self.selectedMods:
                     q.prepare(
-                        'UPDATE Mods SET loader = :loader, categories = :categories, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
+                        'UPDATE Mods SET loader = :loader, categories = :categories, preignore = :preignore, favorite = :favorite, blocked = :blocked, newmod = 0 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)
 
                     if self.ui.cmbLoaderConfig.currentIndex() != 0:
@@ -642,6 +656,11 @@ class MainWindow(QtWidgets.QMainWindow):
                         q.bindValue(':categories', self.get_categories_from_checks())
                     else:
                         q.bindValue(':categories', mod.categories)
+
+                    if self.ui.chkPreIgnore.checkState() != Qt.PartiallyChecked:
+                        q.bindValue(':preignore', int(self.ui.chkPreIgnore.isChecked()))
+                    else:
+                        q.bindValue(':preignore', mod.preignore)
 
                     if self.ui.chkFavoriteConfig.checkState() != Qt.PartiallyChecked:
                         q.bindValue(':favorite', int(self.ui.chkFavoriteConfig.isChecked()))
@@ -806,7 +825,7 @@ class MainWindow(QtWidgets.QMainWindow):
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
             if self.is_list():
-                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid '
+                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid, M.preignore '
                 from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.projectid'
                 where_q += self.optional_filter('list', self.ui.cmbModList.currentText(), where_q, tableas='ML')
                 if self.ui.actionShowUpdated.isChecked():
@@ -820,10 +839,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     where_q += ' AND installed == 0 AND ignored == 0 '
 
             else:
-                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid '
+                select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid, M.preignore '
                 from_q = 'FROM Mods as M'
-                if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 3:
+                if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 4:
                     where_q += self.optional_filter('newmod', 1, where_q)
+                elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 3:
+                    where_q += self.optional_filter('preignore', 1, where_q)
                 elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
                     where_q += self.optional_filter('favorite', 1, where_q)
                 elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
@@ -948,7 +969,7 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     def is_list(self):
-        return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 3
+        return 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 4
 
     def get_loader(self):
         for loader in self.showlist_loader:

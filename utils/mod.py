@@ -38,16 +38,21 @@ class Mod:
                 self.favorite = arg.value(9)
                 self.blocked = arg.value(10)
                 self.projectid = arg.value(11)
+                self.preignore = arg.value(12)
 
             else:
                 self.loader = arg[0].loader
                 self.categories = arg[0].categories
                 self.update_date = arg[0].update_date
+
                 self.installed = arg[0].installed
                 self.ignored = arg[0].ignored
                 self.updated = arg[0].updated
+
+                self.preignore = arg[0].preignore
                 self.favorite = arg[0].favorite
                 self.blocked = arg[0].blocked
+
                 self.compare_states(arg)
         except Exception as e:
             print('MOD: ', str(e))
@@ -72,6 +77,9 @@ class Mod:
 
             if self.updated != mod.updated:
                 self.updated = None
+
+            if self.preignore != mod.preignore:
+                self.preignore = None
 
             if self.favorite != mod.favorite:
                 self.favorite = None
@@ -154,6 +162,7 @@ class ModIndex:
             self.newmod = 0
             self.update = 0
             self.addlist = 0
+            self.preignore = 0
 
         except Exception as e:
             print('ModIndex __init__:', e)

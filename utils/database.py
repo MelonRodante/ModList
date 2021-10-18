@@ -6,9 +6,9 @@ from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import QMessageBox
 
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
-                    listname   TEXT NOT NULL,
+                    listname TEXT NOT NULL,
                     version  TEXT NOT NULL,
-                    loader  TEXT NOT NULL DEFAULT 'Sin Loader',
+                    loader   TEXT NOT NULL DEFAULT 'Sin Loader',
                     PRIMARY KEY(listname));'''
 
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
@@ -17,8 +17,9 @@ tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     name	    TEXT NOT NULL DEFAULT 'no-name',
                     categories  TEXT NOT NULL DEFAULT 'without-category',
                     loader	    TEXT NOT NULL DEFAULT 'Sin Loader',
-                    update_date INT NOT NULL,
+                    update_date INTEGER NOT NULL,
                     icon	    BLOB,
+                    preignore   INTEGER NOT NULL DEFAULT 0,
                     favorite    INTEGER NOT NULL DEFAULT 0,
                     blocked	    INTEGER NOT NULL DEFAULT 0,
                     newmod      INTEGER NOT NULL DEFAULT 1,

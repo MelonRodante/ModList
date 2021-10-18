@@ -126,7 +126,7 @@ class SearchThread(QThread):
 
     def check_mod(self, db, mod):
         q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT M.update_date, M.blocked FROM Mods AS M WHERE M.projectid == :projectid')
+        q.prepare('SELECT M.update_date, M.blocked, M.preignore FROM Mods AS M WHERE M.projectid == :projectid')
         q.bindValue(':projectid', mod.projectid)
 
         mod.setDate()
@@ -139,6 +139,8 @@ class SearchThread(QThread):
 
                 if q.value(1) == 0:
                     mod.addlist = 1
+
+                mod.preignore = q.value(2)
             else:
                 mod.newmod = 1
                 mod.addlist = 1
@@ -189,9 +191,10 @@ class SearchThread(QThread):
                         print('DB Update:', q.lastError().text(), mod.projectid, mod.name)
 
                 if mod.addlist:
-                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod)' 'VALUES (:list, :mod)')
+                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, ignored)' 'VALUES (:list, :mod, :ignored)')
                     q.bindValue(':list',    self.modlist)
                     q.bindValue(':mod',     mod.projectid)
+                    q.bindValue(':ignored', mod.preignore)
                     if not q.exec():
                         print('DB AddList:', q.lastError().text(), mod.projectid, mod.name)
 
