@@ -17,7 +17,6 @@ class SearchThread(QThread):
     url = 'http://addons-ecs.forgesvc.net/api/v2/addon/search' \
           '?gameId=432' \
           '&sectionId=6' \
-          '&categoryId=0' \
           '&sort=2' \
           '&pageSize=' + str(pagesize)
 
@@ -142,7 +141,7 @@ class SearchThread(QThread):
 
     def check_mod(self, db, mod):
         q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT M.update_date, M.blocked, M.preignore FROM Mods AS M WHERE M.projectid == :projectid')
+        q.prepare('SELECT M.update_date, M.blocked, M.loader, M.preignore FROM Mods AS M WHERE M.projectid == :projectid')
         q.bindValue(':projectid', mod.projectid)
 
         mod.setDate()
@@ -154,15 +153,12 @@ class SearchThread(QThread):
                     mod.update = 1
 
                 if q.value(1) == 0:
-                    mod.addlist = 1
+                    mod.addlist = int(q.value(2) in self.valid_loaders)
+                    mod.preignore = q.value(3)
 
-                mod.preignore = q.value(2)
             else:
                 mod.newmod = 1
-                mod.addlist = 1
-
-            if mod.loader not in self.valid_loaders:
-                mod.addlist = 0
+                mod.addlist = int(mod.loader in self.valid_loaders)
 
         else:
             mod.error = 1
@@ -204,7 +200,13 @@ class SearchThread(QThread):
                     q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
                     q.bindValue(':mod', mod.projectid)
                     if not q.exec():
-                        print('DB Update:', q.lastError().text(), mod.projectid, mod.name)
+                        print('DB Update ML:', q.lastError().text(), mod.projectid, mod.name)
+
+                    q.prepare('UPDATE Mods SET update_date = :update_date WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', mod.projectid)
+                    q.bindValue(':update_date', mod.update_date)
+                    if not q.exec():
+                        print('DB Update M:', q.lastError().text(), mod.projectid, mod.name)
 
                 if mod.addlist:
                     q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, ignored)' 'VALUES (:list, :mod, :ignored)')
@@ -231,3 +233,16 @@ class SearchThread(QThread):
             self.canclose = True
         except Exception as e:
             print('SEARCH_THREAD set_close:', e)
+
+
+'''
+https://addons-ecs.forgesvc.net/api/v2/addon/search
+?gameId=432
+&sectionId=6
+&categoryId=0
+&sort=2
+&gameVersion=1.17
+&pageSize=50
+&index=0
+&searchFilter={searchFilter}
+'''
