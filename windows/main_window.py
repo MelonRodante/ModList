@@ -117,6 +117,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setupWidgets(self):
         try:
+
+            self.ui.chkBlockedConfig.setShortcut("<")
+
             self.modify_css()
             self.resize_table()
             self.create_cmb_values_lists()
