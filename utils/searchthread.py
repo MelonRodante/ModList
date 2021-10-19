@@ -89,8 +89,6 @@ class SearchThread(QThread):
         except Exception as e:
             print('SEARCH_THREAD set_filter:', e)
 
-
-
     # noinspection PyUnresolvedReferences
     def search_mods(self):
         try:
@@ -128,7 +126,6 @@ class SearchThread(QThread):
         try:
             url = SearchThread.url + SearchThread.filter + self.list_version + self.index + str(SearchThread.pagesize * i)
             mods = requests.get(url, headers=SearchThread.header).json()
-            print(url)
             for mod in mods:
                 m = ModIndex(mod)
                 if self.searchnewupdate:

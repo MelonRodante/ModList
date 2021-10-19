@@ -706,7 +706,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 current_page = self.current_page
                 scroll = self.ui.tableMods.verticalScrollBar().sliderPosition()
-                print(scroll)
                 self.load_pages()
                 if current_page == self.current_page:
                     QCoreApplication.processEvents()
