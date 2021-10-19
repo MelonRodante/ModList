@@ -118,7 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def setupWidgets(self):
         try:
 
-            self.ui.chkBlockedConfig.setShortcut("<")
+            self.ui.chkInstalledConfig.setShortcut("<")
 
             self.modify_css()
             self.resize_table()
@@ -679,14 +679,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     if self.ui.chkBlockedConfig.checkState() == Qt.Checked:
                         q.prepare('DELETE FROM ModsLists WHERE mod == :mod;')
-                        q.bindValue(':mod', mod.path)
+                        q.bindValue(':mod', mod.projectid)
                         self.exec(q)
-                    elif self.is_list():
-                        q.prepare(
-                            'UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
-                        q.bindValue(':list', self.ui.cmbModList.currentText())
 
-                        q.bindValue(':mod', mod.path)
+                    elif self.is_list():
+                        q.prepare('UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
+                        q.bindValue(':list', self.ui.cmbModList.currentText())
+                        q.bindValue(':mod', mod.projectid)
 
                         if self.ui.chkInstalledConfig.checkState() != Qt.PartiallyChecked:
                             q.bindValue(':installed', int(self.ui.chkInstalledConfig.isChecked()))
@@ -855,7 +854,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             offset_q = ';'
             if count:
-                select_q = 'SELECT COUNT(M.path) '
+                select_q = 'SELECT COUNT(M.projectid) '
             else:
                 offset_q = 'LIMIT ' + str(MainWindow.rows_per_page) + ' OFFSET ' + str(
                     self.current_page * MainWindow.rows_per_page) + ';'
@@ -1019,41 +1018,3 @@ class MainWindow(QtWidgets.QMainWindow):
             return b
         except Exception as e:
             print('MAIN_WINDOW exec', e)
-
-    '''def setupTestData(self):
-        mods = [('/minecraft/mc-mods/jei', 'Just Enough Items (JEI)', 'https://media.forgecdn.net/avatars/thumbnails/29/69/64/64/635838945588716414.jpeg'),
-                ('/minecraft/mc-mods/journeymap', 'JourneyMap', 'https://media.forgecdn.net/avatars/thumbnails/9/144/64/64/635421614078544069.png'),
-                ('/minecraft/mc-mods/appleskin', 'AppleSkin', 'https://media.forgecdn.net/avatars/thumbnails/47/527/64/64/636066936394500688.png'),
-                ('/minecraft/mc-mods/biomes-o-plenty', 'Biomes O\' Plenty', 'https://media.forgecdn.net/avatars/thumbnails/419/178/64/64/637645786053192247.png')]
-
-        q = QtSql.QSqlQuery()
-
-        lists = ['1.17.1', '1.16.5', '1.15.2', '1.14.3', '1.14.1']
-        loader = ['Forge', 'Forge', 'Fabric', 'Fabric', 'Sin Loader']
-
-        for i in range(len(lists)):
-            q.prepare('INSERT INTO Lists(list, search, loader)' 'VALUES (:list, :search, :loader)')
-            q.bindValue(':list', lists[i])
-            q.bindValue(':filter', 'filter-game-version=2020709689%3A8203')
-            q.bindValue(':loader', loader[i])
-            self.exec(q)
-
-        for mod in mods:
-            try:
-                icon = requests.get(mod[2]).content
-
-                q.prepare('INSERT INTO Mods(path, name, loader, update_date, icon)' 'VALUES (:path, :name, :loader, :update_date, :icon)')
-                q.bindValue(':path', mod[0])
-                q.bindValue(':name', mod[1])
-                q.bindValue(':loader', 'Forge')
-                q.bindValue(':update_date', 1632062031)
-                q.bindValue(':icon', QByteArray(icon))
-                self.exec(q)
-
-                q.prepare('INSERT INTO ModsLists(list, mod)' 'VALUES (:list, :mod)')
-                q.bindValue(':list', '1.16.5')
-                q.bindValue(':mod', mod[0])
-
-                self.exec(q)
-            except Exception as e:
-                print('MAIN_WINDOW setupTestData', e)'''

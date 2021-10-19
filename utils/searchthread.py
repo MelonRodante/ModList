@@ -53,15 +53,13 @@ class SearchThread(QThread):
     def getListInfo(self, db):
         try:
             q = QtSql.QSqlQuery(db)
-            q.prepare('SELECT L.version, L.loader, MAX(M.update_date) '
-                      'FROM Lists as L INNER JOIN ModsLists as ML ON L.listname = ML.list INNER JOIN Mods as M ON ML.mod = M.projectid '
-                      'WHERE L.listname == :listname')
+
+            q.prepare('SELECT L.version, L.loader FROM Lists as L WHERE L.listname == :listname;')
             q.bindValue(':listname', self.modlist)
             if q.exec():
                 if q.next():
                     self.list_version = q.value(0)
                     self.valid_loaders = [q.value(1), 'Sin Loader', 'Forge / Fabric']
-                    self.last_update_date = q.value(2)
                 else:
                     QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
                     print("Searching DB Error:", 'No hay una lista seleccionada')
@@ -70,8 +68,28 @@ class SearchThread(QThread):
                 QMessageBox.critical(QWidget(), "Searching DB Error:", q.lastError().databaseText(),
                                      QtWidgets.QMessageBox.Close)
                 sys.exit(1)
+
+            q.prepare('SELECT MAX(M.update_date) FROM ModsLists AS ML LEFT JOIN Mods AS M ON M.projectid = ML.mod WHERE ML.list = :listname;')
+            q.bindValue(':listname', self.modlist)
+            if q.exec():
+                if q.next():
+                    if q.value(0):
+                        self.last_update_date = q.value(0)
+                    else:
+                        self.last_update_date = 0
+                else:
+                    QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
+                    print("Searching DB Error:", 'No hay una lista seleccionada')
+                    sys.exit(1)
+            else:
+                QMessageBox.critical(QWidget(), "Searching DB Error:", q.lastError().databaseText(),
+                                     QtWidgets.QMessageBox.Close)
+                sys.exit(1)
+
         except Exception as e:
             print('SEARCH_THREAD set_filter:', e)
+
+
 
     # noinspection PyUnresolvedReferences
     def search_mods(self):
@@ -110,6 +128,7 @@ class SearchThread(QThread):
         try:
             url = SearchThread.url + SearchThread.filter + self.list_version + self.index + str(SearchThread.pagesize * i)
             mods = requests.get(url, headers=SearchThread.header).json()
+            print(url)
             for mod in mods:
                 m = ModIndex(mod)
                 if self.searchnewupdate:
