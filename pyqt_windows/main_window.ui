@@ -579,6 +579,7 @@
      <string>Archivo</string>
     </property>
     <addaction name="actionAdminLists"/>
+    <addaction name="actionCopyList"/>
     <addaction name="actionSearchingNewMods"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -772,6 +773,11 @@
    </property>
    <property name="text">
     <string>Sin Loader</string>
+   </property>
+  </action>
+  <action name="actionCopyList">
+   <property name="text">
+    <string>Copiar lista</string>
    </property>
   </action>
  </widget>

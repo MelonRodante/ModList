@@ -16,6 +16,7 @@ from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
 from pyqt_windows.main_window import Ui_ModList
 from windows.admin_list_dialog import AdminListDialog
+from windows.copylist_dialog import CopyListDialog
 from windows.searching_dialog import SearchingDialog
 
 
@@ -151,6 +152,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.chkBlockedConfig.clicked.connect(self.change_chk_blocked)
 
             self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
+            self.ui.actionCopyList.triggered.connect(self.show_copylist_dialog)
             self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
             self.ui.actionMultiselection.triggered.connect(self.action_table_multiselection)
 
@@ -994,6 +996,18 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(loader))
                 else:
                     self.load_pages()
+        except Exception as e:
+            print('MAIN_WINDOW show_searching_dialog: ', str(e))
+
+    def show_copylist_dialog(self):
+        try:
+            dialog = CopyListDialog()
+            editname = dialog.ui.editNameCopy
+            code = dialog.exec()
+
+            if code == 1:
+                self.create_cmb_values_lists()
+                self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(editname.currentText()))
         except Exception as e:
             print('MAIN_WINDOW show_searching_dialog: ', str(e))
 
