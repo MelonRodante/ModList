@@ -8,7 +8,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox, QWidget
 
 from utils.database import Database
-from utils.mod import ModIndex
+from utils.modindex import ModIndex
 
 
 class SearchThread(QThread):
@@ -141,7 +141,7 @@ class SearchThread(QThread):
 
     def check_mod(self, db, mod):
         q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT M.update_date, M.blocked, M.loader, M.preignore FROM Mods AS M WHERE M.projectid == :projectid')
+        q.prepare('SELECT M.update_date, M.blocked, M.loader, M.preinstall, M.preignore FROM Mods AS M WHERE M.projectid == :projectid')
         q.bindValue(':projectid', mod.projectid)
 
         mod.setDate()
@@ -154,7 +154,8 @@ class SearchThread(QThread):
 
                 if q.value(1) == 0:
                     mod.addlist = int(q.value(2) in self.valid_loaders)
-                    mod.preignore = q.value(3)
+                    mod.preinstall = q.value(3)
+                    mod.preignore = q.value(4)
 
             else:
                 mod.newmod = 1
@@ -209,9 +210,10 @@ class SearchThread(QThread):
                         print('DB Update M:', q.lastError().text(), mod.projectid, mod.name)
 
                 if mod.addlist:
-                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, ignored)' 'VALUES (:list, :mod, :ignored)')
+                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, installed, ignored)' 'VALUES (:list, :mod, :installed, :ignored)')
                     q.bindValue(':list',    self.modlist)
                     q.bindValue(':mod',     mod.projectid)
+                    q.bindValue(':installed', mod.preinstall)
                     q.bindValue(':ignored', mod.preignore)
                     if not q.exec():
                         print('DB AddList:', q.lastError().text(), mod.projectid, mod.name)

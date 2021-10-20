@@ -468,6 +468,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="chkUpdated">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Updated</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="Line" name="line_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -480,7 +490,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Installed</string>
+         <string>Pre-Installed</string>
         </property>
        </widget>
       </item>
@@ -490,17 +500,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Ignored</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chkUpdated">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Updated</string>
+         <string>Pre-Ignored</string>
         </property>
        </widget>
       </item>
@@ -508,16 +508,6 @@
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chkPreIgnore">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Pre-Ignore</string>
         </property>
        </widget>
       </item>

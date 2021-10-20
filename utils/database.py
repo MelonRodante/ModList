@@ -12,17 +12,18 @@ tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     PRIMARY KEY(listname));'''
 
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
-                    projectid   INTEGER NOT NULL, 
-                    path        TEXT NOT NULL DEFAULT 'no-path',
-                    name	    TEXT NOT NULL DEFAULT 'no-name',
-                    categories  TEXT NOT NULL DEFAULT 'without-category',
-                    loader	    TEXT NOT NULL DEFAULT 'Sin Loader',
-                    update_date INTEGER NOT NULL,
-                    icon	    BLOB,
-                    preignore   INTEGER NOT NULL DEFAULT 0,
-                    favorite    INTEGER NOT NULL DEFAULT 0,
-                    blocked	    INTEGER NOT NULL DEFAULT 0,
-                    newmod      INTEGER NOT NULL DEFAULT 1,
+                    projectid       INTEGER NOT NULL, 
+                    path            TEXT NOT NULL DEFAULT 'no-path',
+                    name	        TEXT NOT NULL DEFAULT 'no-name',
+                    categories      TEXT NOT NULL DEFAULT 'without-category',
+                    loader	        TEXT NOT NULL DEFAULT 'Sin Loader',
+                    update_date     INTEGER NOT NULL,
+                    icon	        BLOB,
+                    favorite        INTEGER NOT NULL DEFAULT 0,
+                    blocked	        INTEGER NOT NULL DEFAULT 0,
+                    newmod          INTEGER NOT NULL DEFAULT 1,
+                    preinstalled    INTEGER NOT NULL DEFAULT 0,
+                    preignore       INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY(projectid));'''
 
 tabledependencies = '''CREATE TABLE IF NOT EXISTS Dependencies (

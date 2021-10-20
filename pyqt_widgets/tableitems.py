@@ -1,7 +1,7 @@
 import os
 
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor
 
 from utils.icon_utils import IconUtils
 
@@ -29,9 +29,14 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
 
 
 class TableItemName(QtWidgets.QTableWidgetItem):
-    def __init__(self, name, font):
-        QtWidgets.QTableWidgetItem.__init__(self, name)
+    def __init__(self, mod, font):
+        QtWidgets.QTableWidgetItem.__init__(self, mod.name)
         self.setFont(font)
+
+        if mod.preinstall:
+            self.setForeground(QColor('#85C4E3'))
+        elif mod.preignore:
+            self.setForeground(QColor('#9B5D62'))
 
 
 class TableItemCategories(QtWidgets.QTableWidgetItem):
