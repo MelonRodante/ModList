@@ -72,14 +72,13 @@ class ModIndex:
             self.categories = mod.get('categories')
             self.update_date = mod.get('dateModified')
             self.icon = mod.get('attachments')
-            self.dependencies = mod.get('latestFiles')
 
             self.error = 0
             self.newmod = 0
             self.update = 0
             self.addlist = 0
-            self.preinstall = 0
-            self.preignore = 0
+            self.autoinstall = 0
+            self.autoignore = 0
 
         except Exception as e:
             print('ModIndex __init__:', e)
@@ -125,20 +124,6 @@ class ModIndex:
         except:
             self.update_date = QByteArray()
 
-    def setDependencies(self):
-        try:
-            dependencies = set()
-            if self.dependencies is not None:
-                for file in self.dependencies:
-                    if file.get('dependencies') is not None:
-                        for dep in file.get('dependencies'):
-                            if dep.get('addonId') is not None:
-                                dependencies.add(dep.get('addonId'))
-            self.dependencies = list(dependencies)
-        except Exception as e:
-            print('ModIndex setDependencies:', e)
-            self.dependencies = []
-
     @staticmethod
     def getLoader(mod):
         try:
@@ -160,9 +145,8 @@ class ModIndex:
                     elif file.get('modLoader') == 4:
                         fabric = True
 
-
             if forge and fabric:
-                return 'Forge / Fabric'
+                return 'Forge | Fabric'
             elif forge:
                 return 'Forge'
             elif fabric:

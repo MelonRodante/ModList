@@ -38,8 +38,8 @@ class Mod:
                 self.favorite = arg.value(9)
                 self.blocked = arg.value(10)
                 self.projectid = arg.value(11)
-                self.preinstall = arg.value(12)
-                self.preignore = arg.value(13)
+                self.autoinstall = arg.value(12)
+                self.autoignore = arg.value(13)
 
             else:
                 self.loader = arg[0].loader
@@ -50,8 +50,8 @@ class Mod:
                 self.ignored = arg[0].ignored
                 self.updated = arg[0].updated
 
-                self.preinstall = arg[0].preinstall
-                self.preignore = arg[0].preignore
+                self.autoinstall = arg[0].autoinstall
+                self.autoignore = arg[0].autoignore
                 self.favorite = arg[0].favorite
                 self.blocked = arg[0].blocked
 
@@ -80,11 +80,11 @@ class Mod:
             if self.updated != mod.updated:
                 self.updated = None
 
-            if self.preinstall != mod.preinstall:
-                self.preinstall = None
+            if self.autoinstall != mod.autoinstall:
+                self.autoinstall = None
 
-            if self.preignore != mod.preignore:
-                self.preignore = None
+            if self.autoignore != mod.autoignore:
+                self.autoignore = None
 
             if self.favorite != mod.favorite:
                 self.favorite = None

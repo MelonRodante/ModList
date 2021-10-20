@@ -305,8 +305,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.actionShowInstalled.setChecked(False)
                 self.ui.actionShowIgnored.setChecked(False)
 
-                self.ui.chkInstalledConfig.setText('Pre-Installed')
-                self.ui.chkIgnoredConfig.setText('Pre-Ignored')
+                self.ui.chkInstalledConfig.setText('Auto-Install')
+                self.ui.chkIgnoredConfig.setText('Auto-Ignore')
             else:
                 self.ui.chkInstalledConfig.setText('Installed')
                 self.ui.chkIgnoredConfig.setText('Ignored')
@@ -502,8 +502,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.chkIgnoredConfig.setChecked(bool(mod.ignored))
             else:
                 self.ui.chkUpdated.setChecked(False)
-                self.ui.chkInstalledConfig.setChecked(bool(mod.preinstall))
-                self.ui.chkIgnoredConfig.setChecked(bool(mod.preignore))
+                self.ui.chkInstalledConfig.setChecked(bool(mod.autoinstall))
+                self.ui.chkIgnoredConfig.setChecked(bool(mod.autoignore))
 
             self.ui.chkFavoriteConfig.setChecked(bool(mod.favorite))
             self.ui.chkBlockedConfig.setChecked(bool(mod.blocked))
@@ -552,14 +552,14 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkIgnoredConfig.setTristate(True)
                     self.ui.chkIgnoredConfig.setCheckState(Qt.PartiallyChecked)
             else:
-                if state.preinstall is not None:
-                    self.ui.chkInstalledConfig.setChecked(bool(state.preinstall))
+                if state.autoinstall is not None:
+                    self.ui.chkInstalledConfig.setChecked(bool(state.autoinstall))
                 else:
                     self.ui.chkInstalledConfig.setTristate(True)
                     self.ui.chkInstalledConfig.setCheckState(Qt.PartiallyChecked)
 
-                if state.preignore is not None:
-                    self.ui.chkIgnoredConfig.setChecked(bool(state.preignore))
+                if state.autoignore is not None:
+                    self.ui.chkIgnoredConfig.setChecked(bool(state.autoignore))
                 else:
                     self.ui.chkIgnoredConfig.setTristate(True)
                     self.ui.chkIgnoredConfig.setCheckState(Qt.PartiallyChecked)
@@ -684,7 +684,7 @@ class MainWindow(QtWidgets.QMainWindow):
                   'loader = :loader, categories = :categories, '
                   'favorite = :favorite, blocked = :blocked, '
                   'newmod = 0, '
-                  'preinstall = :preinstall, preignore = :preignore '
+                  'autoinstall = :autoinstall, autoignore = :autoignore '
                   'WHERE projectid == :projectid;')
         q.bindValue(':projectid', mod.projectid)
 
@@ -709,18 +709,18 @@ class MainWindow(QtWidgets.QMainWindow):
             q.bindValue(':blocked', mod.blocked)
 
         if self.islist:
-            q.bindValue(':preinstall', mod.preinstall)
-            q.bindValue(':preignore', mod.preignore)
+            q.bindValue(':autoinstall', mod.autoinstall)
+            q.bindValue(':autoignore', mod.autoignore)
         else:
             if self.ui.chkInstalledConfig.checkState() != Qt.PartiallyChecked:
-                q.bindValue(':preinstall', int(self.ui.chkInstalledConfig.isChecked()))
+                q.bindValue(':autoinstall', int(self.ui.chkInstalledConfig.isChecked()))
             else:
-                q.bindValue(':preinstall', mod.preinstall)
+                q.bindValue(':autoinstall', mod.autoinstall)
 
             if self.ui.chkIgnoredConfig.checkState() != Qt.PartiallyChecked:
-                q.bindValue(':preignore', int(self.ui.chkIgnoredConfig.isChecked()))
+                q.bindValue(':autoignore', int(self.ui.chkIgnoredConfig.isChecked()))
             else:
-                q.bindValue(':preignore', mod.preignore)
+                q.bindValue(':autoignore', mod.autoignore)
 
         self.exec(q)
 
@@ -936,7 +936,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW prepare_fill_table_query: ', str(e))
 
     def prepare_fill_table_query_list(self):
-        select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid, M.preinstall, M.preignore '
+        select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
         from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.projectid'
         where_q = self.query_create_basic_where()
         orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
@@ -955,7 +955,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return select_q, from_q, where_q, orderby_q
 
     def prepare_fill_table_query_nolist(self):
-        select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid, M.preinstall, M.preignore '
+        select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
         from_q = 'FROM Mods as M'
         where_q = self.query_create_basic_where()
         orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
@@ -967,9 +967,9 @@ class MainWindow(QtWidgets.QMainWindow):
         elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 4:
             where_q += self.optional_filter('blocked', 1, where_q)
         elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
-            where_q += self.optional_filter('preinstall', 1, where_q)
+            where_q += self.optional_filter('autoinstall', 1, where_q)
         elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
-            where_q += self.optional_filter('preignore', 1, where_q)
+            where_q += self.optional_filter('autoignore', 1, where_q)
 
         return select_q, from_q, where_q, orderby_q
 

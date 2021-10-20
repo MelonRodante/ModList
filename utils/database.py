@@ -22,16 +22,9 @@ tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     favorite        INTEGER NOT NULL DEFAULT 0,
                     blocked	        INTEGER NOT NULL DEFAULT 0,
                     newmod          INTEGER NOT NULL DEFAULT 1,
-                    preinstalled    INTEGER NOT NULL DEFAULT 0,
-                    preignore       INTEGER NOT NULL DEFAULT 0,
+                    autoinstall    INTEGER NOT NULL DEFAULT 0,
+                    autoignore       INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY(projectid));'''
-
-tabledependencies = '''CREATE TABLE IF NOT EXISTS Dependencies (
-                    mod         INTEGER NOT NULL,
-                    dependency  INTEGER NOT NULL,
-                    PRIMARY KEY(mod, dependency),
-                    FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
-                    );'''
 
 tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
                     list        TEXT NOT NULL,
@@ -63,7 +56,6 @@ class Database:
             db = QSqlQuery()
             Database.exec(db, tablelists)
             Database.exec(db, tablemods)
-            Database.exec(db, tabledependencies)
             Database.exec(db, tablemodslists)
             Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderMods" ON "Mods" ("favorite"	DESC, "blocked"	ASC, "name"	ASC);')
             Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderModsLists" ON "Mods" ("installed" DESC, "updated" DESC, "name" ASC);')

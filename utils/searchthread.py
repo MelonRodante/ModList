@@ -58,7 +58,7 @@ class SearchThread(QThread):
             if q.exec():
                 if q.next():
                     self.list_version = q.value(0)
-                    self.valid_loaders = [q.value(1), 'Sin Loader', 'Forge / Fabric']
+                    self.valid_loaders = [q.value(1), 'Sin Loader', 'Forge | Fabric']
                 else:
                     QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
                     print("Searching DB Error:", 'No hay una lista seleccionada')
@@ -141,7 +141,7 @@ class SearchThread(QThread):
 
     def check_mod(self, db, mod):
         q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT M.update_date, M.blocked, M.loader, M.preinstall, M.preignore FROM Mods AS M WHERE M.projectid == :projectid')
+        q.prepare('SELECT M.update_date, M.blocked, M.loader, M.autoinstall, M.autoignore FROM Mods AS M WHERE M.projectid == :projectid')
         q.bindValue(':projectid', mod.projectid)
 
         mod.setDate()
@@ -154,8 +154,8 @@ class SearchThread(QThread):
 
                 if q.value(1) == 0:
                     mod.addlist = int(q.value(2) in self.valid_loaders)
-                    mod.preinstall = q.value(3)
-                    mod.preignore = q.value(4)
+                    mod.autoinstall = q.value(3)
+                    mod.autoignore = q.value(4)
 
             else:
                 mod.newmod = 1
@@ -188,15 +188,6 @@ class SearchThread(QThread):
                     if not q.exec():
                         print('DB NewMod:', q.lastError().text(), mod.projectid, mod.name)
 
-                    mod.setDependencies()
-                    if len(mod.dependencies) > 0:
-                        for dep in mod.dependencies:
-                            q.prepare('INSERT OR IGNORE INTO Dependencies(mod, dependency) VALUES (:mod, :dependency)')
-                            q.bindValue(':mod', mod.projectid)
-                            q.bindValue(':dependency', dep)
-                            if not q.exec():
-                                print('DB NewMod:', q.lastError().text(), mod.projectid, mod.name)
-
                 if mod.update:
                     q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
                     q.bindValue(':mod', mod.projectid)
@@ -213,8 +204,8 @@ class SearchThread(QThread):
                     q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, installed, ignored)' 'VALUES (:list, :mod, :installed, :ignored)')
                     q.bindValue(':list',    self.modlist)
                     q.bindValue(':mod',     mod.projectid)
-                    q.bindValue(':installed', mod.preinstall)
-                    q.bindValue(':ignored', mod.preignore)
+                    q.bindValue(':installed', mod.autoinstall)
+                    q.bindValue(':ignored', mod.autoignore)
                     if not q.exec():
                         print('DB AddList:', q.lastError().text(), mod.projectid, mod.name)
 

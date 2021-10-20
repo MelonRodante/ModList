@@ -33,9 +33,9 @@ class TableItemName(QtWidgets.QTableWidgetItem):
         QtWidgets.QTableWidgetItem.__init__(self, mod.name)
         self.setFont(font)
 
-        if mod.preinstall:
+        if mod.autoinstall:
             self.setForeground(QColor('#85C4E3'))
-        elif mod.preignore:
+        elif mod.autoignore:
             self.setForeground(QColor('#9B5D62'))
 
 
