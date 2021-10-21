@@ -65,6 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.state_icons = self.create_state_icons()
 
         self.showlist_state = (self.ui.actionShowUpdated, self.ui.actionShowInstalled, self.ui.actionShowIgnored)
+        self.showlist_autos = (self.ui.actionAutoInstall, self.ui.actionAutoIgnore)
         self.showlist_loader = (self.ui.actionWithoutLoader, self.ui.actionForgeLoader, self.ui.actionFabricLoader, self.ui.actionBothLoader)
 
         self.chks_categories = {}
@@ -165,14 +166,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.actionMultiselection.triggered.connect(self.action_table_multiselection)
 
-            self.ui.actionShowUpdated.triggered.connect(
-                lambda: self.change_action_chk_show_state(self.ui.actionShowUpdated))
-            self.ui.actionShowInstalled.triggered.connect(
-                lambda: self.change_action_chk_show_state(self.ui.actionShowInstalled))
-            self.ui.actionShowIgnored.triggered.connect(
-                lambda: self.change_action_chk_show_state(self.ui.actionShowIgnored))
-            self.ui.actionLoaderAll.triggered.connect(
-                lambda: self.change_action_chk_show_loader(self.ui.actionLoaderAll))
             self.ui.actionWithoutLoader.triggered.connect(
                 lambda: self.change_action_chk_show_loader(self.ui.actionWithoutLoader))
             self.ui.actionForgeLoader.triggered.connect(
@@ -181,6 +174,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 lambda: self.change_action_chk_show_loader(self.ui.actionFabricLoader))
             self.ui.actionBothLoader.triggered.connect(
                 lambda: self.change_action_chk_show_loader(self.ui.actionBothLoader))
+
+            self.ui.actionAutoInstall.triggered.connect(
+                lambda: self.change_action_chk_show_auto(self.ui.actionAutoInstall))
+            self.ui.actionAutoIgnore.triggered.connect(
+                lambda: self.change_action_chk_show_auto(self.ui.actionAutoIgnore))
+
+            self.ui.actionShowUpdated.triggered.connect(
+                lambda: self.change_action_chk_show_state(self.ui.actionShowUpdated))
+            self.ui.actionShowInstalled.triggered.connect(
+                lambda: self.change_action_chk_show_state(self.ui.actionShowInstalled))
+            self.ui.actionShowIgnored.triggered.connect(
+                lambda: self.change_action_chk_show_state(self.ui.actionShowIgnored))
 
             self.ui.tableMods.itemPressed.connect(self.context_menu_table)
 
@@ -264,6 +269,16 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW change_action_chk_show_loader: ', str(e))
 
+    def change_action_chk_show_auto(self, action):
+        try:
+            for chk in self.showlist_autos:
+                if chk != action:
+                    chk.setChecked(False)
+
+            self.load_pages()
+        except Exception as e:
+            print('MAIN_WINDOW change_action_chk_show_state: ', str(e))
+
     def change_action_chk_show_state(self, action):
         try:
             for chk in self.showlist_state:
@@ -304,9 +319,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbModList.addItem('Nuevos Mods')
             self.ui.cmbModList.addItem('Favoritos')
             self.ui.cmbModList.addItem('Bloqueados')
-            self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
-            self.ui.cmbModList.addItem('Pre-Instalados')
-            self.ui.cmbModList.addItem('Pre-Ignorados')
 
             model = self.ui.cmbModList.model()
             for i in range(model.rowCount()):
@@ -316,7 +328,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def change_cmb_list(self):
         try:
-            self.islist = 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 6
+            self.set_islist()
 
             self.ui.actionShowUpdated.setEnabled(self.islist)
             self.ui.actionShowInstalled.setEnabled(self.islist)
@@ -1038,9 +1050,14 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             where = ''
             where += self.optional_filter('loader', self.get_loader(), where, tableas='M')
-            where += self.optional_filter('categories', self.ui.cmbCategories.currentText(), where, like=True,
-                                          novalue='Todas', tableas='M')
+            where += self.optional_filter('categories', self.ui.cmbCategories.currentText(), where, like=True, novalue='Todas', tableas='M')
             where += self.optional_filter('name', self.ui.editName.text(), where, like=True, tableas='M')
+
+            if self.ui.actionAutoInstall.isChecked():
+                where += self.optional_filter('autoinstall', 1, where, like=True, tableas='M')
+            elif self.ui.actionAutoIgnore.isChecked():
+                where += self.optional_filter('autoignore', 1, where, like=True, tableas='M')
+
             return where
         except Exception as e:
             print('MAIN_WINDOW query_create_basic_where: ', str(e))
@@ -1104,16 +1121,13 @@ class MainWindow(QtWidgets.QMainWindow):
             where_q = self.query_create_basic_where()
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
-            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 6:
+            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 3:
                 where_q += self.optional_filter('newmod', 1, where_q)
-            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 5:
-                where_q += self.optional_filter('favorite', 1, where_q)
-            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 4:
-                where_q += self.optional_filter('blocked', 1, where_q)
             elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
-                where_q += self.optional_filter('autoinstall', 1, where_q)
+                where_q += self.optional_filter('favorite', 1, where_q)
             elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
-                where_q += self.optional_filter('autoignore', 1, where_q)
+                where_q += self.optional_filter('blocked', 1, where_q)
+
 
             return select_q, from_q, where_q, orderby_q
         except Exception as e:
@@ -1178,6 +1192,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    def set_islist(self):
+        self.islist = 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 3
+
     def load_pages_maintain_slider(self):
         try:
             current_page = self.current_page
@@ -1189,7 +1206,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             print('MAIN_WINDOW save_configuration_mod: ', str(e))
-
 
     def get_loader(self):
         try:
