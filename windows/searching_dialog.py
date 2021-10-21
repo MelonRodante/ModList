@@ -9,7 +9,7 @@ from utils.searchthread import SearchThread
 
 class SearchingDialog(QtWidgets.QDialog):
 
-    def __init__(self):
+    def __init__(self, list):
         super(SearchingDialog, self).__init__()
         self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowTitleHint | Qt.CustomizeWindowHint)
         self.ui = Ui_SearchingDialog()
@@ -20,6 +20,11 @@ class SearchingDialog(QtWidgets.QDialog):
 
         self.setupWidgets()
         self.setupEvents()
+
+        if list is not None:
+            self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(list))
+            self.ui.chkSeachNewUpdate.setChecked(True)
+
         self.show()
 
     def setupWidgets(self):

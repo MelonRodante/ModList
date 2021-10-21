@@ -7,22 +7,12 @@ from PyQt5 import QtSql, QtWidgets
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox, QWidget
 
+from utils import curseapilinks
 from utils.database import Database
 from utils.modindex import ModIndex
 
 
 class SearchThread(QThread):
-    pagesize = 50
-    header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
-    url = 'http://addons-ecs.forgesvc.net/api/v2/addon/search' \
-          '?gameId=432' \
-          '&sectionId=6' \
-          '&sort=2' \
-          '&pageSize=' + str(pagesize)
-
-    filter = '&gameVersion='
-
-    index = '&index='
 
     sig_max_pages = pyqtSignal(int)
     sig_page_finish = pyqtSignal(int)
@@ -123,8 +113,8 @@ class SearchThread(QThread):
 
     def get_mods_from_page(self, i):
         try:
-            url = SearchThread.url + SearchThread.filter + self.list_version + self.index + str(SearchThread.pagesize * i)
-            mods = requests.get(url, headers=SearchThread.header).json()
+            url = curseapilinks.search_base_query + curseapilinks.search_filter_version + self.list_version + curseapilinks.search_offset + str(curseapilinks.pagesize * i)
+            mods = requests.get(url, headers=curseapilinks.header).json()
             for mod in mods:
                 m = ModIndex(mod)
                 if self.searchnewupdate:
@@ -228,14 +218,3 @@ class SearchThread(QThread):
             print('SEARCH_THREAD set_close:', e)
 
 
-'''
-https://addons-ecs.forgesvc.net/api/v2/addon/search
-?gameId=432
-&sectionId=6
-&categoryId=0
-&sort=2
-&gameVersion=1.17
-&pageSize=50
-&index=0
-&searchFilter={searchFilter}
-'''

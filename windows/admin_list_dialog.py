@@ -1,7 +1,13 @@
+import json
+import re
+
+import requests
 from PyQt5 import QtWidgets, QtSql, QtCore
 from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtWidgets import QMessageBox
 
 from pyqt_windows.lists_dialog import Ui_AdminListDialog
+from utils import curseapilinks
 
 
 class AdminListDialog(QtWidgets.QDialog):
@@ -21,19 +27,38 @@ class AdminListDialog(QtWidgets.QDialog):
     # ------------------------------------------------------------------------------------------------------------------
 
     def setupWidgets(self):
+        self.create_cmb_versions()
         self.modify_cmb()
         self.modify_table()
         self.modify_css()
+
+    def create_cmb_versions(self):
+        try:
+            versions = requests.get(curseapilinks.minecraft_versions, headers=curseapilinks.header).json()
+            for version in versions:
+                if version.get('versionString') is not None:
+                    self.ui.cmbVersion.addItem(version.get('versionString'))
+
+        except json.decoder.JSONDecodeError:
+            QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
+            self.done(0)
 
     def modify_cmb(self):
         model = self.ui.cmbLoader.model()
         for i in range(model.rowCount()):
             model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
 
+        model = self.ui.cmbVersion.model()
+        for i in range(model.rowCount()):
+            model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+
+        self.ui.cmbVersion.setCurrentIndex(-1)
+        self.ui.cmbLoader.setCurrentIndex(-1)
+
     def modify_table(self):
         header = self.ui.tableLists.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
 
     def modify_css(self):
@@ -45,16 +70,20 @@ class AdminListDialog(QtWidgets.QDialog):
 
     def setupEvents(self):
         self.ui.tableLists.itemSelectionChanged.connect(self.clicked_table)
-        self.ui.editList.textChanged.connect(self.change_edit_name)
+        self.ui.editList.textChanged.connect(self.change_edits)
+        self.ui.cmbVersion.currentIndexChanged.connect(self.change_edits)
+        self.ui.cmbLoader.currentIndexChanged.connect(self.change_edits)
         self.ui.btnAddSave.clicked.connect(self.add_update_list)
         self.ui.btnRemove.clicked.connect(self.remove_list)
+
+        self.ui.editList.editingFinished.connect(lambda: self.ui.editList.setText(" ".join(self.ui.editList.text().strip().split())))
 
     def clicked_table(self):
         try:
             if len(self.ui.tableLists.selectedItems()) > 0:
                 fila = self.ui.tableLists.selectedItems()
                 self.ui.editList.setText(fila[0].text().strip())
-                self.ui.editVersion.setText(fila[1].text().strip())
+                self.ui.cmbVersion.setCurrentIndex(self.ui.cmbVersion.findText(fila[1].text().strip()))
                 self.ui.cmbLoader.setCurrentIndex(self.ui.cmbLoader.findText(fila[2].text().strip()))
         except Exception as e:
             print('ERROR clicked_table:', e)
@@ -69,33 +98,17 @@ class AdminListDialog(QtWidgets.QDialog):
         try:
             q = QtSql.QSqlQuery()
             q.prepare('INSERT INTO Lists(listname, version, loader)' 'VALUES (:listname, :version, :loader)')
-            q.bindValue(':listname', self.ui.editList.text().strip())
-            q.bindValue(':version', self.ui.editVersion.text().strip())
+            q.bindValue(':listname', " ".join(self.ui.editList.text().strip().split()))
+            q.bindValue(':version', self.ui.cmbVersion.currentText().strip())
             q.bindValue(':loader', self.ui.cmbLoader.currentText())
             if q.exec():
                 self.ui.editList.setText('')
-                self.ui.editVersion.setText('')
-                self.ui.cmbLoader.setCurrentIndex(0)
+                self.ui.cmbVersion.setCurrentIndex(-1)
+                self.ui.cmbLoader.setCurrentIndex(-1)
                 self.fill_table()
                 self.exitcode = 1
         except Exception as e:
             print('ERROR add_list:', e)
-
-    def update_list(self):
-        try:
-            q = QtSql.QSqlQuery()
-            q.prepare('UPDATE Lists SET version = :version, loader = :loader WHERE listname == :listname;')
-            q.bindValue(':listname', self.ui.editList.text())
-            q.bindValue(':version', self.ui.editVersion.text())
-            q.bindValue(':loader', self.ui.cmbLoader.currentText())
-            if q.exec():
-                self.ui.editList.setText('')
-                self.ui.editVersion.setText('')
-                self.ui.cmbLoader.setCurrentIndex(0)
-                self.fill_table()
-                self.exitcode = 1
-        except Exception as e:
-            print('ERROR update_list:', e)
 
     def remove_list(self):
         try:
@@ -104,40 +117,40 @@ class AdminListDialog(QtWidgets.QDialog):
             q.bindValue(':listname', self.ui.editList.text())
             if q.exec():
                 self.ui.editList.setText('')
-                self.ui.editVersion.setText('')
-                self.ui.cmbLoader.setCurrentIndex(0)
+                self.ui.cmbVersion.setCurrentIndex(-1)
+                self.ui.cmbLoader.setCurrentIndex(-1)
                 self.fill_table()
                 self.exitcode = 1
         except Exception as e:
             print('ERROR remove_list:', e)
 
-    def change_edit_name(self):
+    def change_edits(self):
         try:
-            if self.ui.editList.text():
-                self.ui.btnAddSave.setEnabled(True)
-                self.ui.editVersion.setEnabled(True)
-                for i in range(self.ui.tableLists.rowCount()):
-                    if self.ui.editList.text().strip() == self.ui.tableLists.item(i, 0).text().strip():
-                        self.ui.btnAddSave.setEnabled(False)
-                        self.ui.btnRemove.setEnabled(True)
-                        self.ui.cmbLoader.setEnabled(False)
-                        self.ui.editVersion.setEnabled(False)
-                        return
+            if self.ui.editList.text() and not self.ui.editList.text().isspace():
+                find = False
+                name = " ".join(self.ui.editList.text().strip().split())
 
-                self.ui.cmbLoader.setEnabled(True)
-                self.ui.btnRemove.setEnabled(False)
-                self.ui.cmbLoader.setEnabled(True)
-                self.ui.editVersion.setEnabled(True)
+                for i in range(self.ui.tableLists.rowCount()):
+                    if name == self.ui.tableLists.item(i, 0).text().strip():
+                        find = True
+                        break
+
+                self.ui.cmbVersion.setDisabled(find)
+                self.ui.cmbLoader.setDisabled(find)
+                self.ui.btnRemove.setEnabled(find)
+
+                self.ui.btnAddSave.setEnabled(not find and self.ui.cmbVersion.currentText() != '' and self.ui.cmbLoader.currentText() != '')
+
             else:
+                self.ui.cmbVersion.setEnabled(False)
                 self.ui.cmbLoader.setEnabled(False)
                 self.ui.btnAddSave.setEnabled(False)
-                self.ui.editVersion.setEnabled(False)
                 self.ui.btnRemove.setEnabled(False)
 
-                self.ui.cmbLoader.setCurrentIndex(0)
-                self.ui.editVersion.setText('')
+                self.ui.cmbVersion.setCurrentIndex(-1)
+                self.ui.cmbLoader.setCurrentIndex(-1)
         except Exception as e:
-            print('ERROR change_edit_name:', e)
+            print('ERROR change_edits:', e)
 
     def closeEvent(self, evnt):
         try:
@@ -158,7 +171,7 @@ class AdminListDialog(QtWidgets.QDialog):
                     i = self.ui.tableLists.rowCount()
                     self.ui.tableLists.insertRow(i)
                     self.ui.tableLists.setItem(i, 0, QtWidgets.QTableWidgetItem('  ' + q.value(0)))
-                    self.ui.tableLists.setItem(i, 1, QtWidgets.QTableWidgetItem('  ' + q.value(1)))
+                    self.ui.tableLists.setItem(i, 1, QtWidgets.QTableWidgetItem('  ' + q.value(1) + '  '))
                     self.ui.tableLists.setItem(i, 2, QtWidgets.QTableWidgetItem('  ' + q.value(2) + '  '))
 
                     self.ui.tableLists.item(i, 0).setTextAlignment(Qt.AlignCenter)

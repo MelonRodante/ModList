@@ -42,17 +42,18 @@ class Database:
     # filename = os.getenv('LOCALAPPDATA') + '/MelonRodante/ModList/modlist.db'
     # os.makedirs(os.path.dirname(filename), exist_ok=True)
     filename = './modlist.db'
+    db = None
 
     @staticmethod
     def connect_db():
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName(Database.filename)
+        Database.db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+        Database.db.setDatabaseName(Database.filename)
 
-        if not db.open():
-            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+        if not Database.db.open():
+            QMessageBox.critical(None, "DataBase Error:", Database.db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
             sys.exit(1)
         else:
-            db.exec("PRAGMA foreign_keys = ON;")
+            Database.db.exec("PRAGMA foreign_keys = ON;")
             db = QSqlQuery()
             Database.exec(db, tablelists)
             Database.exec(db, tablemods)

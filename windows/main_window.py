@@ -984,12 +984,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if code == 1:
                 self.create_cmb_values_lists()
+                self.ui.cmbModList.setCurrentIndex(1)
+                self.ui.cmbModList.setCurrentIndex(0)
         except Exception as e:
             print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
 
     def show_searching_dialog(self):
         try:
-            dialog = SearchingDialog()
+            list = None
+            if self.islist:
+                list = self.ui.cmbModList.currentText()
+
+            dialog = SearchingDialog(list)
             if dialog.exec():
                 loader = dialog.ui.cmbModList.currentText()
                 if loader != self.ui.cmbModList.currentText():
@@ -1001,15 +1007,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def show_copylist_dialog(self):
         try:
-            dialog = CopyListDialog()
+            list = None
+            if self.islist:
+                list = self.ui.cmbModList.currentText()
+
+            dialog = CopyListDialog(list)
             editname = dialog.ui.editNameCopy
             code = dialog.exec()
 
             if code == 1:
                 self.create_cmb_values_lists()
-                self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(editname.currentText()))
+                self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(editname.text()))
         except Exception as e:
-            print('MAIN_WINDOW show_searching_dialog: ', str(e))
+            print('MAIN_WINDOW show_copylist_dialog: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 

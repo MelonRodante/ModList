@@ -673,7 +673,7 @@
     <string>Buscar nuevos mods</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionExit">
@@ -699,9 +699,6 @@
    <property name="text">
     <string>Ver favoritos no encontrados</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
-   </property>
   </action>
   <action name="actionIgnoreNoLoader">
    <property name="enabled">
@@ -709,9 +706,6 @@
    </property>
    <property name="text">
     <string>Marcar ignorado Loader no correspondiente</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionLoaderAll">
@@ -778,6 +772,9 @@
   <action name="actionCopyList">
    <property name="text">
     <string>Copiar lista</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>
