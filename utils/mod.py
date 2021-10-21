@@ -91,3 +91,12 @@ class Mod:
 
             if self.blocked != mod.blocked:
                 self.blocked = None
+
+    def insert_in_list(self, q, listname):
+        q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, installed, ignored)' 'VALUES (:list, :mod, :installed, :ignored)')
+        q.bindValue(':list', listname)
+        q.bindValue(':mod', self.projectid)
+        q.bindValue(':installed', self.autoinstall)
+        q.bindValue(':ignored', self.autoignore)
+        if not q.exec():
+            print('MOD_INDEX DB AddList:', q.lastError().text(), self.projectid, self.name)

@@ -1,12 +1,14 @@
 import time
+import traceback
+from functools import partial
 
 from typing import Union
 
-from PyQt5 import QtWidgets, QtCore, QtSql
-from PyQt5.QtCore import QSize, Qt, QCoreApplication
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QAbstractItemView
-from qtpy.QtWidgets import QButtonGroup
+from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
+from PyQt5.QtCore import QSize, Qt, QCoreApplication, QModelIndex
+from PyQt5.QtGui import QFont, QGuiApplication
+from PyQt5.QtWidgets import QAbstractItemView, QMenu, QMessageBox
+from qtpy.QtWidgets import QButtonGroup, QAction
 
 from utils.database import Database
 from utils.icon_utils import IconUtils
@@ -18,6 +20,7 @@ from pyqt_windows.main_window import Ui_ModList
 from windows.admin_list_dialog import AdminListDialog
 from windows.copylist_dialog import CopyListDialog
 from windows.searching_dialog import SearchingDialog
+from windows.searching_mod_id_dialog import SearchingModIdDialog
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -95,25 +98,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @staticmethod
     def create_state_icons():
-        return {
-            'e': IconUtils.getNormalIcon(":/state/state/empty.png"),
+        try:
+            return {
+                'e': IconUtils.getNormalIcon(":/state/state/empty.png"),
 
-            'f': IconUtils.getNormalIcon(":/states/states/favorite.png"),
-            'b': IconUtils.getNormalIcon(":/states/states/blocked.png"),
+                'f': IconUtils.getNormalIcon(":/states/states/favorite.png"),
+                'b': IconUtils.getNormalIcon(":/states/states/blocked.png"),
 
-            'u': IconUtils.getNormalIcon(":/states/states/updated.png"),
-            'uf': IconUtils.getNormalIcon(":/states/states/updated_favorite.png"),
+                'u': IconUtils.getNormalIcon(":/states/states/updated.png"),
+                'uf': IconUtils.getNormalIcon(":/states/states/updated_favorite.png"),
 
-            'i': IconUtils.getNormalIcon(":/states/states/installed.png"),
-            'ui': IconUtils.getNormalIcon(":/states/states/updated_installed.png"),
-            'fi': IconUtils.getNormalIcon(":/states/states/favorite_installed.png"),
-            'ufi': IconUtils.getNormalIcon(":/states/states/updated_favorite_installed.png"),
+                'i': IconUtils.getNormalIcon(":/states/states/installed.png"),
+                'ui': IconUtils.getNormalIcon(":/states/states/updated_installed.png"),
+                'fi': IconUtils.getNormalIcon(":/states/states/favorite_installed.png"),
+                'ufi': IconUtils.getNormalIcon(":/states/states/updated_favorite_installed.png"),
 
-            'g': IconUtils.getNormalIcon(":/states/states/ignored.png"),
-            'ug': IconUtils.getNormalIcon(":/states/states/updated_ignored.png"),
-            'fg': IconUtils.getNormalIcon(":/states/states/favorite_ignored.png"),
-            'ufg': IconUtils.getNormalIcon(":/states/states/updated_favorite_ignored.png")
-        }
+                'g': IconUtils.getNormalIcon(":/states/states/ignored.png"),
+                'ug': IconUtils.getNormalIcon(":/states/states/updated_ignored.png"),
+                'fg': IconUtils.getNormalIcon(":/states/states/favorite_ignored.png"),
+                'ufg': IconUtils.getNormalIcon(":/states/states/updated_favorite_ignored.png")
+            }
+        except Exception as e:
+            print('MAIN_WINDOW create_state_icons: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -128,6 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.create_cmb_values_categories()
             self.create_menu_chk_categories_config()
             self.resize_combobox_loader_config()
+
         except Exception as e:
             print('MAIN_WINDOW setupWidgets: ', str(e))
 
@@ -154,6 +161,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
             self.ui.actionCopyList.triggered.connect(self.show_copylist_dialog)
             self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
+            self.ui.actionSearchModID.triggered.connect(self.show_search_modid_dialog)
+
             self.ui.actionMultiselection.triggered.connect(self.action_table_multiselection)
 
             self.ui.actionShowUpdated.triggered.connect(
@@ -172,6 +181,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 lambda: self.change_action_chk_show_loader(self.ui.actionFabricLoader))
             self.ui.actionBothLoader.triggered.connect(
                 lambda: self.change_action_chk_show_loader(self.ui.actionBothLoader))
+
+            self.ui.tableMods.itemPressed.connect(self.context_menu_table)
 
         except Exception as e:
             print('MAIN_WINDOW setupEvents: ', str(e))
@@ -241,27 +252,36 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW filter_change: ', str(e))
 
     def change_action_chk_show_loader(self, action):
-        for chk in self.showlist_loader:
-            if chk != action:
-                chk.setChecked(False)
+        try:
+            for chk in self.showlist_loader:
+                if chk != action:
+                    chk.setChecked(False)
 
-        if not self.ui.actionLoaderAll.isChecked() and not self.ui.actionWithoutLoader.isChecked() and not self.ui.actionForgeLoader.isChecked() and not self.ui.actionFabricLoader.isChecked() and not self.ui.actionBothLoader.isChecked():
-            self.ui.actionLoaderAll.setChecked(True)
+            if not self.ui.actionLoaderAll.isChecked() and not self.ui.actionWithoutLoader.isChecked() and not self.ui.actionForgeLoader.isChecked() and not self.ui.actionFabricLoader.isChecked() and not self.ui.actionBothLoader.isChecked():
+                self.ui.actionLoaderAll.setChecked(True)
 
-        self.load_pages()
+            self.load_pages()
+        except Exception as e:
+            print('MAIN_WINDOW change_action_chk_show_loader: ', str(e))
 
     def change_action_chk_show_state(self, action):
-        for chk in self.showlist_state:
-            if chk != action:
-                chk.setChecked(False)
+        try:
+            for chk in self.showlist_state:
+                if chk != action:
+                    chk.setChecked(False)
 
-        self.load_pages()
+            self.load_pages()
+        except Exception as e:
+            print('MAIN_WINDOW change_action_chk_show_state: ', str(e))
 
     def action_table_multiselection(self):
-        if self.ui.actionMultiselection.isChecked():
-            self.ui.tableMods.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        else:
-            self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
+        try:
+            if self.ui.actionMultiselection.isChecked():
+                self.ui.tableMods.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            else:
+                self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
+        except Exception as e:
+            print('MAIN_WINDOW action_table_multiselection: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -275,7 +295,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbModList.addItem('Todos')
             self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
 
-            if q.exec_():
+            if self.exec(q, 'create_cmb_values_lists'):
                 while q.next():
                     self.ui.cmbModList.addItem(q.value(0))
 
@@ -375,25 +395,37 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------
 
     def edit_name_clear(self):
-        if self.ui.editName.text() == '':
-            self.filter_change()
+        try:
+            if self.ui.editName.text() == '':
+                self.filter_change()
+        except Exception as e:
+            print('MAIN_WINDOW edit_name_clear: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
     def click_left_page(self):
-        if 0 < self.current_page:
-            self.current_page -= 1
-        self.load_data()
+        try:
+            if 0 < self.current_page:
+                self.current_page -= 1
+            self.load_data()
+        except Exception as e:
+            print('MAIN_WINDOW click_left_page: ', str(e))
 
     def click_right_page(self):
-        if self.current_page < self.maxpages:
-            self.current_page += 1
-        self.load_data()
+        try:
+            if self.current_page < self.maxpages:
+                self.current_page += 1
+            self.load_data()
+        except Exception as e:
+            print('MAIN_WINDOW click_right_page: ', str(e))
 
     def check_table_buttons(self):
-        self.ui.btnPageLeft.setEnabled(0 < self.current_page)
-        self.ui.btnPageRight.setEnabled(self.current_page < self.maxpages)
-        self.ui.lblActualPages.setEnabled(self.found_results != 0)
+        try:
+            self.ui.btnPageLeft.setEnabled(0 < self.current_page)
+            self.ui.btnPageRight.setEnabled(self.current_page < self.maxpages)
+            self.ui.lblActualPages.setEnabled(self.found_results != 0)
+        except Exception as e:
+            print('MAIN_WINDOW check_table_buttons: ', str(e))
 
     # ------------------------------------------
 
@@ -584,7 +616,7 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             q = QtSql.QSqlQuery()
             self.prepare_fill_table_query(q, count=True)
-            if self.exec(q) and q.next():
+            if self.exec(q, 'load_pages') and q.next():
                 self.found_results = q.value(0)
                 self.maxpages = int(q.value(0) / MainWindow.rows_per_page)
 
@@ -604,16 +636,19 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW load_pages: ', str(e))
 
     def load_data(self):
-        q = QtSql.QSqlQuery()
-        self.tableMods.clear()
-        self.prepare_fill_table_query(q)
+        try:
+            q = QtSql.QSqlQuery()
+            self.tableMods.clear()
+            self.prepare_fill_table_query(q)
 
-        if self.exec(q):
-            # print(self.current_page, q.lastQuery())
-            while q.next():
-                self.tableMods.append(Mod(q))
+            if self.exec(q, 'load_data'):
+                # print(self.current_page, q.lastQuery())
+                while q.next():
+                    self.tableMods.append(Mod(q))
 
-        self.fill_table()
+            self.fill_table()
+        except Exception as e:
+            print('MAIN_WINDOW load_data: ', str(e))
 
     def fill_table(self):
         try:
@@ -652,7 +687,104 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.lblActualPages.setText('0 / 0')
 
         except Exception as e:
-            print('MAIN_WINDOW load_data: ', e)
+            print('MAIN_WINDOW fill_table: ', e)
+
+    # ------------------------------------------
+
+    def context_menu_table(self, index: QModelIndex):
+        try:
+            if Qt.RightButton == QGuiApplication.mouseButtons():
+                q = QtSql.QSqlQuery()
+                top_menu = QMenu(self)
+
+                menu = top_menu.addMenu("Menu")
+
+                addlist = menu.addMenu("Añadir a lista...")
+
+                q.prepare('select listname, loader from Lists;')
+                actions = []
+                if self.exec(q, 'context_menu_table'):
+                    while q.next():
+                        if q.value(0) != self.ui.cmbModList.currentText():
+                            action = QAction(q.value(0), self)
+                            action.triggered.connect(partial(self.table_add_list, q, q.value(0), q.value(1)))
+                            actions.append(action)
+                        elif not self.islist:
+                            action = QAction(q.value(0), self)
+                            action.triggered.connect(partial(self.table_add_list, q, q.value(0), q.value(1)))
+                            actions.append(action)
+                    addlist.addActions(actions)
+
+                if self.islist:
+                    delaction = QAction("Eliminar de la lista", self)
+                    delaction.triggered.connect(partial(self.table_del_list, q))
+                    menu.addAction(delaction)
+
+                    menu.addSeparator()
+
+                    autoinstall = QAction("Marcar como auto-install", self)
+                    autoinstall.triggered.connect(partial(self.table_mark_autoinstall, q))
+                    menu.addAction(autoinstall)
+
+                    autoignore = QAction("Marcar como auto-ignore", self)
+                    autoignore.triggered.connect(partial(self.table_mark_autoignore, q))
+                    menu.addAction(autoignore)
+
+                action = menu.exec_(QtGui.QCursor.pos())
+
+        except Exception as e:
+            print('MAIN_WINDOW context_menu_table: ', str(e), traceback.format_exc())
+
+    def table_add_list(self, q, listname, loader):
+        try:
+            validloaders = [loader, 'Sin Loader', 'Forge | Fabric']
+            for mod in self.selectedMods:
+                if mod.loader not in validloaders:
+                    QMessageBox.warning(None, 'MOD NO COMPATIBLE:',
+                                        'MOD NO COMPATIBLE:\n\nNo se pueden insertar los mods seleccionados ya que entre '
+                                        '\nellos existe 1 o mas no compatibles con el loader de la lista.',
+                                        QtWidgets.QMessageBox.Close)
+                    return
+
+            for mod in self.selectedMods:
+                mod.insert_in_list(q, listname)
+        except Exception as e:
+            print('MAIN_WINDOW table_add_list: ', str(e))
+
+    def table_del_list(self, q):
+        try:
+            for mod in self.selectedMods:
+                q.prepare('DELETE FROM ModsLists WHERE list == :list and mod == :mod;')
+                q.bindValue(':list', self.ui.cmbModList.currentText())
+                q.bindValue(':mod', mod.projectid)
+                self.exec(q, 'table_del_list')
+
+            self.load_pages_maintain_slider()
+
+        except Exception as e:
+            print('MAIN_WINDOW table_del_list: ', str(e))
+
+    def table_mark_autoinstall(self, q):
+        try:
+            for mod in self.selectedMods:
+                q.prepare('UPDATE Mods SET autoinstall = 1, autoignore = 0 WHERE projectid == :projectid;')
+                q.bindValue(':projectid', mod.projectid)
+                self.exec(q, 'table_mark_autoinstall')
+
+            self.load_pages_maintain_slider()
+        except Exception as e:
+            print('MAIN_WINDOW table_mark_autoinstall: ', str(e))
+
+    def table_mark_autoignore(self, q):
+        try:
+            for mod in self.selectedMods:
+                q.prepare('UPDATE Mods SET autoinstall = 0, autoignore = 1 WHERE projectid == :projectid;')
+                q.bindValue(':projectid', mod.projectid)
+                self.exec(q, 'table_mark_autoignore')
+
+            self.load_pages_maintain_slider()
+        except Exception as e:
+            print('MAIN_WINDOW table_mark_autoignore: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -667,86 +799,86 @@ class MainWindow(QtWidgets.QMainWindow):
                     if self.ui.chkBlockedConfig.checkState() == Qt.Checked:
                         q.prepare('DELETE FROM ModsLists WHERE mod == :mod;')
                         q.bindValue(':mod', mod.projectid)
-                        self.exec(q)
+                        self.exec(q, 'save_configuration_mod')
                     elif self.islist:
                         self.update_modslists_table(q, mod)
 
-                current_page = self.current_page
-                scroll = self.ui.tableMods.verticalScrollBar().sliderPosition()
-                self.load_pages()
-                if current_page == self.current_page:
-                    QCoreApplication.processEvents()
-                    self.ui.tableMods.verticalScrollBar().setSliderPosition(scroll)
+                self.load_pages_maintain_slider()
         except Exception as e:
-            print('MAIN_WINDOW save_mod_config: ', str(e))
+            print('MAIN_WINDOW save_configuration_mod: ', str(e))
 
     def update_mods_table(self, q, mod):
+        try:
+            q.prepare('UPDATE Mods SET '
+                      'loader = :loader, categories = :categories, '
+                      'favorite = :favorite, blocked = :blocked, '
+                      'newmod = 0, '
+                      'autoinstall = :autoinstall, autoignore = :autoignore '
+                      'WHERE projectid == :projectid;')
+            q.bindValue(':projectid', mod.projectid)
 
-        q.prepare('UPDATE Mods SET '
-                  'loader = :loader, categories = :categories, '
-                  'favorite = :favorite, blocked = :blocked, '
-                  'newmod = 0, '
-                  'autoinstall = :autoinstall, autoignore = :autoignore '
-                  'WHERE projectid == :projectid;')
-        q.bindValue(':projectid', mod.projectid)
-
-        if self.ui.cmbLoaderConfig.currentIndex() != 0:
-            q.bindValue(':loader', self.ui.cmbLoaderConfig.currentText())
-        else:
-            q.bindValue(':loader', mod.loader)
-
-        if not self.chks_categories[''].isChecked():
-            q.bindValue(':categories', self.get_categories_from_checks())
-        else:
-            q.bindValue(':categories', mod.categories)
-
-        if self.ui.chkFavoriteConfig.checkState() != Qt.PartiallyChecked:
-            q.bindValue(':favorite', int(self.ui.chkFavoriteConfig.isChecked()))
-        else:
-            q.bindValue(':favorite', mod.favorite)
-
-        if self.ui.chkBlockedConfig.checkState() != Qt.PartiallyChecked:
-            q.bindValue(':blocked', int(self.ui.chkBlockedConfig.isChecked()))
-        else:
-            q.bindValue(':blocked', mod.blocked)
-
-        if self.islist:
-            q.bindValue(':autoinstall', mod.autoinstall)
-            q.bindValue(':autoignore', mod.autoignore)
-        else:
-            if self.ui.chkInstalledConfig.checkState() != Qt.PartiallyChecked:
-                q.bindValue(':autoinstall', int(self.ui.chkInstalledConfig.isChecked()))
+            if self.ui.cmbLoaderConfig.currentIndex() != 0:
+                q.bindValue(':loader', self.ui.cmbLoaderConfig.currentText())
             else:
+                q.bindValue(':loader', mod.loader)
+
+            if not self.chks_categories[''].isChecked():
+                q.bindValue(':categories', self.get_categories_from_checks())
+            else:
+                q.bindValue(':categories', mod.categories)
+
+            if self.ui.chkFavoriteConfig.checkState() != Qt.PartiallyChecked:
+                q.bindValue(':favorite', int(self.ui.chkFavoriteConfig.isChecked()))
+            else:
+                q.bindValue(':favorite', mod.favorite)
+
+            if self.ui.chkBlockedConfig.checkState() != Qt.PartiallyChecked:
+                q.bindValue(':blocked', int(self.ui.chkBlockedConfig.isChecked()))
+            else:
+                q.bindValue(':blocked', mod.blocked)
+
+            if self.islist:
                 q.bindValue(':autoinstall', mod.autoinstall)
-
-            if self.ui.chkIgnoredConfig.checkState() != Qt.PartiallyChecked:
-                q.bindValue(':autoignore', int(self.ui.chkIgnoredConfig.isChecked()))
-            else:
                 q.bindValue(':autoignore', mod.autoignore)
+            else:
+                if self.ui.chkInstalledConfig.checkState() != Qt.PartiallyChecked:
+                    q.bindValue(':autoinstall', int(self.ui.chkInstalledConfig.isChecked()))
+                else:
+                    q.bindValue(':autoinstall', mod.autoinstall)
 
-        self.exec(q)
+                if self.ui.chkIgnoredConfig.checkState() != Qt.PartiallyChecked:
+                    q.bindValue(':autoignore', int(self.ui.chkIgnoredConfig.isChecked()))
+                else:
+                    q.bindValue(':autoignore', mod.autoignore)
+
+            self.exec(q, 'update_modslists_table')
+        except Exception as e:
+            print('MAIN_WINDOW update_mods_table: ', str(e))
 
     def update_modslists_table(self, q, mod):
-        q.prepare('UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
-        q.bindValue(':list', self.ui.cmbModList.currentText())
-        q.bindValue(':mod', mod.projectid)
+        try:
+            q.prepare('UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
+            q.bindValue(':list', self.ui.cmbModList.currentText())
+            q.bindValue(':mod', mod.projectid)
 
-        if self.ui.chkInstalledConfig.checkState() != Qt.PartiallyChecked:
-            q.bindValue(':installed', int(self.ui.chkInstalledConfig.isChecked()))
-        else:
-            q.bindValue(':installed', mod.installed)
+            if self.ui.chkInstalledConfig.checkState() != Qt.PartiallyChecked:
+                q.bindValue(':installed', int(self.ui.chkInstalledConfig.isChecked()))
+            else:
+                q.bindValue(':installed', mod.installed)
 
-        if self.ui.chkIgnoredConfig.checkState() != Qt.PartiallyChecked:
-            q.bindValue(':ignored', int(self.ui.chkIgnoredConfig.isChecked()))
-        else:
-            q.bindValue(':ignored', mod.ignored)
+            if self.ui.chkIgnoredConfig.checkState() != Qt.PartiallyChecked:
+                q.bindValue(':ignored', int(self.ui.chkIgnoredConfig.isChecked()))
+            else:
+                q.bindValue(':ignored', mod.ignored)
 
-        if self.ui.chkUpdated.checkState() != Qt.PartiallyChecked and mod.updated == 1:
-            q.bindValue(':updated', int(not self.ui.chkUpdated.isChecked()))
-        else:
-            q.bindValue(':updated', mod.updated)
+            if self.ui.chkUpdated.checkState() != Qt.PartiallyChecked and mod.updated == 1:
+                q.bindValue(':updated', int(not self.ui.chkUpdated.isChecked()))
+            else:
+                q.bindValue(':updated', mod.updated)
 
-        self.exec(q)
+            self.exec(q, 'update_modslists_table')
+        except Exception as e:
+            print('MAIN_WINDOW update_modslists_table: ', str(e))
 
     # ------------------------------------------
 
@@ -762,30 +894,33 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------
 
     def create_chk_category_config_action(self, menu, cat, state=False):
-        action = QtWidgets.QWidgetAction(menu)
+        try:
+            action = QtWidgets.QWidgetAction(menu)
 
-        height = 26
-        chk = QtWidgets.QCheckBox("{:<38}".format(cat[0]))
-        chk.setStyleSheet(
-            'QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}'
-            'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
-                                                                 'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
-                                                                 'QCheckBox::indicator {height: %dpx;}' % height
-        )
-        chk.setFixedHeight(height)
-        chk.setChecked(state)
-        chk.setFocusPolicy(Qt.NoFocus)
-        if cat[1]:
-            chk.setIcon(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'))
-        else:
-            f = chk.font()
-            f.setBold(True)
-            chk.setFont(f)
+            height = 26
+            chk = QtWidgets.QCheckBox("{:<38}".format(cat[0]))
+            chk.setStyleSheet(
+                'QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}'
+                'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
+                                                                     'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
+                                                                     'QCheckBox::indicator {height: %dpx;}' % height
+            )
+            chk.setFixedHeight(height)
+            chk.setChecked(state)
+            chk.setFocusPolicy(Qt.NoFocus)
+            if cat[1]:
+                chk.setIcon(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'))
+            else:
+                f = chk.font()
+                f.setBold(True)
+                chk.setFont(f)
 
-        self.chks_categories[cat[1]] = chk
-        self.chks_categories_group.addButton(chk)
-        action.setDefaultWidget(chk)
-        return action
+            self.chks_categories[cat[1]] = chk
+            self.chks_categories_group.addButton(chk)
+            action.setDefaultWidget(chk)
+            return action
+        except Exception as e:
+            print('MAIN_WINDOW create_chk_category_config_action: ', str(e))
 
     def create_menu_chk_categories_config(self):
         try:
@@ -804,7 +939,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.chks_categories_group.buttonPressed.connect(self.change_chk_categories)
 
         except Exception as e:
-            print('MAIN_WINDOW create_chk_values_categories_config: ', str(e))
+            print('MAIN_WINDOW create_menu_chk_categories_config: ', str(e))
 
     def change_state_categories_config(self):
         try:
@@ -891,10 +1026,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @staticmethod
     def actual_category_filter(text, compare_index=0):
-        for cat in MainWindow.categories:
-            if cat[compare_index] == text:
-                return cat
-        return ['', '', None]
+        try:
+            for cat in MainWindow.categories:
+                if cat[compare_index] == text:
+                    return cat
+            return ['', '', None]
+        except Exception as e:
+            print('MAIN_WINDOW actual_category_filter: ', str(e))
 
     def query_create_basic_where(self):
         try:
@@ -905,7 +1043,7 @@ class MainWindow(QtWidgets.QMainWindow):
             where += self.optional_filter('name', self.ui.editName.text(), where, like=True, tableas='M')
             return where
         except Exception as e:
-            print('MAIN_WINDOW query_where_order: ', str(e))
+            print('MAIN_WINDOW query_create_basic_where: ', str(e))
 
     def query_bind_basic_where(self, q):
         try:
@@ -938,42 +1076,48 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW prepare_fill_table_query: ', str(e))
 
     def prepare_fill_table_query_list(self):
-        select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
-        from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.projectid'
-        where_q = self.query_create_basic_where()
-        orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
+        try:
+            select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
+            from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.projectid'
+            where_q = self.query_create_basic_where()
+            orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
-        where_q += self.optional_filter('list', self.ui.cmbModList.currentText(), where_q, tableas='ML')
-        if self.ui.actionShowUpdated.isChecked():
-            where_q += ' AND ((installed == 0 AND ignored == 0) OR (installed == 1 AND updated == 1)) '
-            orderby_q = 'ORDER BY ML.installed DESC, ML.updated DESC, M.favorite DESC, M.name ASC '
-        elif self.ui.actionShowInstalled.isChecked():
-            where_q += ' AND installed == 1 '
-        elif self.ui.actionShowIgnored.isChecked():
-            where_q += ' AND ignored == 1 '
-        else:
-            where_q += ' AND installed == 0 AND ignored == 0 '
+            where_q += self.optional_filter('list', self.ui.cmbModList.currentText(), where_q, tableas='ML')
+            if self.ui.actionShowUpdated.isChecked():
+                where_q += ' AND ((installed == 0 AND ignored == 0) OR (installed == 1 AND updated == 1)) '
+                orderby_q = 'ORDER BY ML.installed DESC, ML.updated DESC, M.favorite DESC, M.name ASC '
+            elif self.ui.actionShowInstalled.isChecked():
+                where_q += ' AND installed == 1 '
+            elif self.ui.actionShowIgnored.isChecked():
+                where_q += ' AND ignored == 1 '
+            else:
+                where_q += ' AND installed == 0 AND ignored == 0 '
 
-        return select_q, from_q, where_q, orderby_q
+            return select_q, from_q, where_q, orderby_q
+        except Exception as e:
+            print('MAIN_WINDOW prepare_fill_table_query_list: ', str(e))
 
     def prepare_fill_table_query_nolist(self):
-        select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
-        from_q = 'FROM Mods as M'
-        where_q = self.query_create_basic_where()
-        orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
+        try:
+            select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
+            from_q = 'FROM Mods as M'
+            where_q = self.query_create_basic_where()
+            orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
-        if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 6:
-            where_q += self.optional_filter('newmod', 1, where_q)
-        elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 5:
-            where_q += self.optional_filter('favorite', 1, where_q)
-        elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 4:
-            where_q += self.optional_filter('blocked', 1, where_q)
-        elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
-            where_q += self.optional_filter('autoinstall', 1, where_q)
-        elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
-            where_q += self.optional_filter('autoignore', 1, where_q)
+            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 6:
+                where_q += self.optional_filter('newmod', 1, where_q)
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 5:
+                where_q += self.optional_filter('favorite', 1, where_q)
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 4:
+                where_q += self.optional_filter('blocked', 1, where_q)
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
+                where_q += self.optional_filter('autoinstall', 1, where_q)
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
+                where_q += self.optional_filter('autoignore', 1, where_q)
 
-        return select_q, from_q, where_q, orderby_q
+            return select_q, from_q, where_q, orderby_q
+        except Exception as e:
+            print('MAIN_WINDOW prepare_fill_table_query_nolist: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -1021,50 +1165,83 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW show_copylist_dialog: ', str(e))
 
+    def show_search_modid_dialog(self):
+        try:
+            dialog = SearchingModIdDialog()
+            #editname = dialog.ui.editNameCopy
+            code = dialog.exec()
+
+            if code == 1:
+                pass
+        except Exception as e:
+            print('MAIN_WINDOW show_search_modid_dialog: ', str(e))
+
     # ------------------------------------------------------------------------------------------------------------------
 
+    def load_pages_maintain_slider(self):
+        try:
+            current_page = self.current_page
+            scroll = self.ui.tableMods.verticalScrollBar().sliderPosition()
+            self.load_pages()
+            if current_page == self.current_page:
+                QCoreApplication.processEvents()
+                self.ui.tableMods.verticalScrollBar().setSliderPosition(scroll)
+
+        except Exception as e:
+            print('MAIN_WINDOW save_configuration_mod: ', str(e))
+
+
     def get_loader(self):
-        for loader in self.showlist_loader:
-            if loader.isChecked():
-                return loader.text()
-        return ''
+        try:
+            for loader in self.showlist_loader:
+                if loader.isChecked():
+                    return loader.text()
+            return ''
+        except Exception as e:
+            print('MAIN_WINDOW get_loader: ', str(e))
 
     def get_state_icon(self, mod):
-        if mod.blocked:
-            return self.state_icons['b']
-        else:
-            state = ''
-
-            if mod.updated:
-                state += 'u'
-
-            if mod.favorite:
-                state += 'f'
-
-            if mod.installed:
-                state += 'i'
-            elif mod.ignored:
-                state += 'g'
-
-            if state != '':
-                return self.state_icons[state]
+        try:
+            if mod.blocked:
+                return self.state_icons['b']
             else:
-                return self.state_icons['e']
+                state = ''
+
+                if mod.updated:
+                    state += 'u'
+
+                if mod.favorite:
+                    state += 'f'
+
+                if mod.installed:
+                    state += 'i'
+                elif mod.ignored:
+                    state += 'g'
+
+                if state != '':
+                    return self.state_icons[state]
+                else:
+                    return self.state_icons['e']
+        except Exception as e:
+            print('MAIN_WINDOW get_state_icon: ', str(e))
 
     def get_categories_from_checks(self):
-        c = []
-        for cat, chk in self.chks_categories.items():
-            if chk.isChecked():
-                c.append(cat)
-        c.sort()
-        return ",".join(c)
+        try:
+            c = []
+            for cat, chk in self.chks_categories.items():
+                if chk.isChecked():
+                    c.append(cat)
+            c.sort()
+            return ",".join(c)
+        except Exception as e:
+            print('MAIN_WINDOW get_categories_from_checks: ', str(e))
 
     @staticmethod
-    def exec(q):
+    def exec(q, msg=''):
         try:
             b = q.exec_()
             if b is False:
                 print(q.lastError().text())
             return b
         except Exception as e:
-            print('MAIN_WINDOW exec', e)
+            print('MAIN_WINDOW exec ' + msg + ':', e)

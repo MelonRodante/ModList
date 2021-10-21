@@ -1,7 +1,9 @@
 from datetime import datetime
 
 import requests
+from PyQt5 import QtWidgets, QtSql
 from PyQt5.QtCore import QByteArray
+from PyQt5.QtWidgets import QMessageBox
 
 
 class ModIndex:
@@ -119,7 +121,7 @@ class ModIndex:
                 for attach in self.icon:
                     if attach.get('isDefault') is True:
                         self.icon = QByteArray(requests.get(attach.get('thumbnailUrl')).content)
-            else:
+            elif not isinstance(self.icon, QByteArray):
                 self.update_date = QByteArray()
         except:
             self.update_date = QByteArray()
@@ -156,3 +158,116 @@ class ModIndex:
         except Exception as e:
             print('ModIndex getLoader:', e)
             return 'error'
+
+    def load_data(self):
+        self.setCategories()
+        self.setDate()
+        self.setIcon()
+
+    def print_data(self):
+        print(self.icon)
+        print('URL:         ' + self.path)
+        print('ProjectID:   ' + str(self.projectid))
+        print('Name:        ' + self.name)
+        print('Loader:      ' + self.loader)
+        print('Update date: ' + str(self.update_date))
+        for cat in self.categories.split(','):
+            print('     ' + cat)
+        print('')
+
+    def check_mod(self, db, valid_loaders):
+        try:
+            q = QtSql.QSqlQuery(db)
+            q.prepare('SELECT M.update_date, M.blocked, M.loader, M.autoinstall, M.autoignore FROM Mods AS M WHERE M.projectid == :projectid')
+            q.bindValue(':projectid', self.projectid)
+
+            self.setDate()
+
+            if q.exec():
+                if q.next():
+                    self.setDate()
+                    if q.value(0) < self.update_date:
+                        self.update = 1
+
+                    if q.value(1) == 0:
+                        self.addlist = int(q.value(2) in valid_loaders)
+                        self.autoinstall = q.value(3)
+                        self.autoignore = q.value(4)
+
+                else:
+                    self.newmod = 1
+                    self.addlist = int(self.loader in valid_loaders)
+
+                return True
+
+            else:
+                self.error = 1
+                QMessageBox.critical(None, "Searching DB Error 1:", q.lastError().text(), QtWidgets.QMessageBox.Close)
+                print("Searching DB Error 1:", q.lastError().text())
+                return False
+
+        except Exception as e:
+            print('SEARCH_THREAD check_mod:', e)
+
+    def process_mod(self, db, modlist=None):
+        try:
+            if self.error != 1:
+                db.transaction()
+
+                q = QtSql.QSqlQuery(db)
+
+                if self.newmod:
+                    self.setCategories()
+                    self.setIcon()
+                    q.prepare('INSERT OR IGNORE INTO Mods(path, name, loader, categories, update_date, icon, projectid) '
+                              'VALUES (:path, :name, :loader, :categories, :update_date, :icon, :projectid)')
+                    q.bindValue(':path',        self.path)
+                    q.bindValue(':name',        self.name)
+                    q.bindValue(':loader',      self.loader)
+                    q.bindValue(':categories',  self.categories)
+                    q.bindValue(':update_date', self.update_date)
+                    q.bindValue(':icon',        self.icon)
+                    q.bindValue(':projectid',   self.projectid)
+                    if not q.exec():
+                        print('MOD_INDEX DB NewMod:', q.lastError().text(), self.projectid, self.name)
+
+                if self.update:
+                    q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
+                    q.bindValue(':mod', self.projectid)
+                    if not q.exec():
+                        print('MOD_INDEX DB Update ML:', q.lastError().text(), self.projectid, self.name)
+
+                    q.prepare('UPDATE Mods SET update_date = :update_date WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', self.projectid)
+                    q.bindValue(':update_date', self.update_date)
+                    if not q.exec():
+                        print('MOD_INDEX DB Update M:', q.lastError().text(), self.projectid, self.name)
+
+                if self.addlist and modlist is not None:
+                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, installed, ignored)' 'VALUES (:list, :mod, :installed, :ignored)')
+                    q.bindValue(':list',    modlist)
+                    q.bindValue(':mod',     self.projectid)
+                    q.bindValue(':installed', self.autoinstall)
+                    q.bindValue(':ignored', self.autoignore)
+                    if not q.exec():
+                        print('MOD_INDEX DB AddList:', q.lastError().text(), self.projectid, self.name)
+                elif modlist is None:
+                    self.setIcon()
+                    q.prepare('UPDATE Mods SET icon = :icon, name = :name, newmod = 1 WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', self.projectid)
+                    q.bindValue(':icon', self.icon)
+                    q.bindValue(':name', self.name)
+                    if not q.exec():
+                        print('MOD_INDEX DB ReIndex M:', q.lastError().text(), self.projectid, self.name)
+
+                db.commit()
+        except Exception as e:
+            print('MOD_INDEX process_mod:', e)
+            print('     ', self.projectid)
+            print('     ', self.path)
+            print('     ', self.name)
+            print('     ', self.loader)
+            print('     ', self.categories)
+            print('     ', self.update_date)
+            print('     ', self.icon)
+            print()

@@ -76,7 +76,7 @@ class SearchThread(QThread):
                 sys.exit(1)
 
         except Exception as e:
-            print('SEARCH_THREAD set_filter:', e)
+            print('SEARCH_THREAD getListInfo:', e)
 
     # noinspection PyUnresolvedReferences
     def search_mods(self):
@@ -99,8 +99,8 @@ class SearchThread(QThread):
                 if self.canclose:
                     break
                 else:
-                    self.check_mod(db, mod)
-                    self.process_mod(db, mod)
+                    mod.check_mod(db, self.valid_loaders)
+                    mod.process_mod(db, self.modlist)
                     self.sig_page_finish.emit(i)
 
             if self.canclose:
@@ -109,7 +109,7 @@ class SearchThread(QThread):
                 self.sig_finish_code.emit(0)
 
         except Exception as e:
-            print('SEARCH_THREAD search_modslist:', e)
+            print('SEARCH_THREAD search_mods:', e)
 
     def get_mods_from_page(self, i):
         try:
@@ -128,88 +128,6 @@ class SearchThread(QThread):
             return 0
         except Exception as e:
             print('SEARCH_THREAD get_mods_from_page:', e) #, traceback.format_exc())
-
-    def check_mod(self, db, mod):
-        q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT M.update_date, M.blocked, M.loader, M.autoinstall, M.autoignore FROM Mods AS M WHERE M.projectid == :projectid')
-        q.bindValue(':projectid', mod.projectid)
-
-        mod.setDate()
-
-        if q.exec():
-            if q.next():
-                mod.setDate()
-                if q.value(0) < mod.update_date:
-                    mod.update = 1
-
-                if q.value(1) == 0:
-                    mod.addlist = int(q.value(2) in self.valid_loaders)
-                    mod.autoinstall = q.value(3)
-                    mod.autoignore = q.value(4)
-
-            else:
-                mod.newmod = 1
-                mod.addlist = int(mod.loader in self.valid_loaders)
-
-        else:
-            mod.error = 1
-            QMessageBox.critical(None, "Searching DB Error 1:", q.lastError().text(), QtWidgets.QMessageBox.Close)
-            print("Searching DB Error 1:", q.lastError().text())
-            sys.exit(1)
-
-    def process_mod(self, db, mod):
-        try:
-            if mod.error != 1:
-                db.transaction()
-
-                q = QtSql.QSqlQuery(db)
-
-                if mod.newmod:
-                    mod.setCategories()
-                    mod.setIcon()
-                    q.prepare('INSERT OR IGNORE INTO Mods(path, name, loader, categories, update_date, icon, projectid) VALUES (:path, :name, :loader, :categories, :update_date, :icon, :projectid)')
-                    q.bindValue(':path',        mod.path)
-                    q.bindValue(':name',        mod.name)
-                    q.bindValue(':loader',      mod.loader)
-                    q.bindValue(':categories',  mod.categories)
-                    q.bindValue(':update_date', mod.update_date)
-                    q.bindValue(':icon',        mod.icon)
-                    q.bindValue(':projectid',   mod.projectid)
-                    if not q.exec():
-                        print('DB NewMod:', q.lastError().text(), mod.projectid, mod.name)
-
-                if mod.update:
-                    q.prepare('UPDATE ModsLists SET updated = 1 WHERE mod == :mod;')
-                    q.bindValue(':mod', mod.projectid)
-                    if not q.exec():
-                        print('DB Update ML:', q.lastError().text(), mod.projectid, mod.name)
-
-                    q.prepare('UPDATE Mods SET update_date = :update_date WHERE projectid == :projectid;')
-                    q.bindValue(':projectid', mod.projectid)
-                    q.bindValue(':update_date', mod.update_date)
-                    if not q.exec():
-                        print('DB Update M:', q.lastError().text(), mod.projectid, mod.name)
-
-                if mod.addlist:
-                    q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, installed, ignored)' 'VALUES (:list, :mod, :installed, :ignored)')
-                    q.bindValue(':list',    self.modlist)
-                    q.bindValue(':mod',     mod.projectid)
-                    q.bindValue(':installed', mod.autoinstall)
-                    q.bindValue(':ignored', mod.autoignore)
-                    if not q.exec():
-                        print('DB AddList:', q.lastError().text(), mod.projectid, mod.name)
-
-                db.commit()
-        except Exception as e:
-            print('SEARCH_THREAD process_mod:', e)  # , traceback.format_exc())
-            print('     ', mod.projectid)
-            print('     ', mod.path)
-            print('     ', mod.name)
-            print('     ', mod.loader)
-            print('     ', mod.categories)
-            print('     ', mod.update_date)
-            print('     ', mod.icon)
-            print()
 
     def set_close(self):
         try:

@@ -31,7 +31,7 @@ class SearchingDialog(QtWidgets.QDialog):
         try:
             self.create_cmb_values_lists()
         except Exception as e:
-            print('SEARCHING_DIALOG modify_css:', e)
+            print('SEARCHING_DIALOG setupWidgets:', e)
 
     def create_cmb_values_lists(self):
         try:
@@ -85,7 +85,7 @@ class SearchingDialog(QtWidgets.QDialog):
 
             self.search_thread.start()
         except Exception as e:
-            print('SEARCHING_DIALOG search_mods:', e)
+            print('SEARCHING_DIALOG btn_search_mod:', e)
 
     def set_max_pages(self, max_pages):
         try:

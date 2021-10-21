@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1080</width>
+    <width>817</width>
     <height>641</height>
    </rect>
   </property>
@@ -18,8 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
+    <width>817</width>
     <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -322,6 +328,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QLineEdit" name="editNameConfig">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="topMargin">
        <number>0</number>
@@ -353,16 +369,6 @@
         </property>
         <property name="shortcut">
          <string>Ctrl+S</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="editNameConfig">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -561,6 +567,22 @@
         </property>
        </widget>
       </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </item>
    </layout>
@@ -570,7 +592,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1080</width>
+     <width>817</width>
      <height>21</height>
     </rect>
    </property>
@@ -581,6 +603,7 @@
     <addaction name="actionAdminLists"/>
     <addaction name="actionCopyList"/>
     <addaction name="actionSearchingNewMods"/>
+    <addaction name="actionSearchModID"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -775,6 +798,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionSearchModID">
+   <property name="text">
+    <string>Buscar mod por id</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>
