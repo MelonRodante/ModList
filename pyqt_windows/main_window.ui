@@ -619,9 +619,9 @@
     <addaction name="actionAutoInstall"/>
     <addaction name="actionAutoIgnore"/>
     <addaction name="separator"/>
-    <addaction name="actionShowUpdated"/>
     <addaction name="actionShowInstalled"/>
     <addaction name="actionShowIgnored"/>
+    <addaction name="actionShowUpdated"/>
    </widget>
    <widget class="QMenu" name="menuAdministrar_lista">
     <property name="title">
@@ -660,7 +660,7 @@
     <string>Ver instalados</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+2</string>
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="actionShowIgnored">
@@ -674,7 +674,7 @@
     <string>Ver ignorados</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+3</string>
+    <string>Ctrl+2</string>
    </property>
   </action>
   <action name="actionShowUpdated">
@@ -691,7 +691,7 @@
     <string>Ver actualizables</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+1</string>
+    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="actionSearchingNewMods">
@@ -778,7 +778,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Forge / Fabric</string>
+    <string>Forge | Fabric</string>
    </property>
   </action>
   <action name="actionWithoutLoader">

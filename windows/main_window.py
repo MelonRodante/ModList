@@ -64,7 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bold_font = self.create_bold_font()
         self.state_icons = self.create_state_icons()
 
-        self.showlist_state = (self.ui.actionShowUpdated, self.ui.actionShowInstalled, self.ui.actionShowIgnored)
+        self.showlist_state = (self.ui.actionShowInstalled, self.ui.actionShowIgnored)
         self.showlist_autos = (self.ui.actionAutoInstall, self.ui.actionAutoIgnore)
         self.showlist_loader = (self.ui.actionWithoutLoader, self.ui.actionForgeLoader, self.ui.actionFabricLoader, self.ui.actionBothLoader)
 
@@ -181,12 +181,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionAutoIgnore.triggered.connect(
                 lambda: self.change_action_chk_show_auto(self.ui.actionAutoIgnore))
 
-            self.ui.actionShowUpdated.triggered.connect(
-                lambda: self.change_action_chk_show_state(self.ui.actionShowUpdated))
             self.ui.actionShowInstalled.triggered.connect(
                 lambda: self.change_action_chk_show_state(self.ui.actionShowInstalled))
             self.ui.actionShowIgnored.triggered.connect(
                 lambda: self.change_action_chk_show_state(self.ui.actionShowIgnored))
+
+            self.ui.actionShowUpdated.triggered.connect(self.load_pages)
 
             self.ui.tableMods.itemPressed.connect(self.context_menu_table)
 
@@ -272,9 +272,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def change_action_chk_show_auto(self, action):
         try:
+            check = False
             for chk in self.showlist_autos:
                 if chk != action:
                     chk.setChecked(False)
+
+                if chk.isChecked():
+                    self.ui.actionShowInstalled.setChecked(False)
+                    self.ui.actionShowIgnored.setChecked(False)
 
             self.load_pages()
         except Exception as e:
@@ -285,6 +290,12 @@ class MainWindow(QtWidgets.QMainWindow):
             for chk in self.showlist_state:
                 if chk != action:
                     chk.setChecked(False)
+
+                if chk.isChecked():
+                    self.ui.actionAutoInstall.setChecked(False)
+                    self.ui.actionAutoIgnore.setChecked(False)
+
+
 
             self.load_pages()
         except Exception as e:
@@ -1030,7 +1041,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if isinstance(value, str) and value.strip() != novalue:
                 return prefix + tableas + field + condition + ':' + field + ' '
-            elif isinstance(value, int) and value:
+            elif isinstance(value, int):
                 return prefix + tableas + field + condition + str(value) + ' '
             else:
                 return ' '
@@ -1055,9 +1066,9 @@ class MainWindow(QtWidgets.QMainWindow):
             where += self.optional_filter('name', self.ui.editName.text(), where, like=True, tableas='M')
 
             if self.ui.actionAutoInstall.isChecked():
-                where += self.optional_filter('autoinstall', 1, where, like=True, tableas='M')
+                where += self.optional_filter('autoinstall', 1, where, tableas='M')
             elif self.ui.actionAutoIgnore.isChecked():
-                where += self.optional_filter('autoignore', 1, where, like=True, tableas='M')
+                where += self.optional_filter('autoignore', 1, where, tableas='M')
 
             return where
         except Exception as e:
@@ -1101,15 +1112,19 @@ class MainWindow(QtWidgets.QMainWindow):
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
             where_q += self.optional_filter('list', self.ui.cmbModList.currentText(), where_q, tableas='ML')
+
             if self.ui.actionShowUpdated.isChecked():
-                where_q += ' AND ((installed == 0 AND ignored == 0) OR (installed == 1 AND updated == 1)) '
+                where_q += self.optional_filter('updated', 1, where_q, tableas='ML')
                 orderby_q = 'ORDER BY ML.installed DESC, ML.updated DESC, M.favorite DESC, M.name ASC '
-            elif self.ui.actionShowInstalled.isChecked():
-                where_q += ' AND installed == 1 '
-            elif self.ui.actionShowIgnored.isChecked():
-                where_q += ' AND ignored == 1 '
-            else:
-                where_q += ' AND installed == 0 AND ignored == 0 '
+
+            if not self.ui.actionAutoInstall.isChecked() and not self.ui.actionAutoIgnore.isChecked():
+                if self.ui.actionShowInstalled.isChecked():
+                    where_q += self.optional_filter('installed', 1, where_q, tableas='ML')
+                elif self.ui.actionShowIgnored.isChecked():
+                    where_q += self.optional_filter('ignored', 1, where_q, tableas='ML')
+                else:
+                    where_q += self.optional_filter('installed', 0, where_q, tableas='ML')
+                    where_q += self.optional_filter('ignored', 0, where_q, tableas='ML')
 
             return select_q, from_q, where_q, orderby_q
         except Exception as e:
