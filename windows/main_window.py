@@ -26,35 +26,45 @@ from windows.searching_mod_id_dialog import SearchingModIdDialog
 class MainWindow(QtWidgets.QMainWindow):
     rows_per_page = 50
     categories = [
-        ['Sin categoria', 'without-category', None],
-        ['World Gen', 'world-gen', None],
-        ['Biomas', 'world-biomes', None],
-        ['Ores and Resources', 'world-ores-resources', None],
-        ['Structures', 'world-structures', None],
-        ['Dimensiones', 'world-dimensions', None],
-        ['Mobs', 'world-mobs', None],
-        ['Technology', 'technology', None],
-        ['Processing', 'technology-processing', None],
-        ['Player Transport', 'technology-player-transport', None],
-        ['I/F/E Transport', 'technology-item-fluid-energy-transport', None],
-        ['Farming', 'technology-farming', None],
-        ['Energy', 'technology-energy', None],
-        ['Genetics', 'technology-genetics', None],
-        ['Automation', 'technology-automation', None],
-        ['Magic', 'magic', None],
-        ['Storage', 'storage', None],
-        ['API and Library', 'library-api', None],
-        ['Adventure and RPG', 'adventure-rpg', None],
-        ['Map and Information', 'map-information', None],
-        ['Cosmetic', 'cosmetic', None],
-        ['Miscellaneous', 'mc-miscellaneous', None],
-        ['Addon', 'mc-addons', None],
-        ['Armor / Tools / Weapons', 'armor-weapons-tools', None],
-        ['Server Utility', 'server-utility', None],
-        ['Food', 'mc-food', None],
-        ['Redstone', 'redstone', None],
-        ['Twitch Integration', 'twitch-integration', None]
+        ['Sin categoria', 'without-category', None, True],
+        ['World Gen', 'world-gen', None, True],
+        ['Biomas', 'world-biomes', None, True],
+        ['Ores and Resources', 'world-ores-resources', None, True],
+        ['Structures', 'world-structures', None, True],
+        ['Dimensiones', 'world-dimensions', None, True],
+        ['Mobs', 'world-mobs', None, True],
+        ['Technology', 'technology', None, True],
+        ['Processing', 'technology-processing', None, True],
+        ['Player Transport', 'technology-player-transport', None, True],
+        ['I/F/E Transport', 'technology-item-fluid-energy-transport', None, True],
+        ['Farming', 'technology-farming', None, True],
+        ['Energy', 'technology-energy', None, True],
+        ['Genetics', 'technology-genetics', None, True],
+        ['Automation', 'technology-automation', None, True],
+        ['Magic', 'magic', None, True],
+        ['Storage', 'storage', None, True],
+        ['API and Library', 'library-api', None, True],
+        ['Adventure and RPG', 'adventure-rpg', None, True],
+        ['Map and Information', 'map-information', None, True],
+        ['Cosmetic', 'cosmetic', None, True],
+        ['Miscellaneous', 'mc-miscellaneous', None, True],
+        ['Addon', 'mc-addons', None, True],
+        ['Armor / Tools / Weapons', 'armor-weapons-tools', None, True],
+        ['Server Utility', 'server-utility', None, True],
+        ['Food', 'mc-food', None, True],
+        ['Redstone', 'redstone', None, True],
+        ['Twitch Integration', 'twitch-integration', None, True],
+
+        ['-'],
+        ['Objeto simple', 'ml-simple-item', None, False],
+        ['Mecanica Simple', 'ml-simple-mechanic', None, False],
+        ['Ajuste Mecanicas', 'ml-tweaks', None, False],
+        ['Encantamientos', 'ml-enchantment', None, False],
+        ['Interfaz', 'ml-interface', None, False],
+        ['Sonido', 'ml-sound', None, False]
+
     ]
+
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -374,8 +384,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbCategories.insertSeparator(1)
 
             for cat in MainWindow.categories:
-                self.ui.cmbCategories.addItem(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'),
-                                              cat[0])
+                if cat[0] == '-':
+                    self.ui.cmbCategories.insertSeparator(self.ui.cmbCategories.count())
+                else:
+                    if cat[3]:
+                        icon = ':/curse_categories/curse_categories/' + cat[1] + '.png'
+                    else:
+                        icon = ':/other_categories/other_categories/' + cat[1] + '.png'
+
+                    self.ui.cmbCategories.addItem(IconUtils.getNormalIcon(icon), cat[0])
+
+
+
+
 
             model = self.ui.cmbCategories.model()
             for i in range(model.rowCount()):
@@ -933,7 +954,12 @@ class MainWindow(QtWidgets.QMainWindow):
             chk.setChecked(state)
             chk.setFocusPolicy(Qt.NoFocus)
             if cat[1]:
-                chk.setIcon(IconUtils.getNormalIcon(':/categories/categories/' + cat[1] + '.png'))
+                if cat[3]:
+                    icon = ':/curse_categories/curse_categories/' + cat[1] + '.png'
+                else:
+                    icon = ':/other_categories/other_categories/' + cat[1] + '.png'
+
+                chk.setIcon(IconUtils.getNormalIcon(icon))
             else:
                 f = chk.font()
                 f.setBold(True)
@@ -949,12 +975,27 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_menu_chk_categories_config(self):
         try:
             menu = QtWidgets.QMenu()
-            menu.setStyleSheet('QMenu {border: 1px solid ' + colors.ColorStrong + ';}')
+            menu.setStyleSheet(
+                'QMenu {border: 1px solid ' + colors.ColorStrong + ';} '
+                'QMenu::item {background-color: ' + colors.Background + '}'
+                'QMenu::item:selected {background-color: ' + colors.B30 + '}'
+            )
 
             menu.addAction(self.create_chk_category_config_action(menu, ['NO MODIFICAR', '', None], state=True))
             menu.addSeparator()
-            for cat in MainWindow.categories:
-                menu.addAction(self.create_chk_category_config_action(menu, cat))
+
+            curse_categories = menu.addMenu('Curse Categories...')
+            other_categories = menu.addMenu('Other Categories...')
+
+
+            for i, cat in enumerate(MainWindow.categories):
+                if cat[0] == '-':
+                    menu.addSeparator()
+                else:
+                    if cat[3]:
+                        curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
+                    else:
+                        other_categories.addAction(self.create_chk_category_config_action(menu, cat))
 
             self.ui.tbtnCategoryConfig.setMenu(menu)
             self.ui.tbtnCategoryConfig.clicked.connect(self.ui.tbtnCategoryConfig.showMenu)

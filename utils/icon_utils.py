@@ -36,7 +36,7 @@ class IconUtils:
             icon = IconUtils.categories_icons.get(categories)
 
         if not isinstance(icon, QPixmap):
-            pm = QPixmap(':/categories/categories/empty.png')
+            pm = QPixmap(':/curse_categories/curse_categories/empty.png')
             painter = QPainter(pm)
             if categories != 'without-category':
                 cat = categories.split(',')
@@ -45,13 +45,18 @@ class IconUtils:
                     start = ((5 - len(cat)) * 29) / 2
 
                 for i, c in enumerate(cat):
-                    px = QPixmap(':/categories/categories/' + c + '.png')
+                    if c.startswith('ml-'):
+                        iconname = ':/other_categories/other_categories/' + c + '.png'
+                    else:
+                        iconname = ':/curse_categories/curse_categories/' + c + '.png'
+
+                    px = QPixmap(iconname)
                     painter.drawPixmap(
                         QRectF(start + (i * (px.rect().width() + 5)), 0, 24, 24),
                         px,
                         QRectF(px.rect()))
             else:
-                px = QPixmap(':/categories/categories/' + categories + '.png')
+                px = QPixmap(':/curse_categories/curse_categories/' + categories + '.png')
                 painter.drawPixmap(QRectF(pm.width() / 2 - px.width() / 2, 0, 24, 24), px, QRectF(px.rect()))
 
             if center:
