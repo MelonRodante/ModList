@@ -48,7 +48,7 @@ class SearchThread(QThread):
             if q.exec():
                 if q.next():
                     self.list_version = q.value(0)
-                    self.valid_loaders = [q.value(1), 'Sin Loader', 'Forge | Fabric']
+                    self.valid_loaders = [q.value(1), 'No Loader', 'Forge | Fabric']
                 else:
                     QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
                     print("Searching DB Error:", 'No hay una lista seleccionada')

@@ -1,9 +1,13 @@
 import os
 import sys
 
-from PyQt5 import QtSql, QtWidgets
+from PyQt5 import QtSql, QtWidgets, QtCore
+from PyQt5.QtCore import QByteArray
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import QMessageBox
+
+from utils.icon_utils import IconUtils
 
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     listname TEXT NOT NULL,
@@ -16,7 +20,7 @@ tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     path            TEXT NOT NULL DEFAULT 'no-path',
                     name	        TEXT NOT NULL DEFAULT 'no-name',
                     categories      TEXT NOT NULL DEFAULT 'without-category',
-                    loader	        TEXT NOT NULL DEFAULT 'Sin Loader',
+                    loader	        TEXT NOT NULL DEFAULT 'No Loader',
                     update_date     INTEGER NOT NULL,
                     icon	        BLOB,
                     favorite        INTEGER NOT NULL DEFAULT 0,
@@ -27,15 +31,23 @@ tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     PRIMARY KEY(projectid));'''
 
 tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
-                    list        TEXT NOT NULL,
-                    mod	        INTEGER NOT NULL,
-                    installed   INTEGER NOT NULL DEFAULT 0,
-                    ignored     INTEGER NOT NULL DEFAULT 0,
-                    updated     INTEGER NOT NULL DEFAULT 0,
-                    PRIMARY KEY(list, mod),
-                    FOREIGN KEY(list) REFERENCES Lists(listname) ON DELETE CASCADE ON UPDATE CASCADE,
-                    FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
-                    );'''
+                        list        TEXT NOT NULL,
+                        mod	        INTEGER NOT NULL,
+                        installed   INTEGER NOT NULL DEFAULT 0,
+                        ignored     INTEGER NOT NULL DEFAULT 0,
+                        updated     INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY(list, mod),
+                        FOREIGN KEY(list) REFERENCES Lists(listname) ON DELETE CASCADE ON UPDATE CASCADE,
+                        FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
+                        );'''
+
+tablecategories = '''CREATE TABLE IF NOT EXISTS Categories (
+                        cat_id	    TEXT NOT NULL,
+                        cat_name	TEXT NOT NULL,
+                        grp	        INTEGER NOT NULL DEFAULT 0,
+                        ord	        INTEGER NOT NULL DEFAULT 0,
+                        icon	    BLOB,
+                        PRIMARY KEY("cat_id"));'''
 
 
 class Database:
@@ -44,13 +56,45 @@ class Database:
     filename = './modlist.db'
     db = None
 
+    categories = [
+        ['without-category', 'Without Category', 1, 1],
+        ['world-gen', 'World Gen', 1, 1],
+        ['world-biomes', 'Biomas', 1, 1],
+        ['world-ores-resources', 'Ores and Resources', 1, 1],
+        ['world-structures', 'Structures', 1, 1],
+        ['world-dimensions', 'Dimensiones', 1, 1],
+        ['world-mobs', 'Mobs', 1, 1],
+        ['technology', 'Technology', 1, 1],
+        ['technology-processing', 'Processing', 1, 1],
+        ['technology-player-transport', 'Player Transport', 1, 1],
+        ['technology-item-fluid-energy-transport', 'I/F/E Transport', 1, 1],
+        ['technology-farming', 'Farming', 1, 1],
+        ['technology-energy', 'Energy', 1, 1],
+        ['technology-genetics', 'Genetics', 1, 1],
+        ['technology-automation', 'Automation', 1, 1],
+        ['magic', 'Magic', 1, 1],
+        ['storage', 'Storage', 1, 1],
+        ['library-api', 'API and Library', 1, 1],
+        ['adventure-rpg', 'Adventure and RPG', 1, 1],
+        ['map-information', 'Map and Information', 1, 1],
+        ['cosmetic', 'Cosmetic', 1, 1],
+        ['mc-miscellaneous', 'Miscellaneous', 1, 1],
+        ['mc-addons', 'Addon', 1, 1],
+        ['armor-weapons-tools', 'Armor / Tools / Weapons', 1, 1],
+        ['server-utility', 'Server Utility', 1, 1],
+        ['mc-food', 'Food', 1, 1],
+        ['redstone', 'Redstone', 1, 1],
+        ['twitch-integration', 'Twitch Integration', 1, 1]
+    ]
+
     @staticmethod
     def connect_db():
         Database.db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
         Database.db.setDatabaseName(Database.filename)
 
         if not Database.db.open():
-            QMessageBox.critical(None, "DataBase Error:", Database.db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+            QMessageBox.critical(None, "DataBase Error:", Database.db.lastError().databaseText(),
+                                 QtWidgets.QMessageBox.Close)
             sys.exit(1)
         else:
             Database.db.exec("PRAGMA foreign_keys = ON;")
@@ -58,6 +102,8 @@ class Database:
             Database.exec(db, tablelists)
             Database.exec(db, tablemods)
             Database.exec(db, tablemodslists)
+            Database.exec(db, tablecategories)
+            Database.__create_default_categories(db)
             Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderMods" ON "Mods" ("favorite"	DESC, "blocked"	ASC, "name"	ASC);')
             Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderModsLists" ON "Mods" ("installed" DESC, "updated" DESC, "name" ASC);')
 
@@ -71,7 +117,6 @@ class Database:
             QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
             sys.exit(1)
 
-
     @staticmethod
     def exec(db, sql):
         if not db.exec(sql):
@@ -83,3 +128,33 @@ class Database:
         if not b:
             print(q.lastError().text())
         return b
+
+    @staticmethod
+    def __create_default_categories(db):
+        q = QtSql.QSqlQuery(db)
+        q.prepare('SELECT count(cat_id) FROM Categories WHERE grp <= 100;')
+
+        if Database.execq(q):
+            q.next()
+            if q.value(0) != len(Database.categories):
+                for cat in Database.categories:
+                    q.prepare('INSERT INTO Categories (cat_id, cat_name, grp, ord, icon) VALUES (:cat_id, :cat_name, :grp, :ord, :icon)')
+                    q.bindValue(':cat_id', cat[0])
+                    q.bindValue(':cat_name', cat[1])
+                    q.bindValue(':grp', cat[2])
+                    q.bindValue(':ord', cat[3])
+                    q.bindValue(':icon', Database.__pix_to_bytes(cat[0]))
+
+                    Database.execq(q)
+
+    @staticmethod
+    def __pix_to_bytes(cat):
+        px = QPixmap(IconUtils.get_cat_icon_str(cat))
+        byte_array = QtCore.QByteArray()
+        buff = QtCore.QBuffer(byte_array)
+        buff.open(QtCore.QIODevice.WriteOnly)
+        ok = px.save(buff, "PNG")
+        if ok:
+            return byte_array
+        else:
+            return QtCore.QByteArray()

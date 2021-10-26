@@ -4,6 +4,7 @@ from functools import partial
 
 from typing import Union
 
+import PyQt5
 from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 from PyQt5.QtCore import QSize, Qt, QCoreApplication, QModelIndex
 from PyQt5.QtGui import QFont, QGuiApplication
@@ -25,51 +26,13 @@ from windows.searching_mod_id_dialog import SearchingModIdDialog
 
 class MainWindow(QtWidgets.QMainWindow):
     rows_per_page = 50
-    categories = [
-        ['Sin categoria', 'without-category', None, True],
-        ['World Gen', 'world-gen', None, True],
-        ['Biomas', 'world-biomes', None, True],
-        ['Ores and Resources', 'world-ores-resources', None, True],
-        ['Structures', 'world-structures', None, True],
-        ['Dimensiones', 'world-dimensions', None, True],
-        ['Mobs', 'world-mobs', None, True],
-        ['Technology', 'technology', None, True],
-        ['Processing', 'technology-processing', None, True],
-        ['Player Transport', 'technology-player-transport', None, True],
-        ['I/F/E Transport', 'technology-item-fluid-energy-transport', None, True],
-        ['Farming', 'technology-farming', None, True],
-        ['Energy', 'technology-energy', None, True],
-        ['Genetics', 'technology-genetics', None, True],
-        ['Automation', 'technology-automation', None, True],
-        ['Magic', 'magic', None, True],
-        ['Storage', 'storage', None, True],
-        ['API and Library', 'library-api', None, True],
-        ['Adventure and RPG', 'adventure-rpg', None, True],
-        ['Map and Information', 'map-information', None, True],
-        ['Cosmetic', 'cosmetic', None, True],
-        ['Miscellaneous', 'mc-miscellaneous', None, True],
-        ['Addon', 'mc-addons', None, True],
-        ['Armor / Tools / Weapons', 'armor-weapons-tools', None, True],
-        ['Server Utility', 'server-utility', None, True],
-        ['Food', 'mc-food', None, True],
-        ['Redstone', 'redstone', None, True],
-        ['Twitch Integration', 'twitch-integration', None, True],
-
-        ['-'],
-        ['Objeto simple', 'ml-simple-item', None, False],
-        ['Mecanica Simple', 'ml-simple-mechanic', None, False],
-        ['Ajuste Mecanicas', 'ml-tweaks', None, False],
-        ['Encantamientos', 'ml-enchantment', None, False],
-        ['Interfaz', 'ml-interface', None, False],
-        ['Sonido', 'ml-sound', None, False]
-
-    ]
-
 
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_ModList()
         self.ui.setupUi(self)
+
+        Database.connect_db()
 
         self.bold_font = self.create_bold_font()
         self.state_icons = self.create_state_icons()
@@ -78,8 +41,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.showlist_autos = (self.ui.actionAutoInstall, self.ui.actionAutoIgnore)
         self.showlist_loader = (self.ui.actionWithoutLoader, self.ui.actionForgeLoader, self.ui.actionFabricLoader, self.ui.actionBothLoader)
 
-        self.chks_categories = {}
-        self.chks_categories_group = QButtonGroup()
+        self.categories = None
+        self.chks_categories = None
+        self.chks_categories_group = None
+        self.load_categories()
 
         self.islist = False
         self.current_page = 0
@@ -89,7 +54,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.selectedMods = []
 
-        Database.connect_db()
+
+
 
         self.setupWidgets()
         self.setupEvents()
@@ -305,8 +271,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.actionAutoInstall.setChecked(False)
                     self.ui.actionAutoIgnore.setChecked(False)
 
-
-
             self.load_pages()
         except Exception as e:
             print('MAIN_WINDOW change_action_chk_show_state: ', str(e))
@@ -322,81 +286,64 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def create_cmb_values_lists(self):
+    def actual_category_filter(self, text):
         try:
+            for cat in self.categories:
+                if cat[1] == text:
+                    return cat[0]
+            return ''
+        except Exception as e:
+            print('MAIN_WINDOW actual_category_filter: ', str(e))
+
+    def load_categories(self):
+        try:
+            self.categories = []
+            self.chks_categories = {}
+            self.chks_categories_group = QButtonGroup()
+
             q = QtSql.QSqlQuery()
-            q.prepare('select listname from Lists')
+            q.prepare('SELECT C.cat_id, C.cat_name, C.icon, C.grp, C.ord FROM Categories as C ORDER BY C.grp ASC, C.ord ASC;')
 
-            self.ui.cmbModList.clear()
+            lastgrp = 1
 
-            self.ui.cmbModList.addItem('Todos')
-            self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
-
-            if self.exec(q, 'create_cmb_values_lists'):
+            if self.exec(q, 'load_categories'):
                 while q.next():
-                    self.ui.cmbModList.addItem(q.value(0))
 
-            if self.ui.cmbModList.count() > 2:
-                self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
-            self.ui.cmbModList.addItem('Nuevos Mods')
-            self.ui.cmbModList.addItem('Favoritos')
-            self.ui.cmbModList.addItem('Bloqueados')
+                    if lastgrp != q.value(3):
+                        if q.value(3) <= 100:
+                            self.categories.append(['-', '-', '-', '-'])
+                        else:
+                            self.categories.append(['--', '--', '--', '--'])
+                        lastgrp = q.value(3)
 
-            model = self.ui.cmbModList.model()
-            for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
+                    self.categories.append([q.value(0), q.value(1), q.value(3), q.value(4), None])
+
+                    if isinstance(q.value(2), PyQt5.QtCore.QByteArray):
+                        pixmap = QtGui.QPixmap()
+                        pixmap.loadFromData(q.value(2))
+                    else:
+                        pixmap = QtGui.QPixmap(':/widgets/widgets/noicon.png')
+
+                    IconUtils.other_cat_icons[q.value(0)] = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
+
+            self.create_cmb_values_categories()
+            self.create_menu_chk_categories_config()
+
         except Exception as e:
-            print('MAIN_WINDOW create_cmb_values_lists: ', str(e))
-
-    def change_cmb_list(self):
-        try:
-            self.set_islist()
-
-            self.ui.actionShowUpdated.setEnabled(self.islist)
-            self.ui.actionShowInstalled.setEnabled(self.islist)
-            self.ui.actionShowIgnored.setEnabled(self.islist)
-
-            if not self.islist:
-                self.ui.actionShowUpdated.setChecked(False)
-                self.ui.actionShowInstalled.setChecked(False)
-                self.ui.actionShowIgnored.setChecked(False)
-
-                self.ui.chkInstalledConfig.setText('Auto-Install')
-                self.ui.chkIgnoredConfig.setText('Auto-Ignore')
-            else:
-                self.ui.chkInstalledConfig.setText('Installed')
-                self.ui.chkIgnoredConfig.setText('Ignored')
-
-            self.ui.actionShowNoFindFavorites.setEnabled(self.islist)
-            self.ui.actionIgnoreNoLoader.setEnabled(self.islist)
-
-            self.filter_change()
-        except Exception as e:
-            print('MAIN_WINDOW change_cmb_list: ', str(e))
-
-    # ------------------------------------------
+            print('MAIN_WINDOW load_categories: ', str(e))
 
     def create_cmb_values_categories(self):
         try:
             self.ui.cmbCategories.clear()
 
-            self.ui.cmbCategories.addItem('Todas')
+            self.ui.cmbCategories.addItem('All Categories')
             self.ui.cmbCategories.insertSeparator(1)
 
-            for cat in MainWindow.categories:
-                if cat[0] == '-':
+            for cat in self.categories:
+                if cat[0] == '-' or cat[0] == '--':
                     self.ui.cmbCategories.insertSeparator(self.ui.cmbCategories.count())
                 else:
-                    if cat[3]:
-                        icon = ':/curse_categories/curse_categories/' + cat[1] + '.png'
-                    else:
-                        icon = ':/other_categories/other_categories/' + cat[1] + '.png'
-
-                    self.ui.cmbCategories.addItem(IconUtils.getNormalIcon(icon), cat[0])
-
-
-
-
+                    self.ui.cmbCategories.addItem(IconUtils.getCatNormalIcon(cat[0]), cat[1])
 
             model = self.ui.cmbCategories.model()
             for i in range(model.rowCount()):
@@ -404,6 +351,65 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             print('MAIN_WINDOW create_cmb_values_categories: ', str(e))
+
+    def create_menu_chk_categories_config(self):
+        try:
+            menu = QtWidgets.QMenu()
+            menu.setStyleSheet('QMenu {border: 1px solid ' + colors.ColorStrong + ';} QMenu::item {background-color: ' + colors.Background + '} QMenu::item:selected {background-color: ' + colors.B30 + '}')
+            menu.addAction(self.create_chk_category_config_action(menu, ['', 'NO MODIFY', None], state=True))
+            menu.addSeparator()
+
+            curse_categories = menu.addMenu('Curse Categories...')
+            other_categories = None
+            if len(self.categories) > len(Database.categories):
+                other_categories = menu.addMenu('Other Categories...')
+
+            for i, cat in enumerate(self.categories):
+                if cat[0] == '-':
+                    curse_categories.addSeparator()
+                if cat[0] == '--':
+                    other_categories.addSeparator()
+                else:
+                    if cat[2] > 100 and other_categories is not None:
+                        other_categories.addAction(self.create_chk_category_config_action(menu, cat))
+                    else:
+                        curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
+
+            self.ui.tbtnCategoryConfig.setMenu(menu)
+            self.ui.tbtnCategoryConfig.clicked.connect(self.ui.tbtnCategoryConfig.showMenu)
+
+            self.chks_categories_group.setExclusive(False)
+            self.chks_categories_group.buttonPressed.connect(self.change_chk_categories)
+
+        except Exception as e:
+            print('MAIN_WINDOW create_menu_chk_categories_config: ', str(e))
+
+    def create_chk_category_config_action(self, menu, cat, state=False):
+        try:
+            action = QtWidgets.QWidgetAction(menu)
+
+            height = 26
+            chk = QtWidgets.QCheckBox("{:<38}".format(cat[1]))
+            chk.setStyleSheet('QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}' 'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
+                                                                                                                                                                                             'QCheckBox::indicator {height: %dpx;}' % height)
+            chk.setFixedHeight(height)
+            chk.setChecked(state)
+            chk.setFocusPolicy(Qt.NoFocus)
+            if cat[0] != '':
+                chk.setIcon(IconUtils.getCatNormalIcon(cat[0]))
+            else:
+                f = chk.font()
+                f.setBold(True)
+                chk.setFont(f)
+
+            self.chks_categories[cat[0]] = chk
+            self.chks_categories_group.addButton(chk)
+            action.setDefaultWidget(chk)
+            return action
+        except Exception as e:
+            print('MAIN_WINDOW create_chk_category_config_action: ', str(e))
+
+    # ------------------------------------------
 
     def change_chk_categories(self, chk):
         try:
@@ -436,6 +442,69 @@ class MainWindow(QtWidgets.QMainWindow):
             chk.nextCheckState()
         except Exception as e:
             print('MAIN_WINDOW change_chk_categories: ', str(e))
+
+    def change_state_categories_config(self):
+        try:
+            if self.chks_categories[''].isChecked():
+                self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonTextOnly)
+                self.ui.tbtnCategoryConfig.setText('')
+            else:
+                self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
+                self.ui.tbtnCategoryConfig.setIcon(
+                    IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
+        except Exception as e:
+            print('MAIN_WINDOW change_state_categories_config: ', str(e))
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def create_cmb_values_lists(self):
+        try:
+            q = QtSql.QSqlQuery()
+            q.prepare('select listname from Lists')
+
+            self.ui.cmbModList.clear()
+
+            self.ui.cmbModList.addItem('All Mods')
+            self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
+
+            if self.exec(q, 'create_cmb_values_lists'):
+                while q.next():
+                    self.ui.cmbModList.addItem(q.value(0))
+
+            if self.ui.cmbModList.count() > 2:
+                self.ui.cmbModList.insertSeparator(self.ui.cmbModList.count())
+            self.ui.cmbModList.addItem('New Mods')
+            self.ui.cmbModList.addItem('Favorites')
+            self.ui.cmbModList.addItem('Blocked')
+
+            model = self.ui.cmbModList.model()
+            for i in range(model.rowCount()):
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
+        except Exception as e:
+            print('MAIN_WINDOW create_cmb_values_lists: ', str(e))
+
+    def change_cmb_list(self):
+        try:
+            self.set_islist()
+
+            self.ui.actionShowUpdated.setEnabled(self.islist)
+            self.ui.actionShowInstalled.setEnabled(self.islist)
+            self.ui.actionShowIgnored.setEnabled(self.islist)
+
+            if not self.islist:
+                self.ui.actionShowUpdated.setChecked(False)
+                self.ui.actionShowInstalled.setChecked(False)
+                self.ui.actionShowIgnored.setChecked(False)
+
+                self.ui.chkInstalledConfig.setText('Auto-Install')
+                self.ui.chkIgnoredConfig.setText('Auto-Ignore')
+            else:
+                self.ui.chkInstalledConfig.setText('Installed')
+                self.ui.chkIgnoredConfig.setText('Ignored')
+
+            self.filter_change()
+        except Exception as e:
+            print('MAIN_WINDOW change_cmb_list: ', str(e))
 
     # ------------------------------------------
 
@@ -782,7 +851,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_add_list(self, q, listname, loader):
         try:
-            validloaders = [loader, 'Sin Loader', 'Forge | Fabric']
+            validloaders = [loader, 'No Loader', 'Forge | Fabric']
             for mod in self.selectedMods:
                 if mod.loader not in validloaders:
                     QMessageBox.warning(None, 'MOD NO COMPATIBLE:',
@@ -902,7 +971,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_modslists_table(self, q, mod):
         try:
-            q.prepare('UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
+            q.prepare(
+                'UPDATE ModsLists SET  installed = :installed, ignored = :ignored, updated = :updated WHERE list == :list AND mod == :mod;')
             q.bindValue(':list', self.ui.cmbModList.currentText())
             q.bindValue(':mod', mod.projectid)
 
@@ -935,88 +1005,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
         except Exception as e:
             print('MAIN_WINDOW resize_combobox_loader: ', str(e))
-
-    # ------------------------------------------
-
-    def create_chk_category_config_action(self, menu, cat, state=False):
-        try:
-            action = QtWidgets.QWidgetAction(menu)
-
-            height = 26
-            chk = QtWidgets.QCheckBox("{:<38}".format(cat[0]))
-            chk.setStyleSheet(
-                'QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}'
-                'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
-                                                                     'QCheckBox::indicator:checked {image: url(":/qss_icons/dark/rc/checkbox_checked_focus.png");}'
-                                                                     'QCheckBox::indicator {height: %dpx;}' % height
-            )
-            chk.setFixedHeight(height)
-            chk.setChecked(state)
-            chk.setFocusPolicy(Qt.NoFocus)
-            if cat[1]:
-                if cat[3]:
-                    icon = ':/curse_categories/curse_categories/' + cat[1] + '.png'
-                else:
-                    icon = ':/other_categories/other_categories/' + cat[1] + '.png'
-
-                chk.setIcon(IconUtils.getNormalIcon(icon))
-            else:
-                f = chk.font()
-                f.setBold(True)
-                chk.setFont(f)
-
-            self.chks_categories[cat[1]] = chk
-            self.chks_categories_group.addButton(chk)
-            action.setDefaultWidget(chk)
-            return action
-        except Exception as e:
-            print('MAIN_WINDOW create_chk_category_config_action: ', str(e))
-
-    def create_menu_chk_categories_config(self):
-        try:
-            menu = QtWidgets.QMenu()
-            menu.setStyleSheet(
-                'QMenu {border: 1px solid ' + colors.ColorStrong + ';} '
-                'QMenu::item {background-color: ' + colors.Background + '}'
-                'QMenu::item:selected {background-color: ' + colors.B30 + '}'
-            )
-
-            menu.addAction(self.create_chk_category_config_action(menu, ['NO MODIFICAR', '', None], state=True))
-            menu.addSeparator()
-
-            curse_categories = menu.addMenu('Curse Categories...')
-            other_categories = menu.addMenu('Other Categories...')
-
-
-            for i, cat in enumerate(MainWindow.categories):
-                if cat[0] == '-':
-                    menu.addSeparator()
-                else:
-                    if cat[3]:
-                        curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
-                    else:
-                        other_categories.addAction(self.create_chk_category_config_action(menu, cat))
-
-            self.ui.tbtnCategoryConfig.setMenu(menu)
-            self.ui.tbtnCategoryConfig.clicked.connect(self.ui.tbtnCategoryConfig.showMenu)
-
-            self.chks_categories_group.setExclusive(False)
-            self.chks_categories_group.buttonPressed.connect(self.change_chk_categories)
-
-        except Exception as e:
-            print('MAIN_WINDOW create_menu_chk_categories_config: ', str(e))
-
-    def change_state_categories_config(self):
-        try:
-            if self.chks_categories[''].isChecked():
-                self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonTextOnly)
-                self.ui.tbtnCategoryConfig.setText('')
-            else:
-                self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
-                self.ui.tbtnCategoryConfig.setIcon(
-                    IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
-        except Exception as e:
-            print('MAIN_WINDOW change_state_categories_config: ', str(e))
 
     # ------------------------------------------
 
@@ -1089,21 +1077,12 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW optional_filter: ', str(e))
 
-    @staticmethod
-    def actual_category_filter(text, compare_index=0):
-        try:
-            for cat in MainWindow.categories:
-                if cat[compare_index] == text:
-                    return cat
-            return ['', '', None]
-        except Exception as e:
-            print('MAIN_WINDOW actual_category_filter: ', str(e))
-
     def query_create_basic_where(self):
         try:
             where = ''
             where += self.optional_filter('loader', self.get_loader(), where, tableas='M')
-            where += self.optional_filter('categories', self.ui.cmbCategories.currentText(), where, like=True, novalue='Todas', tableas='M')
+            where += self.optional_filter('categories', self.ui.cmbCategories.currentText(), where, like=True,
+                                          novalue='All Categories', tableas='M')
             where += self.optional_filter('name', self.ui.editName.text(), where, like=True, tableas='M')
 
             if self.ui.actionAutoInstall.isChecked():
@@ -1118,7 +1097,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def query_bind_basic_where(self, q):
         try:
             q.bindValue(':loader', self.get_loader())
-            q.bindValue(':categories', '%' + MainWindow.actual_category_filter(self.ui.cmbCategories.currentText())[1] + '%')
+            q.bindValue(':categories',
+                        '%' + self.actual_category_filter(self.ui.cmbCategories.currentText()) + '%')
             q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
             q.bindValue(':list', self.ui.cmbModList.currentText())
@@ -1185,7 +1165,6 @@ class MainWindow(QtWidgets.QMainWindow):
             elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
                 where_q += self.optional_filter('blocked', 1, where_q)
 
-
             return select_q, from_q, where_q, orderby_q
         except Exception as e:
             print('MAIN_WINDOW prepare_fill_table_query_nolist: ', str(e))
@@ -1239,7 +1218,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_search_modid_dialog(self):
         try:
             dialog = SearchingModIdDialog()
-            #editname = dialog.ui.editNameCopy
+            # editname = dialog.ui.editNameCopy
             code = dialog.exec()
 
             if code == 1:

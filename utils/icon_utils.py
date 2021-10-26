@@ -1,14 +1,34 @@
+import traceback
+
 from PyQt5.QtCore import QRectF, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QIcon
 
 
 class IconUtils:
-    categories_icons = {}
+    other_cat_icons = {}
+    multi_categories_icons = {}
+
+    @staticmethod
+    def get_cat_icon_str(cat):
+        return ':/categories/categories/' + cat + '.png'
+
+    @staticmethod
+    def getCatNormalPixMap(image):
+        if image.startswith('-mlc-'):
+            return IconUtils.other_cat_icons[image]
+        else:
+            return QPixmap(IconUtils.get_cat_icon_str(image))
+
+    @staticmethod
+    def getCatNormalIcon(image):
+        if image.startswith('-mlc-'):
+            return IconUtils.__getIconWithoutTint(IconUtils.other_cat_icons[image])
+        else:
+            return IconUtils.__getIconWithoutTint(QPixmap(IconUtils.get_cat_icon_str(image)))
 
     @staticmethod
     def getNormalIcon(image):
-        pm = QPixmap(image)
-        return IconUtils.__getIconWithoutTint(pm)
+        return IconUtils.__getIconWithoutTint(QPixmap(image))
 
     @staticmethod
     def getLargeIcon(categories, center=False):
@@ -30,39 +50,37 @@ class IconUtils:
 
     @staticmethod
     def __getLargePixmap(categories, center=False):
-        if center:
-            icon = IconUtils.categories_icons.get('|center|' + categories)
-        else:
-            icon = IconUtils.categories_icons.get(categories)
-
-        if not isinstance(icon, QPixmap):
-            pm = QPixmap(':/curse_categories/curse_categories/empty.png')
-            painter = QPainter(pm)
-            if categories != 'without-category':
-                cat = categories.split(',')
-                start = 0
-                if center:
-                    start = ((5 - len(cat)) * 29) / 2
-
-                for i, c in enumerate(cat):
-                    if c.startswith('ml-'):
-                        iconname = ':/other_categories/other_categories/' + c + '.png'
-                    else:
-                        iconname = ':/curse_categories/curse_categories/' + c + '.png'
-
-                    px = QPixmap(iconname)
-                    painter.drawPixmap(
-                        QRectF(start + (i * (px.rect().width() + 5)), 0, 24, 24),
-                        px,
-                        QRectF(px.rect()))
-            else:
-                px = QPixmap(':/curse_categories/curse_categories/' + categories + '.png')
-                painter.drawPixmap(QRectF(pm.width() / 2 - px.width() / 2, 0, 24, 24), px, QRectF(px.rect()))
-
+        try:
             if center:
-                IconUtils.categories_icons['|center|' + categories] = pm
+                icon = IconUtils.multi_categories_icons.get('|center|' + categories)
             else:
-                IconUtils.categories_icons[categories] = pm
-            return pm
-        else:
-            return icon
+                icon = IconUtils.multi_categories_icons.get(categories)
+
+            if not isinstance(icon, QPixmap):
+                pm = QPixmap(IconUtils.get_cat_icon_str('empty'))
+                painter = QPainter(pm)
+                if categories != 'without-category':
+                    cat = categories.split(',')
+                    start = 0
+                    if center:
+                        start = ((5 - len(cat)) * 29) / 2
+
+                    for i, c in enumerate(cat):
+                        px = IconUtils.getCatNormalPixMap(c)
+                        painter.drawPixmap(
+                            QRectF(start + (i * (px.rect().width() + 5)), 0, 24, 24),
+                            px,
+                            QRectF(px.rect()))
+                else:
+                    px = QPixmap(IconUtils.get_cat_icon_str(categories))
+                    painter.drawPixmap(QRectF(pm.width() / 2 - px.width() / 2, 0, 24, 24), px, QRectF(px.rect()))
+
+                if center:
+                    IconUtils.multi_categories_icons['|center|' + categories] = pm
+                else:
+                    IconUtils.multi_categories_icons[categories] = pm
+                return pm
+            else:
+                return icon
+        except Exception as e:
+            print('ICON_UTILS __getLargePixmap: ', str(e), traceback.format_exc())

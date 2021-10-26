@@ -154,7 +154,7 @@ class ModIndex:
             elif fabric:
                 return 'Fabric'
             else:
-                return 'Sin Loader'
+                return 'No Loader'
         except Exception as e:
             print('ModIndex getLoader:', e)
             return 'error'

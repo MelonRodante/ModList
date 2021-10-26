@@ -57,7 +57,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Lista de Mods:</string>
+         <string>Mod List</string>
         </property>
        </widget>
       </item>
@@ -83,7 +83,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Categoria:</string>
+         <string>Category:</string>
         </property>
        </widget>
       </item>
@@ -112,7 +112,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Nombre del Mod:</string>
+         <string>Mod Name:</string>
         </property>
        </widget>
       </item>
@@ -277,7 +277,7 @@
       </column>
       <column>
        <property name="text">
-        <string>   NOMBRE   </string>
+        <string>   NAME   </string>
        </property>
        <property name="font">
         <font>
@@ -288,7 +288,7 @@
       </column>
       <column>
        <property name="text">
-        <string>   CATEGORIAS   </string>
+        <string>   CATEGORIES   </string>
        </property>
        <property name="font">
         <font>
@@ -409,7 +409,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Sin Loader</string>
+          <string>No Loader</string>
          </property>
         </item>
         <item>
@@ -438,7 +438,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Categoria:</string>
+         <string>Category:</string>
         </property>
        </widget>
       </item>
@@ -602,9 +602,21 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuArchive">
+   <widget class="QMenu" name="menuFile">
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>16777215</height>
+     </size>
+    </property>
     <property name="title">
-     <string>Archivo</string>
+     <string> File </string>
     </property>
     <addaction name="actionAdminLists"/>
     <addaction name="actionCopyList"/>
@@ -613,9 +625,21 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuShow">
+   <widget class="QMenu" name="menuView">
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>16777215</height>
+     </size>
+    </property>
     <property name="title">
-     <string>Ver</string>
+     <string> View </string>
     </property>
     <addaction name="actionWithoutLoader"/>
     <addaction name="actionForgeLoader"/>
@@ -629,18 +653,27 @@
     <addaction name="actionShowIgnored"/>
     <addaction name="actionShowUpdated"/>
    </widget>
-   <widget class="QMenu" name="menuAdministrar_lista">
-    <property name="title">
-     <string>Administrar lista</string>
+   <widget class="QMenu" name="menuEdit">
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
     </property>
-    <addaction name="actionShowNoFindFavorites"/>
-    <addaction name="actionIgnoreNoLoader"/>
-    <addaction name="separator"/>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>16777215</height>
+     </size>
+    </property>
+    <property name="title">
+     <string> Edit </string>
+    </property>
     <addaction name="actionMultiselection"/>
    </widget>
-   <addaction name="menuArchive"/>
-   <addaction name="menuShow"/>
-   <addaction name="menuAdministrar_lista"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
@@ -649,7 +682,7 @@
   </widget>
   <action name="actionAdminLists">
    <property name="text">
-    <string>Administrar listas</string>
+    <string>Admin Lists</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -663,7 +696,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Ver instalados</string>
+    <string>Installed</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+1</string>
@@ -677,7 +710,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Ver ignorados</string>
+    <string>Ignored</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>
@@ -694,7 +727,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Ver actualizables</string>
+    <string>Upgradeable</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+3</string>
@@ -702,7 +735,7 @@
   </action>
   <action name="actionSearchingNewMods">
    <property name="text">
-    <string>Buscar nuevos mods</string>
+    <string>Search New Mods</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -710,7 +743,7 @@
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Salir</string>
+    <string>Exit</string>
    </property>
   </action>
   <action name="actionMultiselection">
@@ -718,26 +751,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Multiseleccion</string>
+    <string>Table Multiselection</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
-   </property>
-  </action>
-  <action name="actionShowNoFindFavorites">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Ver favoritos no encontrados</string>
-   </property>
-  </action>
-  <action name="actionIgnoreNoLoader">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Marcar ignorado Loader no correspondiente</string>
    </property>
   </action>
   <action name="actionLoaderAll">
@@ -762,7 +779,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Forge</string>
+    <string>Forge Loader</string>
    </property>
   </action>
   <action name="actionFabricLoader">
@@ -773,7 +790,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Fabric</string>
+    <string>Fabric Loader</string>
    </property>
   </action>
   <action name="actionBothLoader">
@@ -798,12 +815,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Sin Loader</string>
+    <string>No Loader</string>
    </property>
   </action>
   <action name="actionCopyList">
    <property name="text">
-    <string>Copiar lista</string>
+    <string>Copy List</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
@@ -811,7 +828,7 @@
   </action>
   <action name="actionSearchModID">
    <property name="text">
-    <string>Buscar mod por id</string>
+    <string>Sear Mod by ID</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>

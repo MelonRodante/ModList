@@ -14,45 +14,6 @@
     <file>states/updated_ignored.png</file>
     <file>states/updated_installed.png</file>
   </qresource>
-  <qresource prefix="curse_categories">
-    <file>curse_categories/adventure-rpg.png</file>
-    <file>curse_categories/armor-weapons-tools.png</file>
-    <file>curse_categories/cosmetic.png</file>
-    <file>curse_categories/empty.png</file>
-    <file>curse_categories/library-api.png</file>
-    <file>curse_categories/magic.png</file>
-    <file>curse_categories/map-information.png</file>
-    <file>curse_categories/mc-addons.png</file>
-    <file>curse_categories/mc-food.png</file>
-    <file>curse_categories/mc-miscellaneous.png</file>
-    <file>curse_categories/redstone.png</file>
-    <file>curse_categories/server-utility.png</file>
-    <file>curse_categories/storage.png</file>
-    <file>curse_categories/technology.png</file>
-    <file>curse_categories/technology-automation.png</file>
-    <file>curse_categories/technology-energy.png</file>
-    <file>curse_categories/technology-farming.png</file>
-    <file>curse_categories/technology-genetics.png</file>
-    <file>curse_categories/technology-item-fluid-energy-transport.png</file>
-    <file>curse_categories/technology-player-transport.png</file>
-    <file>curse_categories/technology-processing.png</file>
-    <file>curse_categories/twitch-integration.png</file>
-    <file>curse_categories/without-category.png</file>
-    <file>curse_categories/world-biomes.png</file>
-    <file>curse_categories/world-dimensions.png</file>
-    <file>curse_categories/world-gen.png</file>
-    <file>curse_categories/world-mobs.png</file>
-    <file>curse_categories/world-ores-resources.png</file>
-    <file>curse_categories/world-structures.png</file>
-  </qresource>
-  <qresource prefix="other_categories">
-    <file>other_categories/ml-enchantment.png</file>
-    <file>other_categories/ml-interface.png</file>
-    <file>other_categories/ml-simple-item.png</file>
-    <file>other_categories/ml-simple-mechanic.png</file>
-    <file>other_categories/ml-sound.png</file>
-    <file>other_categories/ml-tweaks.png</file>
-  </qresource>
   <qresource prefix="widgets">
     <file>widgets/noicon.png</file>
     <file>widgets/arrow_left.png</file>
@@ -62,5 +23,36 @@
     <file>widgets/save.png</file>
     <file>widgets/save_off.png</file>
     <file>widgets/window_icon.png</file>
+  </qresource>
+  <qresource prefix="categories">
+    <file>categories/adventure-rpg.png</file>
+    <file>categories/armor-weapons-tools.png</file>
+    <file>categories/cosmetic.png</file>
+    <file>categories/empty.png</file>
+    <file>categories/library-api.png</file>
+    <file>categories/magic.png</file>
+    <file>categories/map-information.png</file>
+    <file>categories/mc-addons.png</file>
+    <file>categories/mc-food.png</file>
+    <file>categories/mc-miscellaneous.png</file>
+    <file>categories/redstone.png</file>
+    <file>categories/server-utility.png</file>
+    <file>categories/storage.png</file>
+    <file>categories/technology.png</file>
+    <file>categories/technology-automation.png</file>
+    <file>categories/technology-energy.png</file>
+    <file>categories/technology-farming.png</file>
+    <file>categories/technology-genetics.png</file>
+    <file>categories/technology-item-fluid-energy-transport.png</file>
+    <file>categories/technology-player-transport.png</file>
+    <file>categories/technology-processing.png</file>
+    <file>categories/twitch-integration.png</file>
+    <file>categories/without-category.png</file>
+    <file>categories/world-biomes.png</file>
+    <file>categories/world-dimensions.png</file>
+    <file>categories/world-gen.png</file>
+    <file>categories/world-mobs.png</file>
+    <file>categories/world-ores-resources.png</file>
+    <file>categories/world-structures.png</file>
   </qresource>
 </RCC>
