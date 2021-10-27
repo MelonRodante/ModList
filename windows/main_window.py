@@ -7,7 +7,7 @@ from typing import Union
 import PyQt5
 from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
 from PyQt5.QtCore import QSize, Qt, QCoreApplication, QModelIndex
-from PyQt5.QtGui import QFont, QGuiApplication
+from PyQt5.QtGui import QFont, QGuiApplication, QPixmap
 from PyQt5.QtWidgets import QAbstractItemView, QMenu, QMessageBox
 from qtpy.QtWidgets import QButtonGroup, QAction
 
@@ -45,6 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_categories()
 
         self.islist = False
+
         self.current_page = 0
         self.maxpages = 0
         self.found_results = 0
@@ -52,12 +53,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.selectedMods = []
 
-
-
-
         self.setupWidgets()
         self.setupEvents()
-
         self.load_pages()
         self.show()
 
@@ -420,36 +417,43 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def actual_category_filter(self, text):
         try:
-            for cat in self.categories:
-                if cat[1] == text:
-                    return cat[0]
+            for cat in self.categories.values():
+                if cat.get('cat_name') == text:
+                    return cat['cat_id']
             return ''
         except Exception as e:
             print('MAIN_WINDOW actual_category_filter: ', str(e))
 
     def load_categories(self):
         try:
-            self.categories = []
-            self.chks_categories = {}
+            self.categories = {'': {
+                        'cat_id':       '',
+                        'cat_name':     'NO MODIFY',
+                        'cat_grp':      0,
+                        'cat_ord':      0,
+                        'cat_icon':     QPixmap(),
+                        'cat_check':    None
+                    }}
             self.chks_categories_group = QButtonGroup()
 
             q = QtSql.QSqlQuery()
             q.prepare('SELECT C.cat_id, C.cat_name, C.icon, C.grp, C.ord FROM Categories as C ORDER BY C.grp ASC, C.ord ASC, C.cat_name ASC;')
 
-            lastgrp = 1
-
             if self.exec(q, 'load_categories'):
                 while q.next():
 
-                    if lastgrp != q.value(3):
-                        if q.value(3) <= 100:
-                            self.categories.append(['-', '-', '-', '-'])
-                        else:
-                            self.categories.append(['--', '--', '--', '--'])
-                        lastgrp = q.value(3)
+                    icon = IconUtils.qbytearray_to_pixmap(q.value(2), size=24)
 
-                    self.categories.append([q.value(0), q.value(1), q.value(3), q.value(4), None])
-                    IconUtils.other_cat_icons[q.value(0)] = IconUtils.qbytearray_to_pixmap(q.value(2), size=24)
+                    self.categories[q.value(0)] = {
+                        'cat_id':       q.value(0),
+                        'cat_name':     q.value(1),
+                        'cat_grp':      q.value(3),
+                        'cat_ord':      q.value(4),
+                        'cat_icon':     icon,
+                        'cat_check':    None
+                    }
+
+                    IconUtils.other_cat_icons[q.value(0)] = icon
 
             self.create_cmb_values_categories()
             self.create_menu_chk_categories_config()
@@ -460,15 +464,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_cmb_values_categories(self):
         try:
             self.ui.cmbCategories.clear()
-
             self.ui.cmbCategories.addItem('All Categories')
             self.ui.cmbCategories.insertSeparator(1)
 
-            for cat in self.categories:
-                if cat[0] == '-' or cat[0] == '--':
-                    self.ui.cmbCategories.insertSeparator(self.ui.cmbCategories.count())
-                else:
-                    self.ui.cmbCategories.addItem(IconUtils.getCatNormalIcon(cat[0]), cat[1])
+            lastgrp = 1
+            for cat in self.categories.values():
+                if cat.get('cat_id') != '':
+                    if lastgrp != cat.get('cat_grp'):
+                        self.ui.cmbCategories.insertSeparator(self.ui.cmbCategories.count())
+                        lastgrp = cat.get('cat_grp')
+                    self.ui.cmbCategories.addItem(IconUtils.getCatNormalIcon(cat.get('cat_id')), cat.get('cat_name'))
 
             model = self.ui.cmbCategories.model()
             for i in range(model.rowCount()):
@@ -481,7 +486,8 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             menu = QtWidgets.QMenu()
             menu.setStyleSheet('QMenu {border: 1px solid ' + colors.ColorStrong + ';} QMenu::item {background-color: ' + colors.Background + '} QMenu::item:selected {background-color: ' + colors.B30 + '}')
-            menu.addAction(self.create_chk_category_config_action(menu, ['', 'NO MODIFY', None], state=True))
+
+            menu.addAction(self.create_chk_category_config_action(menu, self.categories.get('')))
             menu.addSeparator()
 
             curse_categories = menu.addMenu('Curse Categories...')
@@ -489,13 +495,9 @@ class MainWindow(QtWidgets.QMainWindow):
             if len(self.categories) > len(Database.categories):
                 other_categories = menu.addMenu('Other Categories...')
 
-            for i, cat in enumerate(self.categories):
-                if cat[0] == '-':
-                    curse_categories.addSeparator()
-                if cat[0] == '--':
-                    other_categories.addSeparator()
-                else:
-                    if cat[2] > 100 and other_categories is not None:
+            for cat in self.categories.values():
+                if cat.get('cat_id') != '':
+                    if cat.get('cat_grp') > 100 and other_categories is not None:
                         other_categories.addAction(self.create_chk_category_config_action(menu, cat))
                     else:
                         curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
@@ -509,25 +511,24 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW create_menu_chk_categories_config: ', str(e))
 
-    def create_chk_category_config_action(self, menu, cat, state=False):
+    def create_chk_category_config_action(self, menu, cat):
         try:
             action = QtWidgets.QWidgetAction(menu)
-
             height = 26
-            chk = QtWidgets.QCheckBox("{:<38}".format(cat[1]))
-            chk.setStyleSheet('QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}' 'QCheckBox:hover {background-color: ' + colors.B30 + ';}'
-                                                                                                                                                                                             'QCheckBox::indicator {height: %dpx;}' % height)
-            chk.setFixedHeight(height)
-            chk.setChecked(state)
-            chk.setFocusPolicy(Qt.NoFocus)
-            if cat[0] != '':
-                chk.setIcon(IconUtils.getCatNormalIcon(cat[0]))
-            else:
+
+            chk = QtWidgets.QCheckBox()
+            chk.setText("{:<38}".format(cat.get('cat_name')))
+            chk.setIcon(IconUtils.getIconWithoutTint(cat.get('cat_icon')))
+            if cat.get('cat_id') == '':
                 f = chk.font()
                 f.setBold(True)
                 chk.setFont(f)
 
-            self.chks_categories[cat[0]] = chk
+            chk.setStyleSheet('QCheckBox {padding-top: 10px; padding-bottom: 10px; spacing: 5px; margin-top: -5px; margin-bottom: -5px; margin-right: -30px;}' 'QCheckBox:hover {background-color: ' + colors.B30 + ';}'                                                                                                                                                                                                 'QCheckBox::indicator {height: %dpx;}' % height)
+            chk.setFixedHeight(height)
+            chk.setFocusPolicy(Qt.NoFocus)
+
+            cat['cat_check'] = chk
             self.chks_categories_group.addButton(chk)
             action.setDefaultWidget(chk)
             return action
@@ -538,45 +539,50 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def change_chk_categories(self, chk):
         try:
+
             chk.nextCheckState()
 
-            if chk == self.chks_categories['']:
-                for c in self.chks_categories.values():
-                    c.setChecked(False)
+            if chk == self.categories.get('').get('cat_check'):
+                for cat in self.categories.values():
+                    cat.get('cat_check').setChecked(False)
                 chk.setChecked(True)
             else:
                 i = 0
-                for c in self.chks_categories.values():
-                    if c.isChecked() and c != self.chks_categories['']:
+                for cat in self.categories.values():
+                    if cat.get('cat_check').isChecked() and cat != self.categories.get(''):
                         i += 1
+
                 if i == 0:
-                    self.chks_categories[''].setChecked(i == 0)
+                    self.categories.get('').get('cat_check').setChecked(True)
+
                 else:
-                    if chk == self.chks_categories['without-category']:
+                    if chk == self.categories.get('without-category').get('cat_check'):
                         if chk.isChecked:
-                            for c in self.chks_categories.values():
-                                c.setChecked(False)
+                            for cat in self.categories.values():
+                                cat.get('cat_check').setChecked(False)
                             chk.setChecked(True)
+
                     elif i >= 6:
                         chk.setChecked(False)
+
                     else:
-                        self.chks_categories[''].setChecked(False)
-                        self.chks_categories['without-category'].setChecked(False)
+                        self.categories.get('').get('cat_check').setChecked(False)
+                        self.categories.get('without-category').get('cat_check').setChecked(False)
 
             self.change_state_categories_config()
+
             chk.nextCheckState()
         except Exception as e:
             print('MAIN_WINDOW change_chk_categories: ', str(e))
 
     def change_state_categories_config(self):
         try:
-            if self.chks_categories[''].isChecked():
+            if self.categories.get('').get('cat_check').isChecked():
                 self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonTextOnly)
                 self.ui.tbtnCategoryConfig.setText('')
             else:
                 self.ui.tbtnCategoryConfig.setToolButtonStyle(Qt.ToolButtonIconOnly)
-                self.ui.tbtnCategoryConfig.setIcon(
-                    IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
+                self.ui.tbtnCategoryConfig.setIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
         except Exception as e:
             print('MAIN_WINDOW change_state_categories_config: ', str(e))
 
@@ -741,13 +747,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def selection_widgets_select(self):
         try:
             self.selectedMods = []
+            for cat in self.categories.values():
+                cat.get('cat_check').setChecked(False)
 
             self.ui.btnSaveConfig.setEnabled(True)
             self.ui.editNameConfig.setEnabled(True)
             self.ui.cmbLoaderConfig.setEnabled(True)
             self.ui.tbtnCategoryConfig.setEnabled(True)
-            for chk in self.chks_categories.values():
-                chk.setChecked(False)
 
             self.ui.chkUpdated.setEnabled(self.islist)
             self.ui.chkInstalledConfig.setEnabled(True)
@@ -772,9 +778,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.editNameConfig.setText(mod.name)
             self.ui.cmbLoaderConfig.setCurrentIndex(self.ui.cmbLoaderConfig.findText(mod.loader))
 
-            cats = [cat for cat in mod.categories.split(',')]
-            for cat in self.chks_categories:
-                self.chks_categories[cat].setChecked(cat in cats)
+            for cat in mod.categories.split(','):
+                self.categories.get(cat).get('cat_check').setChecked(True)
             self.change_state_categories_config()
 
             if self.islist:
@@ -1074,7 +1079,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 q.bindValue(':loader', mod.loader)
 
-            if not self.chks_categories[''].isChecked():
+            if not self.categories.get('').get('cat_check').isChecked():
                 q.bindValue(':categories', self.get_categories_from_checks())
             else:
                 q.bindValue(':categories', mod.categories)
@@ -1448,9 +1453,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def get_categories_from_checks(self):
         try:
             c = []
-            for cat, chk in self.chks_categories.items():
-                if chk.isChecked():
-                    c.append(cat)
+            for cat in self.categories.values():
+                if cat.get('cat_check').isChecked():
+                    c.append(cat.get('cat_id'))
             c.sort()
             return ",".join(c)
         except Exception as e:

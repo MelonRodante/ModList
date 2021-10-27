@@ -58,21 +58,21 @@ class IconUtils:
     @staticmethod
     def getCatNormalIcon(image):
         if image.startswith('-mlc-'):
-            return IconUtils.__getIconWithoutTint(IconUtils.other_cat_icons[image])
+            return IconUtils.getIconWithoutTint(IconUtils.other_cat_icons[image])
         else:
-            return IconUtils.__getIconWithoutTint(QPixmap(IconUtils.get_cat_icon_str(image)))
+            return IconUtils.getIconWithoutTint(QPixmap(IconUtils.get_cat_icon_str(image)))
 
     @staticmethod
     def getNormalIcon(image):
-        return IconUtils.__getIconWithoutTint(QPixmap(image))
+        return IconUtils.getIconWithoutTint(QPixmap(image))
 
     @staticmethod
     def getLargeIcon(categories, center=False):
         pm = IconUtils.__getLargePixmap(categories, center=center)
-        return IconUtils.__getIconWithoutTint(pm)
+        return IconUtils.getIconWithoutTint(pm)
 
     @staticmethod
-    def __getIconWithoutTint(pixmap):
+    def getIconWithoutTint(pixmap):
         icon = QIcon(pixmap)
         icon.addPixmap(pixmap, QIcon.Normal, QIcon.Off)
         icon.addPixmap(pixmap, QIcon.Normal, QIcon.On)
