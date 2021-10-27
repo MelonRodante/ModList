@@ -39,10 +39,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bold_font = self.create_bold_font()
         self.state_icons = self.create_state_icons()
 
-        self.showlist_state = (self.ui.actionShowInstalled, self.ui.actionShowIgnored)
-        self.showlist_autos = (self.ui.actionAutoInstall, self.ui.actionAutoIgnore)
-        self.showlist_loader = (self.ui.actionWithoutLoader, self.ui.actionForgeLoader, self.ui.actionFabricLoader, self.ui.actionBothLoader)
-
         self.categories = None
         self.chks_categories = None
         self.chks_categories_group = None
@@ -100,8 +96,6 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW create_state_icons: ', str(e))
 
-    # ------------------------------------------------------------------------------------------------------------------
-
     def setupWidgets(self):
         try:
 
@@ -138,36 +132,48 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.chkFavoriteConfig.clicked.connect(self.change_chk_favorite)
             self.ui.chkBlockedConfig.clicked.connect(self.change_chk_blocked)
 
+
             self.ui.actionAdminCategories.triggered.connect(self.show_admin_categories_dialog)
             self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
             self.ui.actionCopyList.triggered.connect(self.show_copylist_dialog)
             self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
             self.ui.actionSearchModID.triggered.connect(self.show_search_modid_dialog)
 
-            self.ui.actionMultiselection.triggered.connect(self.action_table_multiselection)
 
-            self.ui.actionWithoutLoader.triggered.connect(
-                lambda: self.change_action_chk_show_loader(self.ui.actionWithoutLoader))
-            self.ui.actionForgeLoader.triggered.connect(
-                lambda: self.change_action_chk_show_loader(self.ui.actionForgeLoader))
-            self.ui.actionFabricLoader.triggered.connect(
-                lambda: self.change_action_chk_show_loader(self.ui.actionFabricLoader))
-            self.ui.actionBothLoader.triggered.connect(
-                lambda: self.change_action_chk_show_loader(self.ui.actionBothLoader))
-
-            self.ui.actionAutoInstall.triggered.connect(
-                lambda: self.change_action_chk_show_auto(self.ui.actionAutoInstall))
-            self.ui.actionAutoIgnore.triggered.connect(
-                lambda: self.change_action_chk_show_auto(self.ui.actionAutoIgnore))
-
-            self.ui.actionShowInstalled.triggered.connect(
-                lambda: self.change_action_chk_show_state(self.ui.actionShowInstalled))
-            self.ui.actionShowIgnored.triggered.connect(
-                lambda: self.change_action_chk_show_state(self.ui.actionShowIgnored))
-
-            self.ui.actionShowUpdated.triggered.connect(self.load_pages)
-
+            self.ui.actionMultiselection.triggered.connect(lambda: self.action_table_multiselection(self.ui.actionMultiselection))
+            self.ui.btnTableMultiSelection.clicked.connect(lambda: self.action_table_multiselection(self.ui.btnTableMultiSelection))
             self.ui.tableMods.itemPressed.connect(self.context_menu_table)
+
+
+            self.ui.actionNoLoader.triggered.connect(lambda: self.filter_noloader(self.ui.actionNoLoader))
+            self.ui.btnViewNoLoader.clicked.connect(lambda: self.filter_noloader(self.ui.btnViewNoLoader))
+
+            self.ui.actionForgeLoader.triggered.connect(lambda: self.filter_forge_loader(self.ui.actionForgeLoader))
+            self.ui.btnViewForge.clicked.connect(lambda: self.filter_forge_loader(self.ui.btnViewForge))
+
+            self.ui.actionFabricLoader.triggered.connect(lambda: self.filter_fabric_loader(self.ui.actionFabricLoader))
+            self.ui.btnViewFabric.clicked.connect(lambda: self.filter_fabric_loader(self.ui.btnViewFabric))
+
+            self.ui.actionForgeFabricLoader.triggered.connect(lambda: self.filter_forge_fabric_loader(self.ui.actionForgeFabricLoader))
+            self.ui.btnViewForgeFabric.clicked.connect(lambda: self.filter_forge_fabric_loader(self.ui.btnViewForgeFabric))
+
+
+            self.ui.actionAutoInstall.triggered.connect(lambda: self.filter_autoinstall(self.ui.actionAutoInstall))
+            self.ui.btnViewAutoInstall.clicked.connect(lambda: self.filter_autoinstall(self.ui.btnViewAutoInstall))
+
+            self.ui.actionAutoIgnore.triggered.connect(lambda: self.filter_autoignore(self.ui.actionAutoIgnore))
+            self.ui.btnViewAutoIgnore.clicked.connect(lambda: self.filter_autoignore(self.ui.btnViewAutoIgnore))
+
+
+            self.ui.actionShowInstalled.triggered.connect(lambda: self.filter_installed(self.ui.actionShowInstalled))
+            self.ui.btnViewInstalled.clicked.connect(lambda: self.filter_installed(self.ui.btnViewInstalled))
+
+            self.ui.actionShowIgnored.triggered.connect(lambda: self.filter_ignored(self.ui.actionShowIgnored))
+            self.ui.btnViewIgnored.clicked.connect(lambda: self.filter_ignored(self.ui.btnViewIgnored))
+
+            self.ui.actionShowUpdated.triggered.connect(lambda: self.filter_updated(self.ui.actionShowUpdated))
+            self.ui.btnViewUpdated.clicked.connect(lambda: self.filter_updated(self.ui.btnViewUpdated))
+
 
             self.ui.actionExit.triggered.connect(self.show_warning_dialog)
 
@@ -238,56 +244,177 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW filter_change: ', str(e))
 
-    def change_action_chk_show_loader(self, action):
-        try:
-            for chk in self.showlist_loader:
-                if chk != action:
-                    chk.setChecked(False)
+    # ------------------------------------------------------------------------------------------------------------------
 
-            if not self.ui.actionLoaderAll.isChecked() and not self.ui.actionWithoutLoader.isChecked() and not self.ui.actionForgeLoader.isChecked() and not self.ui.actionFabricLoader.isChecked() and not self.ui.actionBothLoader.isChecked():
-                self.ui.actionLoaderAll.setChecked(True)
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def filter_noloader(self, button):
+        try:
+            self.ui.actionNoLoader.setChecked(button.isChecked())
+            self.ui.btnViewNoLoader.setChecked(button.isChecked())
+
+            if button.isChecked():
+                self.ui.actionForgeLoader.setChecked(False)
+                self.ui.btnViewForge.setChecked(False)
+
+                self.ui.actionFabricLoader.setChecked(False)
+                self.ui.btnViewFabric.setChecked(False)
+
+                self.ui.actionForgeFabricLoader.setChecked(False)
+                self.ui.btnViewForgeFabric.setChecked(False)
 
             self.load_pages()
+
         except Exception as e:
-            print('MAIN_WINDOW change_action_chk_show_loader: ', str(e))
+            print('MAIN_WINDOW filter_noloader: ', str(e))
 
-    def change_action_chk_show_auto(self, action):
+    def filter_forge_loader(self, button):
         try:
-            check = False
-            for chk in self.showlist_autos:
-                if chk != action:
-                    chk.setChecked(False)
+            self.ui.actionForgeLoader.setChecked(button.isChecked())
+            self.ui.btnViewForge.setChecked(button.isChecked())
 
-                if chk.isChecked():
-                    self.ui.actionShowInstalled.setChecked(False)
-                    self.ui.actionShowIgnored.setChecked(False)
+            if button.isChecked():
+                self.ui.actionNoLoader.setChecked(False)
+                self.ui.btnViewNoLoader.setChecked(False)
+
+                self.ui.actionFabricLoader.setChecked(False)
+                self.ui.btnViewFabric.setChecked(False)
+
+                self.ui.actionForgeFabricLoader.setChecked(False)
+                self.ui.btnViewForgeFabric.setChecked(False)
 
             self.load_pages()
+
         except Exception as e:
-            print('MAIN_WINDOW change_action_chk_show_state: ', str(e))
+            print('MAIN_WINDOW filter_forge_loader: ', str(e))
 
-    def change_action_chk_show_state(self, action):
+    def filter_fabric_loader(self, button):
         try:
-            for chk in self.showlist_state:
-                if chk != action:
-                    chk.setChecked(False)
+            self.ui.actionFabricLoader.setChecked(button.isChecked())
+            self.ui.btnViewFabric.setChecked(button.isChecked())
 
-                if chk.isChecked():
-                    self.ui.actionAutoInstall.setChecked(False)
-                    self.ui.actionAutoIgnore.setChecked(False)
+            if button.isChecked():
+                self.ui.actionNoLoader.setChecked(False)
+                self.ui.btnViewNoLoader.setChecked(False)
+
+                self.ui.actionForgeLoader.setChecked(False)
+                self.ui.btnViewForge.setChecked(False)
+
+                self.ui.actionForgeFabricLoader.setChecked(False)
+                self.ui.btnViewForgeFabric.setChecked(False)
 
             self.load_pages()
-        except Exception as e:
-            print('MAIN_WINDOW change_action_chk_show_state: ', str(e))
 
-    def action_table_multiselection(self):
+        except Exception as e:
+            print('MAIN_WINDOW filter_fabric_loader: ', str(e))
+
+    def filter_forge_fabric_loader(self, button):
         try:
+            self.ui.actionForgeFabricLoader.setChecked(button.isChecked())
+            self.ui.btnViewForgeFabric.setChecked(button.isChecked())
+
+            if button.isChecked():
+                self.ui.actionNoLoader.setChecked(False)
+                self.ui.btnViewNoLoader.setChecked(False)
+
+                self.ui.actionForgeLoader.setChecked(False)
+                self.ui.btnViewForge.setChecked(False)
+
+                self.ui.actionFabricLoader.setChecked(False)
+                self.ui.btnViewFabric.setChecked(False)
+
+            self.load_pages()
+
+        except Exception as e:
+            print('MAIN_WINDOW filter_forge_fabric_loader: ', str(e))
+
+    # ------------------------------------------
+
+    def filter_autoinstall(self, button):
+        try:
+            self.ui.actionAutoInstall.setChecked(button.isChecked())
+            self.ui.btnViewAutoInstall.setChecked(button.isChecked())
+
+            if button.isChecked():
+                self.ui.actionAutoIgnore.setChecked(False)
+                self.ui.btnViewAutoIgnore.setChecked(False)
+
+            self.load_pages()
+
+        except Exception as e:
+            print('MAIN_WINDOW filter_autoinstall: ', str(e))
+
+    def filter_autoignore(self, button):
+        try:
+            self.ui.actionAutoIgnore.setChecked(button.isChecked())
+            self.ui.btnViewAutoIgnore.setChecked(button.isChecked())
+
+            if button.isChecked():
+                self.ui.actionAutoInstall.setChecked(False)
+                self.ui.btnViewAutoInstall.setChecked(False)
+
+            self.load_pages()
+
+        except Exception as e:
+            print('MAIN_WINDOW filter_autoignore: ', str(e))
+
+    # ------------------------------------------
+
+    def filter_installed(self, button):
+        try:
+            self.ui.actionShowInstalled.setChecked(button.isChecked())
+            self.ui.btnViewInstalled.setChecked(button.isChecked())
+
+            if button.isChecked():
+                self.ui.actionShowIgnored.setChecked(False)
+                self.ui.btnViewIgnored.setChecked(False)
+
+            self.load_pages()
+
+        except Exception as e:
+            print('MAIN_WINDOW filter_installed: ', str(e))
+
+    def filter_ignored(self, button):
+        try:
+            self.ui.actionShowIgnored.setChecked(button.isChecked())
+            self.ui.btnViewIgnored.setChecked(button.isChecked())
+
+            if button.isChecked():
+                self.ui.actionShowInstalled.setChecked(False)
+                self.ui.btnViewInstalled.setChecked(False)
+
+            self.load_pages()
+
+        except Exception as e:
+            print('MAIN_WINDOW filter_ignored: ', str(e))
+
+    def filter_updated(self, button):
+        try:
+            self.ui.actionShowUpdated.setChecked(button.isChecked())
+            self.ui.btnViewUpdated.setChecked(button.isChecked())
+            self.load_pages()
+        except Exception as e:
+            print('MAIN_WINDOW filter_updated: ', str(e))
+
+    # ------------------------------------------
+
+    def action_table_multiselection(self, button):
+        try:
+            self.ui.actionMultiselection.setChecked(button.isChecked())
+            self.ui.btnTableMultiSelection.setChecked(button.isChecked())
+
             if self.ui.actionMultiselection.isChecked():
                 self.ui.tableMods.setSelectionMode(QAbstractItemView.ExtendedSelection)
             else:
                 self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
         except Exception as e:
             print('MAIN_WINDOW action_table_multiselection: ', str(e))
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -455,6 +582,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     def create_cmb_values_lists(self):
         try:
             q = QtSql.QSqlQuery()
@@ -485,15 +616,16 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             self.set_islist()
 
-            self.ui.actionShowUpdated.setEnabled(self.islist)
             self.ui.actionShowInstalled.setEnabled(self.islist)
+            self.ui.btnViewInstalled.setEnabled(self.islist)
+
             self.ui.actionShowIgnored.setEnabled(self.islist)
+            self.ui.btnViewIgnored.setEnabled(self.islist)
+
+            self.ui.actionShowUpdated.setEnabled(self.islist)
+            self.ui.btnViewUpdated.setEnabled(self.islist)
 
             if not self.islist:
-                self.ui.actionShowUpdated.setChecked(False)
-                self.ui.actionShowInstalled.setChecked(False)
-                self.ui.actionShowIgnored.setChecked(False)
-
                 self.ui.chkInstalledConfig.setText('Auto-Install')
                 self.ui.chkIgnoredConfig.setText('Auto-Ignore')
             else:
@@ -512,6 +644,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.filter_change()
         except Exception as e:
             print('MAIN_WINDOW edit_name_clear: ', str(e))
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -901,6 +1037,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
     def save_configuration_mod(self):
         try:
             if len(self.selectedMods) > 0:
@@ -1049,6 +1188,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
     @staticmethod
     def optional_filter(field, value: Union[bool, str, int], previus_sql, tableas='', novalue='', like=False):
         try:
@@ -1170,6 +1312,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
     def show_admin_categories_dialog(self):
         try:
             dialog = AdminCategoriesDialog()
@@ -1243,6 +1388,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     def set_islist(self):
         self.islist = 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 3
 
@@ -1260,10 +1409,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_loader(self):
         try:
-            for loader in self.showlist_loader:
-                if loader.isChecked():
-                    return loader.text()
-            return ''
+            if self.ui.actionNoLoader.isChecked():
+                return 'No Loader'
+            elif self.ui.actionForgeLoader.isChecked():
+                return 'Forge'
+            elif self.ui.actionFabricLoader.isChecked():
+                return 'Fabric'
+            elif self.ui.actionForgeFabricLoader.isChecked():
+                return 'Forge | Fabric'
         except Exception as e:
             print('MAIN_WINDOW get_loader: ', str(e))
 

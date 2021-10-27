@@ -15,6 +15,11 @@
     <file>states/updated_installed.png</file>
   </qresource>
   <qresource prefix="widgets">
+    <file>widgets/multiselection.png</file>
+    <file>widgets/forgefabric.png</file>
+    <file>widgets/noloader.png</file>
+    <file>widgets/fabric.png</file>
+    <file>widgets/forge.png</file>
     <file>widgets/warning.png</file>
     <file>widgets/noicon.png</file>
     <file>widgets/arrow_left.png</file>
