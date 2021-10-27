@@ -829,7 +829,7 @@
   </action>
   <action name="actionSearchModID">
    <property name="text">
-    <string>Sear Mod by ID</string>
+    <string>Search Mod by ID</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>

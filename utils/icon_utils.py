@@ -21,6 +21,8 @@ class IconUtils:
                 px = QPixmap(IconUtils.get_cat_icon_str(cat))
             elif isinstance(cat, QPixmap):
                 px = cat
+            else:
+                return QtCore.QByteArray()
 
             byte_array = QtCore.QByteArray()
             buff = QtCore.QBuffer(byte_array)

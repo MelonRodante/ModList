@@ -307,7 +307,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.chks_categories_group = QButtonGroup()
 
             q = QtSql.QSqlQuery()
-            q.prepare('SELECT C.cat_id, C.cat_name, C.icon, C.grp, C.ord FROM Categories as C ORDER BY C.grp ASC, C.ord ASC;')
+            q.prepare('SELECT C.cat_id, C.cat_name, C.icon, C.grp, C.ord FROM Categories as C ORDER BY C.grp ASC, C.ord ASC, C.cat_name ASC;')
 
             lastgrp = 1
 
@@ -1176,6 +1176,7 @@ class MainWindow(QtWidgets.QMainWindow):
             code = dialog.exec()
 
             if code == 1:
+                self.load_categories()
                 self.load_pages_maintain_slider()
         except Exception as e:
             print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
