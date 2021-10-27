@@ -7,21 +7,15 @@ from PyQt5 import QtSql
 from PyQt5.QtCore import QByteArray, Qt
 from qtpy import QtGui
 
+from utils.icon_utils import IconUtils
+
 
 class Mod:
     def __init__(self, arg: Union[QtSql.QSqlQuery, list]):
         try:
             if isinstance(arg, QtSql.QSqlQuery):
 
-                if isinstance(arg.value(0), PyQt5.QtCore.QByteArray):
-                    pixmap = QtGui.QPixmap()
-                    pixmap.loadFromData(arg.value(0))
-                else:
-                    pixmap = QtGui.QPixmap(':/widgets/widgets/noicon.png')
-
-                pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio)
-
-                self.icon = pixmap
+                self.icon = IconUtils.qbytearray_to_pixmap(arg.value(0))
                 self.name = arg.value(1)
 
                 # self.categories = arg.value(2)

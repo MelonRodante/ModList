@@ -136,25 +136,16 @@ class Database:
 
         if Database.execq(q):
             q.next()
+
             if q.value(0) != len(Database.categories):
                 for cat in Database.categories:
-                    q.prepare('INSERT INTO Categories (cat_id, cat_name, grp, ord, icon) VALUES (:cat_id, :cat_name, :grp, :ord, :icon)')
+                    q.prepare('INSERT OR IGNORE INTO Categories (cat_id, cat_name, grp, ord, icon) VALUES (:cat_id, :cat_name, :grp, :ord, :icon)')
                     q.bindValue(':cat_id', cat[0])
                     q.bindValue(':cat_name', cat[1])
                     q.bindValue(':grp', cat[2])
                     q.bindValue(':ord', cat[3])
-                    q.bindValue(':icon', Database.__pix_to_bytes(cat[0]))
+                    q.bindValue(':icon', IconUtils.pixmap_to_qbytearray(cat[0]))
 
                     Database.execq(q)
 
-    @staticmethod
-    def __pix_to_bytes(cat):
-        px = QPixmap(IconUtils.get_cat_icon_str(cat))
-        byte_array = QtCore.QByteArray()
-        buff = QtCore.QBuffer(byte_array)
-        buff.open(QtCore.QIODevice.WriteOnly)
-        ok = px.save(buff, "PNG")
-        if ok:
-            return byte_array
-        else:
-            return QtCore.QByteArray()
+

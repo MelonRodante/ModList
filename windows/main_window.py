@@ -18,10 +18,12 @@ from pyqt_style import colors
 from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
 from pyqt_windows.main_window import Ui_ModList
+from windows.admin_categories_dialog import AdminCategoriesDialog
 from windows.admin_list_dialog import AdminListDialog
 from windows.copylist_dialog import CopyListDialog
 from windows.searching_dialog import SearchingDialog
 from windows.searching_mod_id_dialog import SearchingModIdDialog
+from windows.warning_dialog import WarningDialog
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -136,6 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.chkFavoriteConfig.clicked.connect(self.change_chk_favorite)
             self.ui.chkBlockedConfig.clicked.connect(self.change_chk_blocked)
 
+            self.ui.actionAdminCategories.triggered.connect(self.show_admin_categories_dialog)
             self.ui.actionAdminLists.triggered.connect(self.show_admin_list_dialog)
             self.ui.actionCopyList.triggered.connect(self.show_copylist_dialog)
             self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
@@ -165,6 +168,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionShowUpdated.triggered.connect(self.load_pages)
 
             self.ui.tableMods.itemPressed.connect(self.context_menu_table)
+
+            self.ui.actionExit.triggered.connect(self.show_warning_dialog)
 
         except Exception as e:
             print('MAIN_WINDOW setupEvents: ', str(e))
@@ -317,14 +322,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         lastgrp = q.value(3)
 
                     self.categories.append([q.value(0), q.value(1), q.value(3), q.value(4), None])
-
-                    if isinstance(q.value(2), PyQt5.QtCore.QByteArray):
-                        pixmap = QtGui.QPixmap()
-                        pixmap.loadFromData(q.value(2))
-                    else:
-                        pixmap = QtGui.QPixmap(':/widgets/widgets/noicon.png')
-
-                    IconUtils.other_cat_icons[q.value(0)] = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
+                    IconUtils.other_cat_icons[q.value(0)] = IconUtils.qbytearray_to_pixmap(q.value(2), size=24)
 
             self.create_cmb_values_categories()
             self.create_menu_chk_categories_config()
@@ -813,7 +811,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 menu = top_menu.addMenu("Menu")
 
-                addlist = menu.addMenu("Añadir a lista...")
+                addlist = menu.addMenu("Add to list...")
 
                 q.prepare('select listname, loader from Lists;')
                 actions = []
@@ -830,73 +828,74 @@ class MainWindow(QtWidgets.QMainWindow):
                     addlist.addActions(actions)
 
                 if self.islist:
-                    delaction = QAction("Eliminar de la lista", self)
+                    delaction = QAction("Remove from list", self)
                     delaction.triggered.connect(partial(self.table_del_list, q))
                     menu.addAction(delaction)
 
                     menu.addSeparator()
 
-                    autoinstall = QAction("Marcar como auto-install", self)
+                    autoinstall = QAction("Mark as Auto-Install", self)
                     autoinstall.triggered.connect(partial(self.table_mark_autoinstall, q))
                     menu.addAction(autoinstall)
 
-                    autoignore = QAction("Marcar como auto-ignore", self)
+                    autoignore = QAction("Mark as Auto-Ignore", self)
                     autoignore.triggered.connect(partial(self.table_mark_autoignore, q))
                     menu.addAction(autoignore)
 
                 action = menu.exec_(QtGui.QCursor.pos())
 
         except Exception as e:
-            print('MAIN_WINDOW context_menu_table: ', str(e), traceback.format_exc())
+            print('MAIN_WINDOW context_menu_table: ', str(e))# , traceback.format_exc())
 
     def table_add_list(self, q, listname, loader):
         try:
             validloaders = [loader, 'No Loader', 'Forge | Fabric']
             for mod in self.selectedMods:
                 if mod.loader not in validloaders:
-                    QMessageBox.warning(None, 'MOD NO COMPATIBLE:',
-                                        'MOD NO COMPATIBLE:\n\nNo se pueden insertar los mods seleccionados ya que entre '
-                                        '\nellos existe 1 o mas no compatibles con el loader de la lista.',
-                                        QtWidgets.QMessageBox.Close)
+                    self.show_warning_dialog('Cannot insert the selected mods in the list because one or\n more are not compatible with the list Loader.', confirmation_dialog=False)
                     return
 
-            for mod in self.selectedMods:
-                mod.insert_in_list(q, listname)
+            if self.show_warning_dialog('Are you sure you want to insert ' + str(len(self.selectedMods)) + ' Mod/s in "' + listname + '" list?'):
+                for mod in self.selectedMods:
+                    mod.insert_in_list(q, listname)
         except Exception as e:
             print('MAIN_WINDOW table_add_list: ', str(e))
 
     def table_del_list(self, q):
         try:
-            for mod in self.selectedMods:
-                q.prepare('DELETE FROM ModsLists WHERE list == :list and mod == :mod;')
-                q.bindValue(':list', self.ui.cmbModList.currentText())
-                q.bindValue(':mod', mod.projectid)
-                self.exec(q, 'table_del_list')
+            if self.show_warning_dialog('Are you sure you want to remove ' + str(len(self.selectedMods)) + ' Mod/s from "' + self.ui.cmbModList.currentText() + '" list?'):
+                for mod in self.selectedMods:
+                    q.prepare('DELETE FROM ModsLists WHERE list == :list and mod == :mod;')
+                    q.bindValue(':list', self.ui.cmbModList.currentText())
+                    q.bindValue(':mod', mod.projectid)
+                    self.exec(q, 'table_del_list')
 
-            self.load_pages_maintain_slider()
+                self.load_pages_maintain_slider()
 
         except Exception as e:
             print('MAIN_WINDOW table_del_list: ', str(e))
 
     def table_mark_autoinstall(self, q):
         try:
-            for mod in self.selectedMods:
-                q.prepare('UPDATE Mods SET autoinstall = 1, autoignore = 0 WHERE projectid == :projectid;')
-                q.bindValue(':projectid', mod.projectid)
-                self.exec(q, 'table_mark_autoinstall')
+            if self.show_warning_dialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Install?'):
+                for mod in self.selectedMods:
+                    q.prepare('UPDATE Mods SET autoinstall = 1, autoignore = 0 WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', mod.projectid)
+                    self.exec(q, 'table_mark_autoinstall')
 
-            self.load_pages_maintain_slider()
+                self.load_pages_maintain_slider()
         except Exception as e:
             print('MAIN_WINDOW table_mark_autoinstall: ', str(e))
 
     def table_mark_autoignore(self, q):
         try:
-            for mod in self.selectedMods:
-                q.prepare('UPDATE Mods SET autoinstall = 0, autoignore = 1 WHERE projectid == :projectid;')
-                q.bindValue(':projectid', mod.projectid)
-                self.exec(q, 'table_mark_autoignore')
+            if self.show_warning_dialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?'):
+                for mod in self.selectedMods:
+                    q.prepare('UPDATE Mods SET autoinstall = 0, autoignore = 1 WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', mod.projectid)
+                    self.exec(q, 'table_mark_autoignore')
 
-            self.load_pages_maintain_slider()
+                self.load_pages_maintain_slider()
         except Exception as e:
             print('MAIN_WINDOW table_mark_autoignore: ', str(e))
 
@@ -1171,6 +1170,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    def show_admin_categories_dialog(self):
+        try:
+            dialog = AdminCategoriesDialog()
+            code = dialog.exec()
+
+            if code == 1:
+                self.load_pages_maintain_slider()
+        except Exception as e:
+            print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
+
     def show_admin_list_dialog(self):
         try:
             dialog = AdminListDialog()
@@ -1225,6 +1234,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
         except Exception as e:
             print('MAIN_WINDOW show_search_modid_dialog: ', str(e))
+
+    def show_warning_dialog(self, msg, confirmation_dialog=True):
+        dialog = WarningDialog(msg, confirmation_dialog)
+        dialog.setFixedSize(dialog.size())
+        return dialog.exec()
 
     # ------------------------------------------------------------------------------------------------------------------
 

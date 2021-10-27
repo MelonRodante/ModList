@@ -618,6 +618,7 @@
     <property name="title">
      <string> File </string>
     </property>
+    <addaction name="actionAdminCategories"/>
     <addaction name="actionAdminLists"/>
     <addaction name="actionCopyList"/>
     <addaction name="actionSearchingNewMods"/>
@@ -848,6 +849,11 @@
    </property>
    <property name="text">
     <string>Auto-Ignore</string>
+   </property>
+  </action>
+  <action name="actionAdminCategories">
+   <property name="text">
+    <string>Admin Categories</string>
    </property>
   </action>
  </widget>

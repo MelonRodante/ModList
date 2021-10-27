@@ -112,6 +112,7 @@ class Ui_AdminListDialog(object):
         self.line.setObjectName("line")
         self.verticalLayout.addWidget(self.line)
         self.tableLists = QtWidgets.QTableWidget(AdminListDialog)
+        self.tableLists.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableLists.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableLists.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableLists.setObjectName("tableLists")

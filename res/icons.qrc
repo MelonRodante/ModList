@@ -15,6 +15,7 @@
     <file>states/updated_installed.png</file>
   </qresource>
   <qresource prefix="widgets">
+    <file>widgets/warning.png</file>
     <file>widgets/noicon.png</file>
     <file>widgets/arrow_left.png</file>
     <file>widgets/arrow_left_off.png</file>
@@ -25,6 +26,7 @@
     <file>widgets/window_icon.png</file>
   </qresource>
   <qresource prefix="categories">
+    <file>categories/cat_border.png</file>
     <file>categories/adventure-rpg.png</file>
     <file>categories/armor-weapons-tools.png</file>
     <file>categories/cosmetic.png</file>

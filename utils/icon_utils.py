@@ -1,5 +1,7 @@
 import traceback
 
+import PyQt5
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import QRectF, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QIcon
 
@@ -11,6 +13,38 @@ class IconUtils:
     @staticmethod
     def get_cat_icon_str(cat):
         return ':/categories/categories/' + cat + '.png'
+
+    @staticmethod
+    def pixmap_to_qbytearray(cat):
+        try:
+            if isinstance(cat, str):
+                px = QPixmap(IconUtils.get_cat_icon_str(cat))
+            elif isinstance(cat, QPixmap):
+                px = cat
+
+            byte_array = QtCore.QByteArray()
+            buff = QtCore.QBuffer(byte_array)
+            buff.open(QtCore.QIODevice.WriteOnly)
+            ok = px.save(buff, "PNG")
+            if ok:
+                return byte_array
+            else:
+                return QtCore.QByteArray()
+        except Exception as e:
+            print('ICON_UTILS pixmap_to_qbytearray:', e)
+
+    @staticmethod
+    def qbytearray_to_pixmap(array, size=32):
+        try:
+            if isinstance(array, PyQt5.QtCore.QByteArray):
+                pixmap = QtGui.QPixmap()
+                pixmap.loadFromData(array)
+            else:
+                pixmap = QtGui.QPixmap(':/widgets/widgets/noicon.png')
+
+            return pixmap.scaled(size, size, Qt.KeepAspectRatio)
+        except Exception as e:
+            print('ICON_UTILS qbytearray_to_pixmap:', e)
 
     @staticmethod
     def getCatNormalPixMap(image):
