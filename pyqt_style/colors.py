@@ -23,6 +23,38 @@ Focus_and_HoverMenus = '#FD884C'   # '#1A72BB' Focus de componentes y hover menu
 ColorSelectedWeak = '#D66100'
 
 custom_css = '''
+QToolBar {
+    border: 1px solid ''' + Background + '''; 
+    background-color: ''' + Background + '''; 
+    padding: 4px;
+}
+
+QToolTip {
+    border: 1px solid ''' + ColorStrong + '''; 
+    background-color: ''' + DarkBackground + ''';
+} 
+
+QToolButton {
+    border: 1px solid ''' + ColorStrong + '''; 
+    background-color: ''' + DarkBackground + ''';
+} 
+
+QToolButton:hover {
+    border: 1px solid ''' + Focus_and_HoverMenus + '''; 
+    background-color: ''' + B30 + ''';
+}
+
+QToolButton:pressed {
+    border: 1px solid ''' + Focus_and_HoverMenus + '''; 
+    background-color: ''' + Border + ''';
+}
+
+QToolButton:disabled {
+    border: 1px solid ''' + Border + '''; 
+    background-color: ''' + DarkBackground + ''';
+    color: ''' + Border + ''';
+}
+
 QPushButton {
     border: 1px solid ''' + ColorStrong + '''; 
     background-color: ''' + DarkBackground + ''';
@@ -43,7 +75,6 @@ QPushButton:disabled {
     background-color: ''' + DarkBackground + ''';
     color: ''' + Border + ''';
 }
-
 
 QMenuBar {
     background-color: ''' + DarkBackground + ''';
@@ -79,6 +110,9 @@ QTableWidget::item:hover:selected,
 QTableWidget::item:!hover:selected {
     background-color: ''' + TableSelect + ''';
 }
+
+
+
 
 '''
 

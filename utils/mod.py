@@ -11,6 +11,9 @@ from utils.icon_utils import IconUtils
 
 
 class Mod:
+
+    categories = None
+
     def __init__(self, arg: Union[QtSql.QSqlQuery, list]):
         try:
             if isinstance(arg, QtSql.QSqlQuery):

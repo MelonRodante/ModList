@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon, QColor
 
 from utils.icon_utils import IconUtils
+from utils.mod import Mod
 
 
 class TableItemButton(QtWidgets.QTableWidgetItem):
@@ -43,5 +44,10 @@ class TableItemCategories(QtWidgets.QTableWidgetItem):
     def __init__(self, categories):
         QtWidgets.QTableWidgetItem.__init__(self)
         self.setIcon(QIcon(IconUtils.getLargeIcon(categories)))
+
+        cat_tooltip = ''
+        for cat in categories.split(','):
+            cat_tooltip += ' - ' + Mod.categories.get(cat).get('cat_name') + '\n'
+        self.setToolTip(cat_tooltip[:-1])
 
 

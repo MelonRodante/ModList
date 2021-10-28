@@ -15,6 +15,9 @@
     <file>states/updated_installed.png</file>
   </qresource>
   <qresource prefix="widgets">
+    <file>widgets/search_id.png</file>
+    <file>widgets/search.png</file>
+    <file>widgets/clear.png</file>
     <file>widgets/multiselection.png</file>
     <file>widgets/forgefabric.png</file>
     <file>widgets/noloader.png</file>
