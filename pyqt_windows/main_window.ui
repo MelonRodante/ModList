@@ -552,6 +552,9 @@
           <property name="text">
            <string>Auto-Install</string>
           </property>
+          <property name="shortcut">
+           <string>Ctrl+Z</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -574,6 +577,9 @@
           <property name="text">
            <string>Auto-Ignore</string>
           </property>
+          <property name="shortcut">
+           <string>Ctrl+X</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -591,6 +597,9 @@
           <property name="text">
            <string>Favorite</string>
           </property>
+          <property name="shortcut">
+           <string>Ctrl+C</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -600,6 +609,9 @@
           </property>
           <property name="text">
            <string>Blocked</string>
+          </property>
+          <property name="shortcut">
+           <string>Ctrl+V</string>
           </property>
          </widget>
         </item>
