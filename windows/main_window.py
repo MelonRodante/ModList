@@ -102,8 +102,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.modify_css()
             self.resize_table()
             self.create_cmb_values_lists()
-            self.create_cmb_values_categories()
-            self.create_menu_chk_categories_config()
             self.resize_combobox_loader_config()
 
         except Exception as e:
@@ -141,6 +139,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.btnTableMultiSelection.clicked.connect(lambda: self.action_table_multiselection(self.ui.btnTableMultiSelection))
             self.ui.tableMods.itemPressed.connect(self.context_menu_table)
 
+
+            self.ui.actionResetFilters.triggered.connect(self.clear_filters)
 
             self.ui.actionNoLoader.triggered.connect(lambda: self.filter_noloader(self.ui.actionNoLoader))
             self.ui.btnViewNoLoader.clicked.connect(lambda: self.filter_noloader(self.ui.btnViewNoLoader))
@@ -246,6 +246,38 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
+
+    def clear_filters(self):
+        self.ui.actionNoLoader.setChecked(False)
+        self.ui.btnViewNoLoader.setChecked(False)
+
+        self.ui.actionForgeLoader.setChecked(False)
+        self.ui.btnViewForge.setChecked(False)
+
+        self.ui.actionFabricLoader.setChecked(False)
+        self.ui.btnViewFabric.setChecked(False)
+
+        self.ui.actionForgeFabricLoader.setChecked(False)
+        self.ui.btnViewForgeFabric.setChecked(False)
+
+        self.ui.actionAutoInstall.setChecked(False)
+        self.ui.btnViewAutoInstall.setChecked(False)
+
+        self.ui.actionAutoIgnore.setChecked(False)
+        self.ui.btnViewAutoIgnore.setChecked(False)
+
+        self.ui.actionShowInstalled.setChecked(False)
+        self.ui.btnViewInstalled.setChecked(False)
+
+        self.ui.actionShowIgnored.setChecked(False)
+        self.ui.btnViewIgnored.setChecked(False)
+
+        self.ui.actionShowUpdated.setChecked(False)
+        self.ui.btnViewUpdated.setChecked(False)
+
+        self.load_pages()
+
+    # ------------------------------------------
 
     def filter_noloader(self, button):
         try:
@@ -443,7 +475,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 while q.next():
 
                     icon = IconUtils.qbytearray_to_pixmap(q.value(2), size=24)
-
                     self.categories[q.value(0)] = {
                         'cat_id':       q.value(0),
                         'cat_name':     q.value(1),
@@ -501,6 +532,8 @@ class MainWindow(QtWidgets.QMainWindow):
                         other_categories.addAction(self.create_chk_category_config_action(menu, cat))
                     else:
                         curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
+                        if cat.get('cat_id') == 'without-category':
+                            curse_categories.addSeparator()
 
             self.ui.tbtnCategoryConfig.setMenu(menu)
             self.ui.tbtnCategoryConfig.clicked.connect(self.ui.tbtnCategoryConfig.showMenu)
@@ -812,11 +845,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.cmbLoaderConfig.setCurrentIndex(0)
 
             if state.categories is not None:
-                cats = [cat for cat in state.categories.split(',')]
-                for cat in self.chks_categories:
-                    self.chks_categories[cat].setChecked(cat in cats)
+                for cat in state.categories.split(','):
+                    self.categories.get(cat).get('cat_check').setChecked(True)
             else:
-                self.chks_categories[''].setChecked(True)
+                self.categories.get('').get('cat_check').setChecked(True)
             self.change_state_categories_config()
 
             if self.islist:
