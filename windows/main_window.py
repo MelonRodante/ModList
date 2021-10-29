@@ -238,7 +238,25 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW change_toolbar_orientation: ', str(e))
 
+    def resize_table(self):
+        try:
+            header = self.ui.tableMods.horizontalHeader()
+            header.setSectionResizeMode(0, QtWidgets.QHeaderView.Fixed)
+            header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+            header.setSectionResizeMode(2, QtWidgets.QHeaderView.Fixed)
+            header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+            header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+            header.setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
 
+            self.ui.tableMods.setIconSize(QSize(48, 48))
+            self.ui.tableMods.setColumnWidth(0, 49)
+            self.ui.tableMods.setColumnWidth(2, 147)
+
+            self.ui.tableMods.setColumnWidth(5, 23)
+
+
+        except Exception as e:
+            print('MAIN_WINDOW resize_table: ', str(e))
 
 
 
@@ -272,10 +290,14 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW clear_filters: ', str(e))
 
     def table_selectmode(self, checked):
-        if checked:
-            self.ui.tableMods.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        else:
-            self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
+        try:
+            if checked:
+                self.ui.tableMods.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            else:
+                self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
+
+        except Exception as e:
+            print('MAIN_WINDOW table_selectmode: ', str(e))
 
     def exclusive_filter(self, button, list_buttons):
         try:
@@ -697,24 +719,6 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW check_table_buttons: ', str(e))
 
     # ------------------------------------------
-
-    def resize_table(self):
-        try:
-            header = self.ui.tableMods.horizontalHeader()
-            header.setSectionResizeMode(0, QtWidgets.QHeaderView.Fixed)
-            header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-            header.setSectionResizeMode(2, QtWidgets.QHeaderView.Fixed)
-            header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
-            header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
-            header.setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
-
-            self.ui.tableMods.setColumnWidth(0, 33)
-            self.ui.tableMods.setColumnWidth(2, 147)
-            self.ui.tableMods.setColumnWidth(5, 23)
-            self.ui.tableMods.setIconSize(QSize(64, 64))
-
-        except Exception as e:
-            print('MAIN_WINDOW resize_table: ', str(e))
 
     def clear_selected(self, enabled):
         try:
@@ -1331,7 +1335,7 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             f = QFont()
             f.setBold(True)
-            f.setPixelSize(15)
+            f.setPixelSize(18)
             return f
 
         except Exception as e:

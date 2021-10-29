@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>967</width>
-    <height>623</height>
+    <width>974</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>817</width>
-    <height>0</height>
+    <width>974</width>
+    <height>439</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -114,6 +114,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="maxVisibleItems">
@@ -164,6 +166,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="styleSheet">
@@ -279,6 +283,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -377,10 +383,10 @@
            <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderDefaultSectionSize">
-           <number>35</number>
+           <number>51</number>
           </attribute>
           <attribute name="verticalHeaderMinimumSectionSize">
-           <number>35</number>
+           <number>51</number>
           </attribute>
           <column>
            <property name="text">
@@ -529,7 +535,7 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>77</width>
+            <width>80</width>
             <height>24</height>
            </size>
           </property>
@@ -542,6 +548,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <item>
@@ -617,6 +625,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -659,6 +669,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -699,6 +711,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -729,6 +743,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -766,6 +782,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -796,6 +814,8 @@
           <property name="font">
            <font>
             <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -833,7 +853,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>967</width>
+     <width>974</width>
      <height>23</height>
     </rect>
    </property>
