@@ -5,9 +5,9 @@ from typing import Union
 
 
 from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
-from PyQt5.QtCore import QSize, Qt, QCoreApplication, QModelIndex
+from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from PyQt5.QtGui import QFont, QGuiApplication, QPixmap
-from PyQt5.QtWidgets import QAbstractItemView, QMenu, QWidget, QSizePolicy, QActionGroup
+from PyQt5.QtWidgets import QAbstractItemView, QMenu, QWidget, QSizePolicy
 from qtpy.QtWidgets import QButtonGroup, QAction
 
 from utils.database import Database
@@ -884,11 +884,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.tableMods.setItem(i, 2, TableItemCategories(mod.categories))
                     self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
 
-                    try:
-                        date = '  ' + time.strftime('%d/%m/%Y', time.localtime(mod.update_date)) + '  '
-                    except:
-                        date = '  -  '
-                    self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem(date))
+                    self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem(MainWindow.epoch_to_date(mod)))
                     self.ui.tableMods.setItem(i, 5, QtWidgets.QTableWidgetItem(self.get_state_icon(mod), ''))
 
                     self.ui.tableMods.item(i, 3).setTextAlignment(QtCore.Qt.AlignCenter)
@@ -902,7 +898,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------
 
-    def context_menu_table(self, index: QModelIndex):
+    def context_menu_table(self):
         try:
             if Qt.RightButton == QGuiApplication.mouseButtons():
                 q = QtSql.QSqlQuery()
@@ -941,10 +937,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 autoignore.triggered.connect(partial(self.table_mark_autoignore, q))
                 menu.addAction(autoignore)
 
-                action = menu.exec_(QtGui.QCursor.pos())
+                menu.exec_(QtGui.QCursor.pos())
 
         except Exception as e:
-            print('MAIN_WINDOW context_menu_table: ', str(e))# , traceback.format_exc())
+            print('MAIN_WINDOW context_menu_table: ', str(e))  # , traceback.format_exc())
 
     def table_add_list(self, q, listname, loader):
         try:
@@ -1195,11 +1191,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def show_searching_dialog(self):
         try:
-            list = None
+            listname = None
             if self.islist:
-                list = self.ui.cmbModList.currentText()
+                listname = self.ui.cmbModList.currentText()
 
-            dialog = SearchingDialog(list)
+            dialog = SearchingDialog(listname)
             if dialog.exec():
                 loader = dialog.ui.cmbModList.currentText()
                 if loader != self.ui.cmbModList.currentText():
@@ -1211,11 +1207,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def show_copylist_dialog(self):
         try:
-            list = None
+            listname = None
             if self.islist:
-                list = self.ui.cmbModList.currentText()
+                listname = self.ui.cmbModList.currentText()
 
-            dialog = CopyListDialog(list)
+            dialog = CopyListDialog(listname)
             editname = dialog.ui.editNameCopy
             code = dialog.exec()
 
@@ -1225,10 +1221,10 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW show_copylist_dialog: ', str(e))
 
-    def show_search_modid_dialog(self):
+    @staticmethod
+    def show_search_modid_dialog():
         try:
             dialog = SearchingModIdDialog()
-            # editname = dialog.ui.editNameCopy
             code = dialog.exec()
 
             if code == 1:
@@ -1236,7 +1232,8 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print('MAIN_WINDOW show_search_modid_dialog: ', str(e))
 
-    def show_warning_dialog(self, msg, confirmation_dialog=True):
+    @staticmethod
+    def show_warning_dialog(msg, confirmation_dialog=True):
         dialog = WarningDialog(msg, confirmation_dialog)
         dialog.setFixedSize(dialog.size())
         return dialog.exec()
@@ -1255,7 +1252,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_islist(self):
         self.islist = 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 3
 
-    def get_categories_from_checks(self):
+    @staticmethod
+    def get_categories_from_checks():
         try:
             c = []
             for cat in Mod.categories.values():
@@ -1318,6 +1316,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             print('MAIN_WINDOW save_configuration_mod: ', str(e))
+
+    @staticmethod
+    def epoch_to_date(mod: Mod):
+        try:
+            return '  ' + time.strftime('%d/%m/%Y', time.localtime(mod.update_date)) + '  '
+        except ValueError:
+            return '  -  '
 
     # ------------------------------------------
 
