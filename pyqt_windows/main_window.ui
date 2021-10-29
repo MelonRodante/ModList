@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>844</width>
+    <width>967</width>
     <height>623</height>
    </rect>
   </property>
@@ -73,14 +73,27 @@
         </property>
         <item>
          <widget class="QLabel" name="lblModList">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Mod List</string>
+           <string>Mod List:</string>
           </property>
          </widget>
         </item>
@@ -89,8 +102,19 @@
           <property name="minimumSize">
            <size>
             <width>150</width>
-            <height>0</height>
+            <height>24</height>
            </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="maxVisibleItems">
            <number>30</number>
@@ -99,8 +123,21 @@
         </item>
         <item>
          <widget class="QLabel" name="lblCategory">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -115,8 +152,19 @@
           <property name="minimumSize">
            <size>
             <width>170</width>
-            <height>0</height>
+            <height>24</height>
            </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="styleSheet">
            <string notr="true"/>
@@ -128,8 +176,21 @@
         </item>
         <item>
          <widget class="QLabel" name="lblName">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -141,6 +202,23 @@
         </item>
         <item>
          <widget class="QLineEdit" name="editName">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="styleSheet">
            <string notr="true"/>
           </property>
@@ -167,14 +245,14 @@
          <widget class="QPushButton" name="btnPageLeft">
           <property name="minimumSize">
            <size>
-            <width>16</width>
-            <height>16</height>
+            <width>24</width>
+            <height>24</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>20</width>
-            <height>20</height>
+            <width>24</width>
+            <height>24</height>
            </size>
           </property>
           <property name="text">
@@ -187,8 +265,8 @@
           </property>
           <property name="iconSize">
            <size>
-            <width>12</width>
-            <height>12</height>
+            <width>16</width>
+            <height>16</height>
            </size>
           </property>
           <property name="shortcut">
@@ -198,6 +276,11 @@
         </item>
         <item>
          <widget class="QLabel" name="lblActualPages">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>1 - 500 / 1851</string>
           </property>
@@ -210,14 +293,14 @@
          <widget class="QPushButton" name="btnPageRight">
           <property name="minimumSize">
            <size>
-            <width>16</width>
-            <height>16</height>
+            <width>24</width>
+            <height>24</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>20</width>
-            <height>20</height>
+            <width>24</width>
+            <height>24</height>
            </size>
           </property>
           <property name="text">
@@ -230,8 +313,8 @@
           </property>
           <property name="iconSize">
            <size>
-            <width>12</width>
-            <height>12</height>
+            <width>16</width>
+            <height>16</height>
            </size>
           </property>
           <property name="shortcut">
@@ -251,6 +334,7 @@
           <property name="font">
            <font>
             <family>MS Shell Dlg 2</family>
+            <pointsize>10</pointsize>
            </font>
           </property>
           <property name="autoFillBackground">
@@ -309,6 +393,7 @@
            </property>
            <property name="font">
             <font>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -320,6 +405,7 @@
            </property>
            <property name="font">
             <font>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -331,6 +417,7 @@
            </property>
            <property name="font">
             <font>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -342,6 +429,7 @@
            </property>
            <property name="font">
             <font>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -410,8 +498,21 @@
         </item>
         <item>
          <widget class="QLabel" name="lblLoaderConfig">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -429,8 +530,19 @@
           <property name="minimumSize">
            <size>
             <width>77</width>
-            <height>0</height>
+            <height>24</height>
            </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <item>
            <property name="text">
@@ -461,8 +573,21 @@
         </item>
         <item>
          <widget class="QLabel" name="lblCategoryConfig">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -480,14 +605,19 @@
           <property name="minimumSize">
            <size>
             <width>160</width>
-            <height>20</height>
+            <height>24</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>160</width>
-            <height>20</height>
+            <height>24</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string/>
@@ -513,6 +643,23 @@
          <widget class="QCheckBox" name="chkUpdated">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Updated</string>
@@ -540,14 +687,19 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>0</height>
+            <height>24</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>16777215</height>
+            <height>24</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Auto-Install</string>
@@ -565,14 +717,19 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>0</height>
+            <height>24</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>16777215</height>
+            <height>24</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Auto-Ignore</string>
@@ -594,6 +751,23 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Favorite</string>
           </property>
@@ -606,6 +780,23 @@
          <widget class="QCheckBox" name="chkBlockedConfig">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Blocked</string>
@@ -642,9 +833,14 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>844</width>
-     <height>21</height>
+     <width>967</width>
+     <height>23</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="minimumSize">
@@ -658,6 +854,11 @@
       <width>16777215</width>
       <height>16777215</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
     <property name="title">
      <string> File </string>
@@ -683,6 +884,11 @@
       <width>16777215</width>
       <height>16777215</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
     <property name="title">
      <string> View </string>
@@ -714,6 +920,11 @@
       <height>16777215</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string> Edit </string>
     </property>
@@ -729,6 +940,11 @@
    </property>
   </widget>
   <widget class="QToolBar" name="toolBar">
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="contextMenuPolicy">
     <enum>Qt::NoContextMenu</enum>
    </property>
@@ -785,6 +1001,11 @@
    <property name="text">
     <string>Admin Lists</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
@@ -803,6 +1024,11 @@
    <property name="text">
     <string>Installed</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+1</string>
    </property>
@@ -820,6 +1046,11 @@
    </property>
    <property name="text">
     <string>Ignored</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>
@@ -842,6 +1073,11 @@
    <property name="text">
     <string>Upgradeable</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+3</string>
    </property>
@@ -854,6 +1090,11 @@
    <property name="text">
     <string>Search New Mods</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
@@ -861,6 +1102,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
   </action>
   <action name="actionMultiselection">
@@ -873,6 +1119,11 @@
    </property>
    <property name="text">
     <string>Table Multiselection</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -892,6 +1143,11 @@
    <property name="text">
     <string>Forge Loader</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+7</string>
    </property>
@@ -910,6 +1166,11 @@
    <property name="text">
     <string>Fabric Loader</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+8</string>
    </property>
@@ -927,6 +1188,11 @@
    </property>
    <property name="text">
     <string>Forge | Fabric</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+9</string>
@@ -949,6 +1215,11 @@
    <property name="text">
     <string>No Loader</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+6</string>
    </property>
@@ -956,6 +1227,11 @@
   <action name="actionCopyList">
    <property name="text">
     <string>Copy List</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -968,6 +1244,11 @@
    </property>
    <property name="text">
     <string>Search Mod by ID</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
@@ -984,6 +1265,11 @@
    <property name="text">
     <string>Auto-Install</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+4</string>
    </property>
@@ -999,6 +1285,11 @@
    <property name="text">
     <string>Auto-Ignore</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+5</string>
    </property>
@@ -1006,6 +1297,11 @@
   <action name="actionAdminCategories">
    <property name="text">
     <string>Admin Categories</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -1018,6 +1314,11 @@
    </property>
    <property name="text">
     <string>Reset Filters</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
