@@ -393,11 +393,19 @@ class MainWindow(QtWidgets.QMainWindow):
             if len(Mod.categories) > len(Database.categories):
                 other_categories = menu.addMenu('Other Categories...')
 
+            lastgrp = 1
             for cat in Mod.categories.values():
                 if cat.get('cat_id') != '':
                     if cat.get('cat_grp') > 100 and other_categories is not None:
+                        if lastgrp != cat.get('cat_grp'):
+                            other_categories.addSeparator()
+                            lastgrp = cat.get('cat_grp')
                         other_categories.addAction(self.create_chk_category_config_action(menu, cat))
                     else:
+                        if lastgrp != cat.get('cat_grp') and lastgrp > 100:
+                            if lastgrp > 100:
+                                curse_categories.addSeparator()
+                            lastgrp = cat.get('cat_grp')
                         curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
                         if cat.get('cat_id') == 'without-category':
                             curse_categories.addSeparator()
@@ -1193,6 +1201,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if code == 1:
                 self.load_categories()
+                QCoreApplication.processEvents()
                 self.load_pages_maintain_slider()
 
         except Exception as e:

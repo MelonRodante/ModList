@@ -16,6 +16,8 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
         self.ui = Ui_AdminCategoriesDialog()
         self.ui.setupUi(self)
 
+        self.last_path = 'c:\\'
+
         self.pixmap = None
         self.font = AdminCategoriesDialog.create_font_table()
 
@@ -105,8 +107,10 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
 
     def btn_icon(self):
         try:
-            fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.png)")
+            fname = QFileDialog.getOpenFileName(self, 'Open file', self.last_path, "Image files (*.png)")
             if fname[0]:
+                self.last_path = fname[0]
+
                 self.pixmap = QPixmap(fname[0]).scaled(48, 48, Qt.KeepAspectRatio)
 
                 painter = QPainter(self.pixmap)
