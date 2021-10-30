@@ -1,13 +1,5 @@
-from datetime import datetime
-from typing import Union
-
-import PyQt5
-import requests
 from PyQt5 import QtSql
-from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtSql import QSqlQuery
-from qtpy import QtGui
-
 from utils.icon_utils import IconUtils
 
 
@@ -17,7 +9,7 @@ class Mod:
 
     def __init__(self, arg: QtSql.QSqlQuery):
         try:
-            self.icon = IconUtils.qbytearray_to_pixmap(arg.value(0), size=64)
+            self.icon = IconUtils.qbytearray_to_pixmap(arg.value(0), size=48)
             self.name = arg.value(1)
 
             cat = arg.value(2).split(',')

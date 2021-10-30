@@ -4,11 +4,10 @@ from functools import partial
 from typing import Union
 
 
-from PyQt5 import QtWidgets, QtCore, QtSql, QtGui
+from PyQt5 import QtWidgets, QtSql, QtGui
 from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from PyQt5.QtGui import QFont, QGuiApplication, QPixmap
-from PyQt5.QtWidgets import QAbstractItemView, QMenu, QWidget, QSizePolicy
-from qtpy.QtWidgets import QButtonGroup, QAction
+from PyQt5.QtWidgets import QAbstractItemView, QMenu, QWidget, QSizePolicy, QButtonGroup, QAction
 
 from utils.database import Database
 from utils.icon_utils import IconUtils
@@ -27,7 +26,7 @@ from windows.warning_dialog import WarningDialog
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    rows_per_page = 50
+    rows_per_page = 100
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -36,7 +35,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         Database.connect_db()
 
-        self.bold_font = self.create_bold_font()
+        self.table_name_font = self.create_font_table_name()
+        self.table_others_font = self.create_font_table_others()
         self.state_icons = self.create_state_icons()
 
         self.chks_categories = None
@@ -108,7 +108,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.actionMultiselection.triggered.connect(self.table_selectmode)
 
-            self.ui.actionExit.triggered.connect(self.show_warning_dialog)
+            self.ui.actionExit.triggered.connect(self.exit_app)
 
 
 
@@ -143,7 +143,11 @@ class MainWindow(QtWidgets.QMainWindow):
             print('MAIN_WINDOW setupEvents: ', str(e))
 
 
-
+    def exit_app(self):
+        try:
+            self.close()
+        except Exception as e:
+            print('MAIN_WINDOW exit: ', str(e))
 
 
 
@@ -248,12 +252,10 @@ class MainWindow(QtWidgets.QMainWindow):
             header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
             header.setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
 
-            self.ui.tableMods.setIconSize(QSize(48, 48))
-            self.ui.tableMods.setColumnWidth(0, 49)
-            self.ui.tableMods.setColumnWidth(2, 147)
-
-            self.ui.tableMods.setColumnWidth(5, 23)
-
+            # Icon size in pyqt_widgets -> delegates
+            self.ui.tableMods.setColumnWidth(0, 59)
+            self.ui.tableMods.setColumnWidth(2, 191)
+            self.ui.tableMods.setColumnWidth(5, 27)
 
         except Exception as e:
             print('MAIN_WINDOW resize_table: ', str(e))
@@ -339,7 +341,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.exec(q, 'load_categories'):
                 while q.next():
 
-                    icon = IconUtils.qbytearray_to_pixmap(q.value(2), size=24)
+                    icon = IconUtils.qbytearray_to_pixmap(q.value(2), size=48)
                     Mod.categories[q.value(0)] = {
                         'cat_id':       q.value(0),
                         'cat_name':     q.value(1),
@@ -883,16 +885,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 self.ui.tableMods.setRowCount(len(self.tableMods))
                 for i, mod in enumerate(self.tableMods):
-                    self.ui.tableMods.setItem(i, 0, TableItemButton(mod))
-                    self.ui.tableMods.setItem(i, 1, TableItemName(mod, self.bold_font))
-                    self.ui.tableMods.setItem(i, 2, TableItemCategories(mod.categories))
-                    self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
 
+                    self.ui.tableMods.setItem(i, 0, TableItemButton(mod))
+
+                    self.ui.tableMods.setItem(i, 1, TableItemName(mod, self.table_name_font))
+
+                    self.ui.tableMods.setItem(i, 2, TableItemCategories(mod.categories))
+
+                    self.ui.tableMods.setItem(i, 3, QtWidgets.QTableWidgetItem('  ' + mod.loader + '  '))
                     self.ui.tableMods.setItem(i, 4, QtWidgets.QTableWidgetItem(MainWindow.epoch_to_date(mod)))
                     self.ui.tableMods.setItem(i, 5, QtWidgets.QTableWidgetItem(self.get_state_icon(mod), ''))
 
-                    self.ui.tableMods.item(i, 3).setTextAlignment(QtCore.Qt.AlignCenter)
-                    self.ui.tableMods.item(i, 4).setTextAlignment(QtCore.Qt.AlignCenter)
+                    self.ui.tableMods.item(i, 3).setTextAlignment(Qt.AlignCenter)
+                    self.ui.tableMods.item(i, 3).setFont(self.table_others_font)
+
+                    self.ui.tableMods.item(i, 4).setTextAlignment(Qt.AlignCenter)
+                    self.ui.tableMods.item(i, 4).setFont(self.table_others_font)
 
             else:
                 self.ui.lblActualPages.setText('0 / 0')
@@ -951,10 +959,10 @@ class MainWindow(QtWidgets.QMainWindow):
             validloaders = [loader, 'No Loader', 'Forge | Fabric']
             for mod in self.selectedMods:
                 if mod.loader not in validloaders:
-                    self.show_warning_dialog('Cannot insert the selected mods in the list because one or\n more are not compatible with the list Loader.', confirmation_dialog=False)
+                    WarningDialog('Cannot insert the selected mods in the list because one or\n more are not compatible with the list Loader.', confirmation_dialog=False)
                     return
 
-            if self.show_warning_dialog('Are you sure you want to insert ' + str(len(self.selectedMods)) + ' Mod/s in "' + listname + '" list?'):
+            if WarningDialog('Are you sure you want to insert ' + str(len(self.selectedMods)) + ' Mod/s in "' + listname + '" list?'):
                 for mod in self.selectedMods:
                     mod.insert_in_list(q, listname)
 
@@ -963,7 +971,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_del_list(self, q):
         try:
-            if self.show_warning_dialog('Are you sure you want to remove ' + str(len(self.selectedMods)) + ' Mod/s from "' + self.ui.cmbModList.currentText() + '" list?'):
+            if WarningDialog('Are you sure you want to remove ' + str(len(self.selectedMods)) + ' Mod/s from "' + self.ui.cmbModList.currentText() + '" list?'):
                 for mod in self.selectedMods:
                     q.prepare('DELETE FROM ModsLists WHERE list == :list and mod == :mod;')
                     q.bindValue(':list', self.ui.cmbModList.currentText())
@@ -977,7 +985,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_mark_autoinstall(self, q):
         try:
-            if self.show_warning_dialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Install?'):
+            if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Install?'):
                 for mod in self.selectedMods:
                     q.prepare('UPDATE Mods SET autoinstall = 1, autoignore = 0 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)
@@ -990,7 +998,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_mark_autoignore(self, q):
         try:
-            if self.show_warning_dialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?'):
+            if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?'):
                 for mod in self.selectedMods:
                     q.prepare('UPDATE Mods SET autoinstall = 0, autoignore = 1 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)
@@ -1029,6 +1037,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.update_modslists_table(q, mod)
 
                 self.load_pages_maintain_slider()
+
         except Exception as e:
             print('MAIN_WINDOW save_configuration_mod: ', str(e))
 
@@ -1077,6 +1086,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     q.bindValue(':autoignore', mod.autoignore)
 
             self.exec(q, 'update_modslists_table')
+
         except Exception as e:
             print('MAIN_WINDOW update_mods_table: ', str(e))
 
@@ -1103,6 +1113,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 q.bindValue(':updated', mod.updated)
 
             self.exec(q, 'update_modslists_table')
+
         except Exception as e:
             print('MAIN_WINDOW update_modslists_table: ', str(e))
 
@@ -1114,6 +1125,7 @@ class MainWindow(QtWidgets.QMainWindow):
             model = self.ui.cmbLoaderConfig.model()
             for i in range(model.rowCount()):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
+
         except Exception as e:
             print('MAIN_WINDOW resize_combobox_loader: ', str(e))
 
@@ -1126,6 +1138,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkIgnoredConfig.setChecked(False)
                 if self.ui.chkBlockedConfig.isChecked():
                     self.ui.chkBlockedConfig.setChecked(False)
+
         except Exception as e:
             print('MAIN_WINDOW change_chk_installed: ', str(e))
 
@@ -1136,6 +1149,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkInstalledConfig.setChecked(False)
                 if self.ui.chkBlockedConfig.isChecked():
                     self.ui.chkBlockedConfig.setChecked(False)
+
         except Exception as e:
             print('MAIN_WINDOW change_chk_ignored: ', str(e))
 
@@ -1144,6 +1158,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.ui.chkFavoriteConfig.checkState() == Qt.Checked:
                 if self.ui.chkBlockedConfig.isChecked():
                     self.ui.chkBlockedConfig.setChecked(False)
+
         except Exception as e:
             print('MAIN_WINDOW change_chk_favorite: ', str(e))
 
@@ -1156,6 +1171,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkIgnoredConfig.setChecked(False)
                 if self.ui.chkFavoriteConfig.isChecked():
                     self.ui.chkFavoriteConfig.setChecked(False)
+
         except Exception as e:
             print('MAIN_WINDOW change_chk_blocked: ', str(e))
 
@@ -1178,6 +1194,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if code == 1:
                 self.load_categories()
                 self.load_pages_maintain_slider()
+
         except Exception as e:
             print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
 
@@ -1190,6 +1207,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.create_cmb_values_lists()
                 self.ui.cmbModList.setCurrentIndex(1)
                 self.ui.cmbModList.setCurrentIndex(0)
+
         except Exception as e:
             print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
 
@@ -1206,6 +1224,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(loader))
                 else:
                     self.load_pages()
+
         except Exception as e:
             print('MAIN_WINDOW show_searching_dialog: ', str(e))
 
@@ -1222,6 +1241,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if code == 1:
                 self.create_cmb_values_lists()
                 self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(editname.text()))
+
         except Exception as e:
             print('MAIN_WINDOW show_copylist_dialog: ', str(e))
 
@@ -1233,14 +1253,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if code == 1:
                 pass
+
         except Exception as e:
             print('MAIN_WINDOW show_search_modid_dialog: ', str(e))
-
-    @staticmethod
-    def show_warning_dialog(msg, confirmation_dialog=True):
-        dialog = WarningDialog(msg, confirmation_dialog)
-        dialog.setFixedSize(dialog.size())
-        return dialog.exec()
 
 
 
@@ -1331,11 +1346,22 @@ class MainWindow(QtWidgets.QMainWindow):
     # ------------------------------------------
 
     @staticmethod
-    def create_bold_font():
+    def create_font_table_name():
         try:
             f = QFont()
             f.setBold(True)
             f.setPixelSize(18)
+            return f
+
+        except Exception as e:
+            print('MAIN_WINDOW create_bold_font: ', str(e))
+
+    @staticmethod
+    def create_font_table_others():
+        try:
+            f = QFont()
+            f.setBold(True)
+            f.setPointSize(10)
             return f
 
         except Exception as e:

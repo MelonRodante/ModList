@@ -1,7 +1,6 @@
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QTableWidget
-from qtpy.QtWidgets import QStyleOptionViewItem
+from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QTableWidget, QStyleOptionViewItem
 
 
 class TableStyleItemDelegate(QStyledItemDelegate):
@@ -18,10 +17,11 @@ class TableStyleItemDelegate(QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super().initStyleOption(option, index)
         if index.column() == 0:
-            option.decorationPosition = QStyleOptionViewItem.Top
-            option.decorationAlignment = Qt.AlignHCenter | Qt.AlignCenter
+            option.decorationSize = QSize(48, 48)
         elif index.column() == 2:
-            option.decorationSize = QSize(140, 24)
+            option.decorationSize = QSize(180, 48)
+        elif index.column() == 5:
+            option.decorationSize = QSize(16, 16)
 
     def cellEntered(self, row, column):
         self.row = row

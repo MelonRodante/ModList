@@ -34,9 +34,9 @@
     <file>widgets/window_icon.png</file>
   </qresource>
   <qresource prefix="categories">
-    <file>categories/cat_border.png</file>
     <file>categories/adventure-rpg.png</file>
     <file>categories/armor-weapons-tools.png</file>
+    <file>categories/cat_border.png</file>
     <file>categories/cosmetic.png</file>
     <file>categories/empty.png</file>
     <file>categories/library-api.png</file>

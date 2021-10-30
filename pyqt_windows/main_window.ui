@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>974</width>
-    <height>643</height>
+    <height>658</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -367,6 +367,12 @@
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="verticalScrollMode">
            <enum>QAbstractItemView::ScrollPerItem</enum>
           </property>
@@ -383,10 +389,10 @@
            <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderDefaultSectionSize">
-           <number>51</number>
+           <number>53</number>
           </attribute>
           <attribute name="verticalHeaderMinimumSectionSize">
-           <number>51</number>
+           <number>53</number>
           </attribute>
           <column>
            <property name="text">
@@ -988,8 +994,8 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>19</width>
-     <height>19</height>
+     <width>25</width>
+     <height>25</height>
     </size>
    </property>
    <property name="floatable">
@@ -1027,7 +1033,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionShowInstalled">
@@ -1116,7 +1122,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionExit">
@@ -1254,7 +1260,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+E</string>
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionSearchModID">
@@ -1271,7 +1277,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actionAutoInstall">
@@ -1324,7 +1330,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Q</string>
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionResetFilters">

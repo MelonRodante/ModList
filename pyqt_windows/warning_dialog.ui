@@ -74,6 +74,13 @@
      </item>
      <item>
       <widget class="QLabel" name="lblAviso">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -83,6 +90,25 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="botones">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

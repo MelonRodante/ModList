@@ -9,13 +9,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
-    <height>431</height>
+    <width>691</width>
+    <height>542</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
+    <width>691</width>
     <height>0</height>
    </size>
   </property>
@@ -45,6 +45,7 @@
       <widget class="QLabel" name="lblIcon">
        <property name="font">
         <font>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -80,7 +81,7 @@
         </font>
        </property>
        <property name="text">
-        <string>24x24</string>
+        <string>48x48</string>
        </property>
        <property name="iconSize">
         <size>
@@ -106,6 +107,7 @@
        </property>
        <property name="font">
         <font>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -117,6 +119,23 @@
      </item>
      <item>
       <widget class="QLineEdit" name="editCategoryName">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -147,6 +166,7 @@
        </property>
        <property name="font">
         <font>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -158,6 +178,23 @@
      </item>
      <item>
       <widget class="QSpinBox" name="spinGroup">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -185,6 +222,7 @@
        </property>
        <property name="font">
         <font>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -196,6 +234,23 @@
      </item>
      <item>
       <widget class="QSpinBox" name="spinOrder">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -240,6 +295,7 @@
        </property>
        <property name="font">
         <font>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -251,6 +307,23 @@
      </item>
      <item>
       <widget class="QLineEdit" name="editCategoryID">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -270,14 +343,21 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>23</height>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>23</height>
+         <height>24</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
         <string>  Generate  </string>
@@ -288,6 +368,11 @@
    </item>
    <item>
     <widget class="QTableWidget" name="tableCategories">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
@@ -297,11 +382,20 @@
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>55</number>
+     </attribute>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>55</number>
+     </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>35</number>
+      <number>55</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>55</number>
      </attribute>
      <column>
       <property name="text">
@@ -380,14 +474,21 @@
        <property name="minimumSize">
         <size>
          <width>75</width>
-         <height>23</height>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>23</height>
+         <height>24</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
         <string>Add</string>
@@ -402,14 +503,21 @@
        <property name="minimumSize">
         <size>
          <width>75</width>
-         <height>23</height>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>23</height>
+         <height>24</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
         <string>Modify</string>
@@ -424,14 +532,21 @@
        <property name="minimumSize">
         <size>
          <width>75</width>
-         <height>23</height>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>23</height>
+         <height>24</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
         <string>Remove</string>

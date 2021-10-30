@@ -1,9 +1,7 @@
-import PyQt5
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import Qt, QSize, QRectF, QByteArray
-from PyQt5.QtGui import QIcon, QPixmap, QPainter
+from PyQt5 import QtWidgets, QtSql
+from PyQt5.QtCore import Qt, QSize, QRectF
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QFont
 from PyQt5.QtWidgets import QFileDialog
-from qtpy import QtSql
 
 from pyqt_windows.category_list_dialog import Ui_AdminCategoriesDialog
 from utils.icon_utils import IconUtils
@@ -19,12 +17,24 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
         self.ui.setupUi(self)
 
         self.pixmap = None
+        self.font = AdminCategoriesDialog.create_font_table()
 
         self.exitcode = 0
         self.setupWidgets()
         self.setupEvents()
         self.fill_table()
         self.show()
+
+    @staticmethod
+    def create_font_table():
+        try:
+            f = QFont()
+            f.setBold(True)
+            f.setPointSize(11)
+            return f
+
+        except Exception as e:
+            print('MAIN_WINDOW create_bold_font: ', str(e))
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -37,15 +47,15 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
 
     def modify_table(self):
         try:
-            self.ui.tableCategories.setIconSize(QSize(24, 24))
-            self.ui.tableCategories.setColumnWidth(0, 25)
-
             header = self.ui.tableCategories.horizontalHeader()
             header.setSectionResizeMode(0, QtWidgets.QHeaderView.Fixed)
             header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
             header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
             header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
             header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+
+            self.ui.tableCategories.setIconSize(QSize(48, 48))
+            self.ui.tableCategories.setColumnWidth(0, 58)
         except Exception as e:
             print('ADMIN_CATEGORIES_DIALOG modify_table:', e)
 
@@ -97,12 +107,12 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
         try:
             fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.png)")
             if fname[0]:
-                self.pixmap = QPixmap(fname[0]).scaled(24, 24, Qt.KeepAspectRatio)
+                self.pixmap = QPixmap(fname[0]).scaled(48, 48, Qt.KeepAspectRatio)
 
                 painter = QPainter(self.pixmap)
 
                 px = QPixmap(':/categories/categories/cat_border.png')
-                painter.drawPixmap(QRectF(0, 0, 24, 24), px, QRectF(px.rect()))
+                painter.drawPixmap(QRectF(0, 0, 48, 48), px, QRectF(px.rect()))
 
                 self.ui.btnIcon.setIcon(QIcon(self.pixmap))
                 self.ui.btnIcon.setText('')
@@ -147,7 +157,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             if q.exec():
                 self.pixmap = None
                 self.ui.btnIcon.setIcon(QIcon())
-                self.ui.btnIcon.setText('24x24')
+                self.ui.btnIcon.setText('48x48')
 
                 self.ui.editCategoryName.setText('')
                 self.ui.editCategoryID.setText('')
@@ -177,7 +187,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             if q.exec():
                 self.pixmap = None
                 self.ui.btnIcon.setIcon(QIcon())
-                self.ui.btnIcon.setText('24x24')
+                self.ui.btnIcon.setText('48x48')
 
                 self.ui.editCategoryName.setText('')
                 self.ui.editCategoryID.setText('')
@@ -235,7 +245,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             else:
                 self.pixmap = None
                 self.ui.btnIcon.setIcon(QIcon())
-                self.ui.btnIcon.setText('24x24')
+                self.ui.btnIcon.setText('48x48')
 
                 self.ui.editCategoryName.setText('')
                 self.ui.editCategoryID.setText('')
@@ -270,6 +280,11 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                 # self.ui.tableCategories.item(i, 1).setTextAlignment(Qt.AlignCenter)
                 self.ui.tableCategories.item(i, 3).setTextAlignment(Qt.AlignCenter)
                 self.ui.tableCategories.item(i, 4).setTextAlignment(Qt.AlignCenter)
+
+                self.ui.tableCategories.item(i, 1).setFont(self.font)
+                self.ui.tableCategories.item(i, 2).setFont(self.font)
+                self.ui.tableCategories.item(i, 3).setFont(self.font)
+                self.ui.tableCategories.item(i, 4).setFont(self.font)
 
 
         except Exception as e:
