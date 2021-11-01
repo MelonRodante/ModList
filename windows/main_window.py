@@ -967,10 +967,10 @@ class MainWindow(QtWidgets.QMainWindow):
             validloaders = [loader, 'No Loader', 'Forge | Fabric']
             for mod in self.selectedMods:
                 if mod.loader not in validloaders:
-                    WarningDialog('Cannot insert the selected mods in the list because one or\n more are not compatible with the list Loader.', confirmation_dialog=False)
+                    WarningDialog('Cannot insert the selected mods in the list because one or\n more are not compatible with the list Loader.', confirmation_dialog=False).exec()
                     return
 
-            if WarningDialog('Are you sure you want to insert ' + str(len(self.selectedMods)) + ' Mod/s in "' + listname + '" list?'):
+            if WarningDialog('Are you sure you want to insert ' + str(len(self.selectedMods)) + ' Mod/s in "' + listname + '" list?').exec():
                 for mod in self.selectedMods:
                     mod.insert_in_list(q, listname)
 
@@ -979,7 +979,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_del_list(self, q):
         try:
-            if WarningDialog('Are you sure you want to remove ' + str(len(self.selectedMods)) + ' Mod/s from "' + self.ui.cmbModList.currentText() + '" list?'):
+            if WarningDialog('Are you sure you want to remove ' + str(len(self.selectedMods)) + ' Mod/s from "' + self.ui.cmbModList.currentText() + '" list?').exec():
                 for mod in self.selectedMods:
                     q.prepare('DELETE FROM ModsLists WHERE list == :list and mod == :mod;')
                     q.bindValue(':list', self.ui.cmbModList.currentText())
@@ -993,7 +993,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_mark_autoinstall(self, q):
         try:
-            if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Install?'):
+            if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Install?').exec():
                 for mod in self.selectedMods:
                     q.prepare('UPDATE Mods SET autoinstall = 1, autoignore = 0 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)
@@ -1006,7 +1006,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def table_mark_autoignore(self, q):
         try:
-            if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?'):
+            if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?').exec():
                 for mod in self.selectedMods:
                     q.prepare('UPDATE Mods SET autoinstall = 0, autoignore = 1 WHERE projectid == :projectid;')
                     q.bindValue(':projectid', mod.projectid)

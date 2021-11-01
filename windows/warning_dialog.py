@@ -22,3 +22,4 @@ class WarningDialog(QtWidgets.QDialog):
         self.show()
         self.setFixedSize(self.size())
 
+
