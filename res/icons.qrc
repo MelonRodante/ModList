@@ -34,35 +34,35 @@
     <file>widgets/window_icon.png</file>
   </qresource>
   <qresource prefix="categories">
-    <file>categories/adventure-rpg.png</file>
-    <file>categories/armor-weapons-tools.png</file>
     <file>categories/cat_border.png</file>
-    <file>categories/cosmetic.png</file>
+    <file>categories/-cc-adventure-rpg.png</file>
+    <file>categories/-cc-armor-weapons-tools.png</file>
+    <file>categories/-cc-cosmetic.png</file>
+    <file>categories/-cc-library-api.png</file>
+    <file>categories/-cc-magic.png</file>
+    <file>categories/-cc-map-information.png</file>
+    <file>categories/-cc-mc-addons.png</file>
+    <file>categories/-cc-mc-food.png</file>
+    <file>categories/-cc-mc-miscellaneous.png</file>
+    <file>categories/-cc-redstone.png</file>
+    <file>categories/-cc-server-utility.png</file>
+    <file>categories/-cc-storage.png</file>
+    <file>categories/-cc-technology.png</file>
+    <file>categories/-cc-technology-automation.png</file>
+    <file>categories/-cc-technology-energy.png</file>
+    <file>categories/-cc-technology-farming.png</file>
+    <file>categories/-cc-technology-genetics.png</file>
+    <file>categories/-cc-technology-item-fluid-energy-transport.png</file>
+    <file>categories/-cc-technology-player-transport.png</file>
+    <file>categories/-cc-technology-processing.png</file>
+    <file>categories/-cc-twitch-integration.png</file>
+    <file>categories/-cc-without-category.png</file>
+    <file>categories/-cc-world-biomes.png</file>
+    <file>categories/-cc-world-dimensions.png</file>
+    <file>categories/-cc-world-gen.png</file>
+    <file>categories/-cc-world-mobs.png</file>
+    <file>categories/-cc-world-ores-resources.png</file>
+    <file>categories/-cc-world-structures.png</file>
     <file>categories/empty.png</file>
-    <file>categories/library-api.png</file>
-    <file>categories/magic.png</file>
-    <file>categories/map-information.png</file>
-    <file>categories/mc-addons.png</file>
-    <file>categories/mc-food.png</file>
-    <file>categories/mc-miscellaneous.png</file>
-    <file>categories/redstone.png</file>
-    <file>categories/server-utility.png</file>
-    <file>categories/storage.png</file>
-    <file>categories/technology.png</file>
-    <file>categories/technology-automation.png</file>
-    <file>categories/technology-energy.png</file>
-    <file>categories/technology-farming.png</file>
-    <file>categories/technology-genetics.png</file>
-    <file>categories/technology-item-fluid-energy-transport.png</file>
-    <file>categories/technology-player-transport.png</file>
-    <file>categories/technology-processing.png</file>
-    <file>categories/twitch-integration.png</file>
-    <file>categories/without-category.png</file>
-    <file>categories/world-biomes.png</file>
-    <file>categories/world-dimensions.png</file>
-    <file>categories/world-gen.png</file>
-    <file>categories/world-mobs.png</file>
-    <file>categories/world-ores-resources.png</file>
-    <file>categories/world-structures.png</file>
   </qresource>
 </RCC>

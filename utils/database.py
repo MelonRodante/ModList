@@ -1,9 +1,6 @@
-import os
 import sys
 
-from PyQt5 import QtSql, QtWidgets, QtCore
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtGui import QPixmap
+from PyQt5 import QtSql, QtWidgets
 from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import QMessageBox
 
@@ -57,34 +54,34 @@ class Database:
     db = None
 
     categories = [
-        ['without-category', 'Without Category', 1, 1],
-        ['world-gen', 'World Gen', 1, 2],
-        ['world-biomes', 'Biomas', 1, 3],
-        ['world-ores-resources', 'Ores and Resources', 1, 4],
-        ['world-structures', 'Structures', 1, 5],
-        ['world-dimensions', 'Dimensiones', 1, 6],
-        ['world-mobs', 'Mobs', 1, 7],
-        ['technology', 'Technology', 1, 8],
-        ['technology-processing', 'Processing', 1, 9],
-        ['technology-player-transport', 'Player Transport', 1, 10],
-        ['technology-item-fluid-energy-transport', 'I/F/E Transport', 1, 11],
-        ['technology-farming', 'Farming', 1, 12],
-        ['technology-energy', 'Energy', 1, 13],
-        ['technology-genetics', 'Genetics', 1, 14],
-        ['technology-automation', 'Automation', 1, 15],
-        ['magic', 'Magic', 1, 16],
-        ['storage', 'Storage', 1, 17],
-        ['library-api', 'API and Library', 1, 18],
-        ['adventure-rpg', 'Adventure and RPG', 1, 19],
-        ['map-information', 'Map and Information', 1, 20],
-        ['cosmetic', 'Cosmetic', 1, 21],
-        ['mc-miscellaneous', 'Miscellaneous', 1, 22],
-        ['mc-addons', 'Addon', 1, 23],
-        ['armor-weapons-tools', 'Armor / Tools / Weapons', 1, 24],
-        ['server-utility', 'Server Utility', 1, 25],
-        ['mc-food', 'Food', 1, 26],
-        ['redstone', 'Redstone', 1, 27],
-        ['twitch-integration', 'Twitch Integration', 1, 28]
+        ['-cc-without-category', 'Without Category', 1, 1],
+        ['-cc-world-gen', 'World Gen', 1, 2],
+        ['-cc-world-biomes', 'Biomas', 1, 3],
+        ['-cc-world-ores-resources', 'Ores and Resources', 1, 4],
+        ['-cc-world-structures', 'Structures', 1, 5],
+        ['-cc-world-dimensions', 'Dimensiones', 1, 6],
+        ['-cc-world-mobs', 'Mobs', 1, 7],
+        ['-cc-technology', 'Technology', 1, 8],
+        ['-cc-technology-processing', 'Processing', 1, 9],
+        ['-cc-technology-player-transport', 'Player Transport', 1, 10],
+        ['-cc-technology-item-fluid-energy-transport', 'I/F/E Transport', 1, 11],
+        ['-cc-technology-farming', 'Farming', 1, 12],
+        ['-cc-technology-energy', 'Energy', 1, 13],
+        ['-cc-technology-genetics', 'Genetics', 1, 14],
+        ['-cc-technology-automation', 'Automation', 1, 15],
+        ['-cc-redstone', 'Redstone', 1, 16],
+        ['-cc-storage', 'Storage', 1, 17],
+        ['-cc-cosmetic', 'Cosmetic', 1, 18],
+        ['-cc-mc-food', 'Food', 1, 19],
+        ['-cc-armor-weapons-tools', 'Armor / Tools / Weapons', 1, 20],
+        ['-cc-magic', 'Magic', 1, 21],
+        ['-cc-adventure-rpg', 'Adventure and RPG', 1, 22],
+        ['-cc-map-information', 'Map and Information', 1, 23],
+        ['-cc-mc-miscellaneous', 'Miscellaneous', 1, 24],
+        ['-cc-server-utility', 'Server Utility', 1, 25],
+        ['-cc-mc-addons', 'Addon', 1, 26],
+        ['-cc-library-api', 'API and Library', 1, 27],
+        ['-cc-twitch-integration', 'Twitch Integration', 1, 28]
     ]
 
     @staticmethod

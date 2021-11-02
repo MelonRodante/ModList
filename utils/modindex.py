@@ -8,62 +8,50 @@ from PyQt5.QtWidgets import QMessageBox
 
 class ModIndex:
     cat_id = {
-        406:  "world-gen",
-        407:  "world-biomes",
-        408:  "world-ores-resources",
-        409:  "world-structures",
-        410:  "world-dimensions",
-        411:  "world-mobs",
+        406:  "-cc-world-gen",
+        407:  "-cc-world-biomes",
+        408:  "-cc-world-ores-resources",
+        409:  "-cc-world-structures",
+        410:  "-cc-world-dimensions",
+        411:  "-cc-world-mobs",
 
-        412:  "technology",
-        413:  "technology-processing",
-        414:  "technology-player-transport",
-        415:  "technology-item-fluid-energy-transport",
-        416:  "technology-farming",
-        417:  "technology-energy",
-        418:  "technology-genetics",
-        4843: "technology-automation",
+        412:  "-cc-technology",
+        413:  "-cc-technology-processing",
+        414:  "-cc-technology-player-transport",
+        415:  "-cc-technology-item-fluid-energy-transport",
+        416:  "-cc-technology-farming",
+        417:  "-cc-technology-energy",
+        418:  "-cc-technology-genetics",
+        4843: "-cc-technology-automation",
 
-        419:  "magic",
-        420:  "storage",
-        421:  "library-api",
-        422:  "adventure-rpg",
-        423:  "map-information",
-        424:  "cosmetic",
-        425:  "mc-miscellaneous",
+        419:  "-cc-magic",
+        420:  "-cc-storage",
+        421:  "-cc-library-api",
+        422:  "-cc-adventure-rpg",
+        423:  "-cc-map-information",
+        424:  "-cc-cosmetic",
+        425:  "-cc-mc-miscellaneous",
 
-        426:  "mc-addons",
-        427:  "mc-addons",  # "addons-thermalexpansion",
-        428:  "mc-addons",  # "addons-tinkers-construct",
-        429:  "mc-addons",  # "addons-industrialcraft",
-        430:  "mc-addons",  # "addons-thaumcraft",
-        432:  "mc-addons",  # "addons-buildcraft",
-        433:  "mc-addons",  # "addons-forestry",
-        4485: "mc-addons",  # "blood-magic",
-        4486: "mc-addons",  # "[4486]lucky-blocks",
-        4545: "mc-addons",  # "applied-energistics-2",
-        4773: "mc-addons",  # "crafttweaker",
+        426:  "-cc-mc-addons",
+        427:  "-cc-mc-addons",  # "addons-thermalexpansion",
+        428:  "-cc-mc-addons",  # "addons-tinkers-construct",
+        429:  "-cc-mc-addons",  # "addons-industrialcraft",
+        430:  "-cc-mc-addons",  # "addons-thaumcraft",
+        432:  "-cc-mc-addons",  # "addons-buildcraft",
+        433:  "-cc-mc-addons",  # "addons-forestry",
+        4485: "-cc-mc-addons",  # "blood-magic",
+        4486: "-cc-mc-addons",  # "[4486]lucky-blocks",
+        4545: "-cc-mc-addons",  # "applied-energistics-2",
+        4773: "-cc-mc-addons",  # "crafttweaker",
 
-        434:  "armor-weapons-tools",
-        435:  "server-utility",
-        436:  "mc-food",
-        4558: "redstone",
-        4671: "twitch-integration",
+        434:  "-cc-armor-weapons-tools",
+        435:  "-cc-server-utility",
+        436:  "-cc-mc-food",
+        4558: "-cc-redstone",
+        4671: "-cc-twitch-integration",
         4906: None,  # "mc-creator",
         4780: None,  # "[4780]fabric",
     }
-
-    ignore_cat = ('mc-addons',
-                  'addons-thermalexpansion',
-                  'addons-tinkers-construct',
-                  'addons-industrialcraft',
-                  'addons-thaumcraft',
-                  'addons-buildcraft',
-                  'addons-forestry',
-                  'blood-magic',
-                  'lucky-blocks',
-                  'applied-energistics-2',
-                  'crafttweaker')
 
     def __init__(self, mod: dict):
         try:
@@ -99,7 +87,7 @@ class ModIndex:
             if len(categories) > 0:
                 self.categories = ','.join(categories)
             else:
-                self.categories = 'without-category'
+                self.categories = '-cc-without-category'
         except:
             self.categories = 'error'
 

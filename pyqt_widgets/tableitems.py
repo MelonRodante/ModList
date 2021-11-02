@@ -15,6 +15,8 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
             QtWidgets.QTableWidgetItem.__init__(self, IconUtils.getNormalIcon(mod.icon), '')
             self.mod = mod
 
+            self.setToolTip('ID: ' + str(mod.projectid))
+
         except Exception as e:
             print('TABLE_ITEM_BUTTON init: ', str(e))
 

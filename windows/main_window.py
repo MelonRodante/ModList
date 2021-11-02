@@ -17,6 +17,7 @@ from pyqt_widgets.delegates import TableStyleItemDelegate
 from pyqt_widgets.tableitems import TableItemName, TableItemButton, TableItemCategories
 from pyqt_windows.main_window import Ui_ModList
 from utils.modcompare import ModCompare
+from utils.utils import Utils
 from windows.admin_categories_dialog import AdminCategoriesDialog
 from windows.admin_list_dialog import AdminListDialog
 from windows.copylist_dialog import CopyListDialog
@@ -71,7 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.toolBar.insertSeparator(self.ui.actionResetFilters)
 
         except Exception as e:
-            print('MAIN_WINDOW setupWidgets: ', str(e))
+            Utils.print_exception('MAIN_WINDOW setupWidgets: ', e)
 
     def setupEvents(self):
         try:
@@ -140,14 +141,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionShowUpdated.triggered.connect(self.load_pages)
 
         except Exception as e:
-            print('MAIN_WINDOW setupEvents: ', str(e))
+            Utils.print_exception('MAIN_WINDOW setupEvents: ', e)
 
 
     def exit_app(self):
         try:
             self.close()
         except Exception as e:
-            print('MAIN_WINDOW exit: ', str(e))
+            Utils.print_exception('MAIN_WINDOW exit: ', e)
 
 
 
@@ -213,7 +214,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             ''')
 
         except Exception as e:
-            print('MAIN_WINDOW modify_css: ', str(e))
+            Utils.print_exception('MAIN_WINDOW modify_css: ', e)
 
     def filter_change(self):
         try:
@@ -221,7 +222,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_pages()
 
         except Exception as e:
-            print('MAIN_WINDOW filter_change: ', str(e))
+            Utils.print_exception('MAIN_WINDOW filter_change: ', e)
 
     def change_toolbar_orientation(self, floating):
         try:
@@ -240,7 +241,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.ui.toolBar.setStyleSheet('QToolBar {border-top-color: ' + colors.ColorStrong + ';}')
 
         except Exception as e:
-            print('MAIN_WINDOW change_toolbar_orientation: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_toolbar_orientation: ', e)
 
     def resize_table(self):
         try:
@@ -258,7 +259,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.tableMods.setColumnWidth(5, 27)
 
         except Exception as e:
-            print('MAIN_WINDOW resize_table: ', str(e))
+            Utils.print_exception('MAIN_WINDOW resize_table: ', e)
 
 
 
@@ -289,7 +290,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_pages()
 
         except Exception as e:
-            print('MAIN_WINDOW clear_filters: ', str(e))
+            Utils.print_exception('MAIN_WINDOW clear_filters: ', e)
 
     def table_selectmode(self, checked):
         try:
@@ -299,7 +300,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
 
         except Exception as e:
-            print('MAIN_WINDOW table_selectmode: ', str(e))
+            Utils.print_exception('MAIN_WINDOW table_selectmode: ', e)
 
     def exclusive_filter(self, button, list_buttons):
         try:
@@ -310,7 +311,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_pages()
 
         except Exception as e:
-            print('MAIN_WINDOW exclusive_filter: ', str(e))
+            Utils.print_exception('MAIN_WINDOW exclusive_filter: ', e)
 
 
 
@@ -357,7 +358,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.create_menu_chk_categories_config()
 
         except Exception as e:
-            print('MAIN_WINDOW load_categories: ', str(e))
+            Utils.print_exception('MAIN_WINDOW load_categories: ', e)
 
     def create_cmb_values_categories(self):
         try:
@@ -378,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
         except Exception as e:
-            print('MAIN_WINDOW create_cmb_values_categories: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_cmb_values_categories: ', e)
 
     def create_menu_chk_categories_config(self):
         try:
@@ -386,6 +387,7 @@ class MainWindow(QtWidgets.QMainWindow):
             menu.setStyleSheet('QMenu {border: 1px solid ' + colors.ColorStrong + ';} QMenu::item {background-color: ' + colors.Background + '} QMenu::item:selected {background-color: ' + colors.B30 + '}')
 
             menu.addAction(self.create_chk_category_config_action(menu, Mod.categories.get('')))
+            menu.addAction(self.create_chk_category_config_action(menu, Mod.categories.get('-cc-without-category')))
             menu.addSeparator()
 
             curse_categories = menu.addMenu('Curse Categories...')
@@ -395,7 +397,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             lastgrp = 1
             for cat in Mod.categories.values():
-                if cat.get('cat_id') != '':
+                if cat.get('cat_id') != '' and cat.get('cat_id') != '-cc-without-category':
                     if cat.get('cat_grp') > 100 and other_categories is not None:
                         if lastgrp != cat.get('cat_grp'):
                             other_categories.addSeparator()
@@ -407,7 +409,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 curse_categories.addSeparator()
                             lastgrp = cat.get('cat_grp')
                         curse_categories.addAction(self.create_chk_category_config_action(menu, cat))
-                        if cat.get('cat_id') == 'without-category':
+                        if cat.get('cat_id') == '-cc-without-category':
                             curse_categories.addSeparator()
 
             self.ui.tbtnCategoryConfig.setMenu(menu)
@@ -417,7 +419,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.chks_categories_group.buttonPressed.connect(self.change_chk_categories)
 
         except Exception as e:
-            print('MAIN_WINDOW create_menu_chk_categories_config: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_menu_chk_categories_config: ', e)
 
     def create_chk_category_config_action(self, menu, cat):
         try:
@@ -429,6 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
             chk.setIcon(IconUtils.getIconWithoutTint(cat.get('cat_icon')))
             if cat.get('cat_id') == '':
                 f = chk.font()
+                f.setPixelSize(14)
                 f.setBold(True)
                 chk.setFont(f)
 
@@ -442,7 +445,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return action
 
         except Exception as e:
-            print('MAIN_WINDOW create_chk_category_config_action: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_chk_category_config_action: ', e)
 
     # ------------------------------------------
 
@@ -455,7 +458,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return ''
 
         except Exception as e:
-            print('MAIN_WINDOW actual_category_filter: ', str(e))
+            Utils.print_exception('MAIN_WINDOW actual_category_filter: ', e)
 
     def change_chk_categories(self, chk):
         try:
@@ -476,7 +479,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     Mod.categories.get('').get('cat_check').setChecked(True)
 
                 else:
-                    if chk == Mod.categories.get('without-category').get('cat_check'):
+                    if chk == Mod.categories.get('-cc-without-category').get('cat_check'):
                         if chk.isChecked:
                             for cat in Mod.categories.values():
                                 cat.get('cat_check').setChecked(False)
@@ -487,14 +490,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     else:
                         Mod.categories.get('').get('cat_check').setChecked(False)
-                        Mod.categories.get('without-category').get('cat_check').setChecked(False)
+                        Mod.categories.get('-cc-without-category').get('cat_check').setChecked(False)
 
             self.change_state_categories_config()
 
             chk.nextCheckState()
 
         except Exception as e:
-            print('MAIN_WINDOW change_chk_categories: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_chk_categories: ', e)
 
     def change_state_categories_config(self):
         try:
@@ -506,7 +509,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tbtnCategoryConfig.setIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
 
         except Exception as e:
-            print('MAIN_WINDOW change_state_categories_config: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_state_categories_config: ', e)
 
 
 
@@ -545,7 +548,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
         except Exception as e:
-            print('MAIN_WINDOW create_cmb_values_lists: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_cmb_values_lists: ', e)
 
     def change_cmb_list(self):
         try:
@@ -571,7 +574,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.filter_change()
 
         except Exception as e:
-            print('MAIN_WINDOW change_cmb_list: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_cmb_list: ', e)
 
     # ------------------------------------------
 
@@ -581,7 +584,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.filter_change()
 
         except Exception as e:
-            print('MAIN_WINDOW edit_name_clear: ', str(e))
+            Utils.print_exception('MAIN_WINDOW edit_name_clear: ', e)
 
 
 
@@ -610,7 +613,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return where
 
         except Exception as e:
-            print('MAIN_WINDOW query_create_basic_where: ', str(e))
+            Utils.print_exception('MAIN_WINDOW query_create_basic_where: ', e)
 
     def query_bind_basic_where(self, q):
         try:
@@ -622,7 +625,7 @@ class MainWindow(QtWidgets.QMainWindow):
             q.bindValue(':list', self.ui.cmbModList.currentText())
 
         except Exception as e:
-            print('MAIN_WINDOW query_bind_basic_where: ', str(e))
+            Utils.print_exception('MAIN_WINDOW query_bind_basic_where: ', e)
 
     def prepare_fill_table_query(self, q, count=False):
         try:
@@ -642,7 +645,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.query_bind_basic_where(q)
 
         except Exception as e:
-            print('MAIN_WINDOW prepare_fill_table_query: ', str(e))
+            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query: ', e)
 
     def prepare_fill_table_query_list(self):
         try:
@@ -669,7 +672,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return select_q, from_q, where_q, orderby_q
 
         except Exception as e:
-            print('MAIN_WINDOW prepare_fill_table_query_list: ', str(e))
+            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query_list: ', e)
 
     def prepare_fill_table_query_nolist(self):
         try:
@@ -688,7 +691,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return select_q, from_q, where_q, orderby_q
 
         except Exception as e:
-            print('MAIN_WINDOW prepare_fill_table_query_nolist: ', str(e))
+            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query_nolist: ', e)
 
 
 
@@ -708,7 +711,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_data()
 
         except Exception as e:
-            print('MAIN_WINDOW click_left_page: ', str(e))
+            Utils.print_exception('MAIN_WINDOW click_left_page: ', e)
 
     def click_right_page(self):
         try:
@@ -717,7 +720,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_data()
 
         except Exception as e:
-            print('MAIN_WINDOW click_right_page: ', str(e))
+            Utils.print_exception('MAIN_WINDOW click_right_page: ', e)
 
     def check_table_buttons(self):
         try:
@@ -726,7 +729,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.lblActualPages.setEnabled(self.found_results != 0)
 
         except Exception as e:
-            print('MAIN_WINDOW check_table_buttons: ', str(e))
+            Utils.print_exception('MAIN_WINDOW check_table_buttons: ', e)
 
     # ------------------------------------------
 
@@ -759,7 +762,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return enabled
 
         except Exception as e:
-            print('MAIN_WINDOW clear_selected: ', str(e))
+            Utils.print_exception('MAIN_WINDOW clear_selected: ', e)
 
     def select_mods(self):
         try:
@@ -791,45 +794,51 @@ class MainWindow(QtWidgets.QMainWindow):
                     Mod.categories.get('').get('cat_check').setChecked(True)
 
 
-                self.ui.chkFavoriteConfig.setTristate(state.multiple_mods)
                 if state.favorite is not None:
+                    self.ui.chkFavoriteConfig.setTristate(False)
                     self.ui.chkFavoriteConfig.setChecked(bool(state.favorite))
                 else:
+                    self.ui.chkFavoriteConfig.setTristate(True)
                     self.ui.chkFavoriteConfig.setCheckState(Qt.PartiallyChecked)
 
 
-                self.ui.chkBlockedConfig.setTristate(state.multiple_mods)
                 if state.blocked is not None:
+                    self.ui.chkBlockedConfig.setTristate(False)
                     self.ui.chkBlockedConfig.setChecked(bool(state.blocked))
                 else:
+                    self.ui.chkBlockedConfig.setTristate(True)
                     self.ui.chkBlockedConfig.setCheckState(Qt.PartiallyChecked)
 
 
-                self.ui.chkInstalledConfig.setTristate(state.multiple_mods)
                 if state.installed is not None:
+                    self.ui.chkInstalledConfig.setTristate(False)
                     self.ui.chkInstalledConfig.setChecked(bool(state.installed))
                 else:
+                    self.ui.chkInstalledConfig.setTristate(True)
                     self.ui.chkInstalledConfig.setCheckState(Qt.PartiallyChecked)
 
 
-                self.ui.chkIgnoredConfig.setTristate(state.multiple_mods)
                 if state.ignored is not None:
+                    self.ui.chkIgnoredConfig.setTristate(False)
                     self.ui.chkIgnoredConfig.setChecked(bool(state.ignored))
                 else:
+                    self.ui.chkIgnoredConfig.setTristate(True)
                     self.ui.chkIgnoredConfig.setCheckState(Qt.PartiallyChecked)
 
+
                 if self.islist:
-                    self.ui.chkUpdated.setTristate(state.multiple_mods)
                     if state.updated is not None:
+                        self.ui.chkUpdated.setTristate(False)
                         self.ui.chkUpdated.setEnabled(bool(state.updated))
                         self.ui.chkUpdated.setChecked(not bool(state.updated))
                     else:
+                        self.ui.chkUpdated.setTristate(True)
                         self.ui.chkUpdated.setCheckState(Qt.PartiallyChecked)
 
             self.change_state_categories_config()
 
         except Exception as e:
-            print('MAIN_WINDOW select_mods:', e)
+            Utils.print_exception('MAIN_WINDOW select_mods:', e)
 
     # ------------------------------------------
 
@@ -854,7 +863,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_data()
 
         except Exception as e:
-            print('MAIN_WINDOW load_pages: ', str(e))
+            Utils.print_exception('MAIN_WINDOW load_pages: ', e)
 
     def load_data(self):
         try:
@@ -870,7 +879,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.fill_table()
 
         except Exception as e:
-            print('MAIN_WINDOW load_data: ', str(e))
+            Utils.print_exception('MAIN_WINDOW load_data: ', e)
 
     def fill_table(self):
         try:
@@ -914,7 +923,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.lblActualPages.setText('0 / 0')
 
         except Exception as e:
-            print('MAIN_WINDOW fill_table: ', e)
+            Utils.print_exception('MAIN_WINDOW fill_table: ', e)
 
     # ------------------------------------------
 
@@ -960,7 +969,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 menu.exec_(QtGui.QCursor.pos())
 
         except Exception as e:
-            print('MAIN_WINDOW context_menu_table: ', str(e))  # , traceback.format_exc())
+            Utils.print_exception('MAIN_WINDOW context_menu_table: ', e)  # , traceback.format_exc())
 
     def table_add_list(self, q, listname, loader):
         try:
@@ -975,7 +984,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     mod.insert_in_list(q, listname)
 
         except Exception as e:
-            print('MAIN_WINDOW table_add_list: ', str(e))
+            Utils.print_exception('MAIN_WINDOW table_add_list: ', e)
 
     def table_del_list(self, q):
         try:
@@ -989,7 +998,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            print('MAIN_WINDOW table_del_list: ', str(e))
+            Utils.print_exception('MAIN_WINDOW table_del_list: ', e)
 
     def table_mark_autoinstall(self, q):
         try:
@@ -1002,7 +1011,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            print('MAIN_WINDOW table_mark_autoinstall: ', str(e))
+            Utils.print_exception('MAIN_WINDOW table_mark_autoinstall: ', e)
 
     def table_mark_autoignore(self, q):
         try:
@@ -1015,7 +1024,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            print('MAIN_WINDOW table_mark_autoignore: ', str(e))
+            Utils.print_exception('MAIN_WINDOW table_mark_autoignore: ', e)
 
 
 
@@ -1047,7 +1056,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            print('MAIN_WINDOW save_configuration_mod: ', str(e))
+            Utils.print_exception('MAIN_WINDOW save_configuration_mod: ', e)
 
     def update_mods_table(self, q, mod):
         try:
@@ -1096,7 +1105,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.exec(q, 'update_modslists_table')
 
         except Exception as e:
-            print('MAIN_WINDOW update_mods_table: ', str(e))
+            Utils.print_exception('MAIN_WINDOW update_mods_table: ', e)
 
     def update_modslists_table(self, q, mod):
         try:
@@ -1123,7 +1132,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.exec(q, 'update_modslists_table')
 
         except Exception as e:
-            print('MAIN_WINDOW update_modslists_table: ', str(e))
+            Utils.print_exception('MAIN_WINDOW update_modslists_table: ', e)
 
     # ------------------------------------------
 
@@ -1135,7 +1144,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
         except Exception as e:
-            print('MAIN_WINDOW resize_combobox_loader: ', str(e))
+            Utils.print_exception('MAIN_WINDOW resize_combobox_loader: ', e)
 
     # ------------------------------------------
 
@@ -1148,7 +1157,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkBlockedConfig.setChecked(False)
 
         except Exception as e:
-            print('MAIN_WINDOW change_chk_installed: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_chk_installed: ', e)
 
     def change_chk_ignored(self):
         try:
@@ -1159,7 +1168,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkBlockedConfig.setChecked(False)
 
         except Exception as e:
-            print('MAIN_WINDOW change_chk_ignored: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_chk_ignored: ', e)
 
     def change_chk_favorite(self):
         try:
@@ -1168,7 +1177,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkBlockedConfig.setChecked(False)
 
         except Exception as e:
-            print('MAIN_WINDOW change_chk_favorite: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_chk_favorite: ', e)
 
     def change_chk_blocked(self):
         try:
@@ -1181,7 +1190,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkFavoriteConfig.setChecked(False)
 
         except Exception as e:
-            print('MAIN_WINDOW change_chk_blocked: ', str(e))
+            Utils.print_exception('MAIN_WINDOW change_chk_blocked: ', e)
 
 
 
@@ -1205,7 +1214,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
+            Utils.print_exception('MAIN_WINDOW show_admin_list_dialog: ', e)
 
     def show_admin_list_dialog(self):
         try:
@@ -1218,7 +1227,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.cmbModList.setCurrentIndex(0)
 
         except Exception as e:
-            print('MAIN_WINDOW show_admin_list_dialog: ', str(e))
+            Utils.print_exception('MAIN_WINDOW show_admin_list_dialog: ', e)
 
     def show_searching_dialog(self):
         try:
@@ -1235,7 +1244,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.load_pages()
 
         except Exception as e:
-            print('MAIN_WINDOW show_searching_dialog: ', str(e))
+            Utils.print_exception('MAIN_WINDOW show_searching_dialog: ', e)
 
     def show_copylist_dialog(self):
         try:
@@ -1252,7 +1261,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.cmbModList.setCurrentIndex(self.ui.cmbModList.findText(editname.text()))
 
         except Exception as e:
-            print('MAIN_WINDOW show_copylist_dialog: ', str(e))
+            Utils.print_exception('MAIN_WINDOW show_copylist_dialog: ', e)
 
     @staticmethod
     def show_search_modid_dialog():
@@ -1264,7 +1273,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
 
         except Exception as e:
-            print('MAIN_WINDOW show_search_modid_dialog: ', str(e))
+            Utils.print_exception('MAIN_WINDOW show_search_modid_dialog: ', e)
 
 
 
@@ -1291,7 +1300,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return ",".join(c)
 
         except Exception as e:
-            print('MAIN_WINDOW get_categories_from_checks: ', str(e))
+            Utils.print_exception('MAIN_WINDOW get_categories_from_checks: ', e)
 
     def get_loader(self):
         try:
@@ -1305,7 +1314,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return 'Forge | Fabric'
 
         except Exception as e:
-            print('MAIN_WINDOW get_loader: ', str(e))
+            Utils.print_exception('MAIN_WINDOW get_loader: ', e)
 
     def get_state_icon(self, mod):
         try:
@@ -1331,7 +1340,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     return self.state_icons['e']
 
         except Exception as e:
-            print('MAIN_WINDOW get_state_icon: ', str(e))
+            Utils.print_exception('MAIN_WINDOW get_state_icon: ', e)
 
     def load_pages_maintain_slider(self):
         try:
@@ -1343,7 +1352,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tableMods.verticalScrollBar().setSliderPosition(scroll)
 
         except Exception as e:
-            print('MAIN_WINDOW save_configuration_mod: ', str(e))
+            Utils.print_exception('MAIN_WINDOW save_configuration_mod: ', e)
 
     @staticmethod
     def epoch_to_date(mod: Mod):
@@ -1363,7 +1372,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return f
 
         except Exception as e:
-            print('MAIN_WINDOW create_bold_font: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_bold_font: ', e)
 
     @staticmethod
     def create_font_table_others():
@@ -1374,7 +1383,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return f
 
         except Exception as e:
-            print('MAIN_WINDOW create_bold_font: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_bold_font: ', e)
 
     @staticmethod
     def create_state_icons():
@@ -1400,7 +1409,7 @@ class MainWindow(QtWidgets.QMainWindow):
             }
 
         except Exception as e:
-            print('MAIN_WINDOW create_state_icons: ', str(e))
+            Utils.print_exception('MAIN_WINDOW create_state_icons: ', e)
 
     # ------------------------------------------
 
@@ -1430,7 +1439,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return ' '
 
         except Exception as e:
-            print('MAIN_WINDOW optional_filter: ', str(e))
+            Utils.print_exception('MAIN_WINDOW optional_filter: ', e)
 
     @staticmethod
     def exec(q, msg=''):
@@ -1441,4 +1450,4 @@ class MainWindow(QtWidgets.QMainWindow):
             return b
 
         except Exception as e:
-            print('MAIN_WINDOW exec ' + msg + ':', e)
+            Utils.print_exception('MAIN_WINDOW exec ' + msg + ':', e)
