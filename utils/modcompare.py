@@ -26,7 +26,6 @@ class ModCompare:
                 self.name = mods[0].name
 
         except Exception as e:
-            #print('MODCOMPARE init: ', str(e))
             Utils.print_exception('MODCOMPARE init', e)
 
     def compare_states(self, mods: list[Mod], islist: bool):
@@ -57,4 +56,4 @@ class ModCompare:
                     self.blocked = None
 
         except Exception as e:
-            print('MODCOMPARE compare_states: ', str(e))
+            Utils.print_exception('MODCOMPARE compare_states', e)

@@ -3,6 +3,7 @@ from PyQt5.QtCore import QSize, Qt
 
 from pyqt_windows.copylist_dialog import Ui_CopyListDialog
 from utils.database import Database
+from utils.utils import Utils
 
 
 class CopyListDialog(QtWidgets.QDialog):
@@ -31,8 +32,9 @@ class CopyListDialog(QtWidgets.QDialog):
     def setupWidgets(self):
         try:
             self.setup_cmb()
+
         except Exception as e:
-            print('COPYLIST_DIALOG setupWidgets:', e)
+            Utils.print_exception('COPYLIST_DIALOG setupWidgets', e)
 
     def setup_cmb(self):
         try:
@@ -53,8 +55,9 @@ class CopyListDialog(QtWidgets.QDialog):
             model = self.ui.cmbListCopy.model()
             for i in range(model.rowCount()):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
+
         except Exception as e:
-            print('COPYLIST_DIALOG setup_cmb:', e)
+            Utils.print_exception('COPYLIST_DIALOG setup_cmb', e)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -66,8 +69,9 @@ class CopyListDialog(QtWidgets.QDialog):
             self.ui.cmbListCopy.currentIndexChanged.connect(self.change_cmb)
 
             self.ui.btnCopy.clicked.connect(self.btn_copy_list)
+
         except Exception as e:
-            print('COPYLIST_DIALOG setupEvents:', e)
+            Utils.print_exception('COPYLIST_DIALOG setupEvents', e)
 
     def change_cmb(self):
         try:
@@ -75,14 +79,16 @@ class CopyListDialog(QtWidgets.QDialog):
             self.ui.lblVersion.setText(version)
             self.ui.lblLoader.setText(loader)
             self.valid_data()
+
         except Exception as e:
-            print('COPYLIST_DIALOG change_cmb:', e)
+            Utils.print_exception('COPYLIST_DIALOG change_cmb', e)
 
     def valid_data(self):
         try:
             self.ui.btnCopy.setEnabled(self.ui.cmbListCopy.currentIndex() > 0 and self.valid_copy_name())
+
         except Exception as e:
-            print('COPYLIST_DIALOG valid_data:', e)
+            Utils.print_exception('COPYLIST_DIALOG valid_data', e)
 
     def valid_copy_name(self):
         try:
@@ -99,8 +105,9 @@ class CopyListDialog(QtWidgets.QDialog):
                     return False
             else:
                 return False
+
         except Exception as e:
-            print('COPYLIST_DIALOG valid_copy_name:', e)
+            Utils.print_exception('COPYLIST_DIALOG valid_copy_name', e)
 
     def btn_copy_list(self):
         try:
@@ -145,4 +152,4 @@ class CopyListDialog(QtWidgets.QDialog):
                 self.done(0)
 
         except Exception as e:
-            print('COPYLIST_DIALOG btn_copy_list:', e)
+            Utils.print_exception('COPYLIST_DIALOG btn_copy_list', e)

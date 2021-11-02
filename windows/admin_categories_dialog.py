@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QFileDialog
 
 from pyqt_windows.category_list_dialog import Ui_AdminCategoriesDialog
 from utils.icon_utils import IconUtils
+from utils.utils import Utils
 from windows.warning_dialog import WarningDialog
 
 
@@ -36,7 +37,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             return f
 
         except Exception as e:
-            print('MAIN_WINDOW create_bold_font: ', str(e))
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG create_bold_font', e)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -44,8 +45,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
         try:
             self.modify_table()
             self.modify_css()
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG setupWidgets:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG setupWidgets', e)
 
     def modify_table(self):
         try:
@@ -59,7 +61,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             self.ui.tableCategories.setIconSize(QSize(48, 48))
             self.ui.tableCategories.setColumnWidth(0, 58)
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG modify_table:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG modify_table', e)
 
     def modify_css(self):
         try:
@@ -67,7 +69,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             f.setBold(True)
             self.ui.tableCategories.horizontalHeader().setFont(f)
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG modify_css:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG modify_css', e)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -84,7 +86,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
 
             self.ui.tableCategories.itemSelectionChanged.connect(self.table_selection)
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG setupEvents:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG setupEvents', e)
 
     def change_editcatid(self):
         try:
@@ -103,7 +105,7 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                 self.ui.btnModify.setEnabled(False)
                 self.ui.btnRemove.setEnabled(False)
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG change_editcatid:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG change_editcatid', e)
 
     def btn_icon(self):
         try:
@@ -120,8 +122,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
 
                 self.ui.btnIcon.setIcon(QIcon(self.pixmap))
                 self.ui.btnIcon.setText('')
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG btn_icon:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG btn_icon', e)
 
     def btn_generate_id(self):
         try:
@@ -143,8 +146,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                     self.ui.editCategoryID.setText('')
             else:
                 self.ui.editCategoryID.setText('')
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG btn_generate_id:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG btn_generate_id', e)
 
     def add_category(self):
         try:
@@ -169,8 +173,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                 self.ui.spinOrder.setValue(1)
                 self.fill_table()
                 self.exitcode = 1
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG add_category:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG add_category', e)
 
     def modify_category(self):
         try:
@@ -201,9 +206,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                 self.exitcode = 1
             else:
                 print('ADMIN_CATEGORIES_DIALOG modify_category query:', q.lastError().text())
-                print(q.lastQuery())
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG modify_category:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG modify_category', e)
 
     def remove_category(self):
         try:
@@ -232,8 +237,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
             else:
                 print('ADMIN_CATEGORIES_DIALOG remove_category query:', q.lastError().text())
                 print(q.lastQuery())
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG remove_category:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG remove_category', e)
 
     def table_selection(self):
         try:
@@ -255,8 +261,9 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                 self.ui.editCategoryID.setText('')
                 self.ui.spinGroup.setValue(1)
                 self.ui.spinOrder.setValue(1)
+
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG table_selection:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG table_selection', e)
 
     def fill_table(self):
         try:
@@ -290,12 +297,12 @@ class AdminCategoriesDialog(QtWidgets.QDialog):
                 self.ui.tableCategories.item(i, 3).setFont(self.font)
                 self.ui.tableCategories.item(i, 4).setFont(self.font)
 
-
         except Exception as e:
-            print('ADMIN_CATEGORIES_DIALOG fill_table:', e)
+            Utils.print_exception('ADMIN_CATEGORIES_DIALOG fill_table', e)
 
     def closeEvent(self, evnt):
         try:
             self.done(self.exitcode)
+
         except Exception as e:
-            print('ADMIN_LIST_DIALOG closeEvent:', e)
+            Utils.print_exception('ADMIN_LIST_DIALOG closeEvent', e)

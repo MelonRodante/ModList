@@ -5,6 +5,7 @@ from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import QMessageBox
 
 from utils.icon_utils import IconUtils
+from utils.utils import Utils
 
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     listname TEXT NOT NULL,
@@ -14,17 +15,18 @@ tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
 
 tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     projectid       INTEGER NOT NULL, 
-                    path            TEXT NOT NULL DEFAULT 'no-path',
                     name	        TEXT NOT NULL DEFAULT 'no-name',
+                    description	    TEXT NOT NULL DEFAULT '',
                     categories      TEXT NOT NULL DEFAULT 'without-category',
                     loader	        TEXT NOT NULL DEFAULT 'No Loader',
                     update_date     INTEGER NOT NULL,
                     icon	        BLOB,
+                    path            TEXT NOT NULL DEFAULT 'no-path',    
                     favorite        INTEGER NOT NULL DEFAULT 0,
                     blocked	        INTEGER NOT NULL DEFAULT 0,
-                    newmod          INTEGER NOT NULL DEFAULT 1,
                     autoinstall    INTEGER NOT NULL DEFAULT 0,
                     autoignore       INTEGER NOT NULL DEFAULT 0,
+                    newmod          INTEGER NOT NULL DEFAULT 1,
                     PRIMARY KEY(projectid));'''
 
 tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
@@ -86,33 +88,41 @@ class Database:
 
     @staticmethod
     def connect_db():
-        Database.db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        Database.db.setDatabaseName(Database.filename)
+        try:
+            Database.db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+            Database.db.setDatabaseName(Database.filename)
 
-        if not Database.db.open():
-            QMessageBox.critical(None, "DataBase Error:", Database.db.lastError().databaseText(),
-                                 QtWidgets.QMessageBox.Close)
-            sys.exit(1)
-        else:
-            Database.db.exec("PRAGMA foreign_keys = ON;")
-            db = QSqlQuery()
-            Database.exec(db, tablelists)
-            Database.exec(db, tablemods)
-            Database.exec(db, tablemodslists)
-            Database.exec(db, tablecategories)
-            Database.__create_default_categories(db)
-            Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderMods" ON "Mods" ("favorite"	DESC, "blocked"	ASC, "name"	ASC);')
-            Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderModsLists" ON "Mods" ("installed" DESC, "updated" DESC, "name" ASC);')
+            if not Database.db.open():
+                QMessageBox.critical(None, "DataBase Error:", Database.db.lastError().databaseText(),
+                                     QtWidgets.QMessageBox.Close)
+                sys.exit(1)
+            else:
+                Database.db.exec("PRAGMA foreign_keys = ON;")
+                db = QSqlQuery()
+                Database.exec(db, tablelists)
+                Database.exec(db, tablemods)
+                Database.exec(db, tablemodslists)
+                Database.exec(db, tablecategories)
+                Database.__create_default_categories(db)
+                Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderMods" ON "Mods" ("favorite"	DESC, "blocked"	ASC, "name"	ASC);')
+                Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderModsLists" ON "Mods" ("installed" DESC, "updated" DESC, "name" ASC);')
+
+        except Exception as e:
+            Utils.print_exception('DATABASE connect_db', e)
 
     @staticmethod
     def get_thread_sqlquery():
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='thread')
-        db.setDatabaseName(Database.filename)
-        if db.open():
-            return db
-        else:
-            QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
-            sys.exit(1)
+        try:
+            db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='thread')
+            db.setDatabaseName(Database.filename)
+            if db.open():
+                return db
+            else:
+                QMessageBox.critical(None, "DataBase Error:", db.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+                sys.exit(1)
+
+        except Exception as e:
+            Utils.print_exception('DATABASE get_thread_sqlquery', e)
 
     @staticmethod
     def exec(db, sql):
@@ -128,21 +138,25 @@ class Database:
 
     @staticmethod
     def __create_default_categories(db):
-        q = QtSql.QSqlQuery(db)
-        q.prepare('SELECT count(cat_id) FROM Categories WHERE grp <= 100;')
+        try:
+            q = QtSql.QSqlQuery(db)
+            q.prepare('SELECT count(cat_id) FROM Categories WHERE grp <= 100;')
 
-        if Database.execq(q):
-            q.next()
+            if Database.execq(q):
+                q.next()
 
-            if q.value(0) != len(Database.categories):
-                for cat in Database.categories:
-                    q.prepare('INSERT OR IGNORE INTO Categories (cat_id, cat_name, grp, ord, icon) VALUES (:cat_id, :cat_name, :grp, :ord, :icon)')
-                    q.bindValue(':cat_id', cat[0])
-                    q.bindValue(':cat_name', cat[1])
-                    q.bindValue(':grp', cat[2])
-                    q.bindValue(':ord', cat[3])
-                    q.bindValue(':icon', IconUtils.pixmap_to_qbytearray(cat[0]))
+                if q.value(0) != len(Database.categories):
+                    for cat in Database.categories:
+                        q.prepare('INSERT OR IGNORE INTO Categories (cat_id, cat_name, grp, ord, icon) VALUES (:cat_id, :cat_name, :grp, :ord, :icon)')
+                        q.bindValue(':cat_id', cat[0])
+                        q.bindValue(':cat_name', cat[1])
+                        q.bindValue(':grp', cat[2])
+                        q.bindValue(':ord', cat[3])
+                        q.bindValue(':icon', IconUtils.pixmap_to_qbytearray(cat[0]))
 
-                    Database.execq(q)
+                        Database.execq(q)
+
+        except Exception as e:
+            Utils.print_exception('DATABASE __create_default_categories', e)
 
 

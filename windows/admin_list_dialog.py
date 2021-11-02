@@ -33,7 +33,7 @@ class AdminListDialog(QtWidgets.QDialog):
             self.modify_table()
             self.modify_css()
         except Exception as e:
-            print('ADMIN_LIST_DIALOG setupWidgets:', e)
+            print('ADMIN_LIST_DIALOG setupWidgets', e)
 
     def create_cmb_versions(self):
         try:
@@ -47,7 +47,7 @@ class AdminListDialog(QtWidgets.QDialog):
                 QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
                 self.done(0)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG create_cmb_versions:', e)
+            print('ADMIN_LIST_DIALOG create_cmb_versions', e)
 
     def modify_cmb(self):
         try:
@@ -62,7 +62,7 @@ class AdminListDialog(QtWidgets.QDialog):
             self.ui.cmbVersion.setCurrentIndex(-1)
             self.ui.cmbLoader.setCurrentIndex(-1)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG modify_cmb:', e)
+            print('ADMIN_LIST_DIALOG modify_cmb', e)
 
     def modify_table(self):
         try:
@@ -71,7 +71,7 @@ class AdminListDialog(QtWidgets.QDialog):
             header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
             header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG modify_table:', e)
+            print('ADMIN_LIST_DIALOG modify_table', e)
 
     def modify_css(self):
         try:
@@ -79,7 +79,7 @@ class AdminListDialog(QtWidgets.QDialog):
             f.setBold(True)
             self.ui.tableLists.horizontalHeader().setFont(f)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG modify_css:', e)
+            print('ADMIN_LIST_DIALOG modify_css', e)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ class AdminListDialog(QtWidgets.QDialog):
 
             self.ui.editList.editingFinished.connect(lambda: self.ui.editList.setText(" ".join(self.ui.editList.text().strip().split())))
         except Exception as e:
-            print('ADMIN_LIST_DIALOG setupEvents:', e)
+            print('ADMIN_LIST_DIALOG setupEvents', e)
 
     def clicked_table(self):
         try:
@@ -104,7 +104,7 @@ class AdminListDialog(QtWidgets.QDialog):
                 self.ui.cmbVersion.setCurrentIndex(self.ui.cmbVersion.findText(fila[1].text().strip()))
                 self.ui.cmbLoader.setCurrentIndex(self.ui.cmbLoader.findText(fila[2].text().strip()))
         except Exception as e:
-            print('ADMIN_LIST_DIALOG clicked_table:', e)
+            print('ADMIN_LIST_DIALOG clicked_table', e)
 
     def add_update_list(self):
         try:
@@ -113,7 +113,7 @@ class AdminListDialog(QtWidgets.QDialog):
             else:
                 self.add_list()
         except Exception as e:
-            print('ADMIN_LIST_DIALOG add_update_list:', e)
+            print('ADMIN_LIST_DIALOG add_update_list', e)
 
     def add_list(self):
         try:
@@ -129,7 +129,7 @@ class AdminListDialog(QtWidgets.QDialog):
                 self.fill_table()
                 self.exitcode = 1
         except Exception as e:
-            print('ADMIN_LIST_DIALOG add_list:', e)
+            print('ADMIN_LIST_DIALOG add_list', e)
 
     def remove_list(self):
         try:
@@ -143,7 +143,7 @@ class AdminListDialog(QtWidgets.QDialog):
                 self.fill_table()
                 self.exitcode = 1
         except Exception as e:
-            print('ADMIN_LIST_DIALOG remove_list:', e)
+            print('ADMIN_LIST_DIALOG remove_list', e)
 
     def change_edits(self):
         try:
@@ -171,13 +171,13 @@ class AdminListDialog(QtWidgets.QDialog):
                 self.ui.cmbVersion.setCurrentIndex(-1)
                 self.ui.cmbLoader.setCurrentIndex(-1)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG change_edits:', e)
+            print('ADMIN_LIST_DIALOG change_edits', e)
 
     def closeEvent(self, evnt):
         try:
             self.done(self.exitcode)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG closeEvent:', e)
+            print('ADMIN_LIST_DIALOG closeEvent', e)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -199,4 +199,4 @@ class AdminListDialog(QtWidgets.QDialog):
                     self.ui.tableLists.item(i, 1).setTextAlignment(Qt.AlignCenter)
                     self.ui.tableLists.item(i, 2).setTextAlignment(Qt.AlignCenter)
         except Exception as e:
-            print('ADMIN_LIST_DIALOG fill_table:', e)
+            print('ADMIN_LIST_DIALOG fill_table', e)

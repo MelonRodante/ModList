@@ -1,15 +1,15 @@
 import json
 import sys
-import traceback
 
 import requests
 from PyQt5 import QtSql, QtWidgets
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox, QWidget
 
-from utils import curseapilinks
+from utils.curseapilinks import CurseAPI
 from utils.database import Database
 from utils.modindex import ModIndex
+from utils.utils import Utils
 
 
 class SearchThread(QThread):
@@ -34,8 +34,9 @@ class SearchThread(QThread):
     def run(self):
         try:
             self.search_mods()
+
         except Exception as e:
-            print('SEARCH_THREAD run:', e)
+            Utils.print_exception('SEARCH_THREAD run', e)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -76,7 +77,7 @@ class SearchThread(QThread):
                 sys.exit(1)
 
         except Exception as e:
-            print('SEARCH_THREAD getListInfo:', e)
+            Utils.print_exception('SEARCH_THREAD getListInfo', e)
 
     # noinspection PyUnresolvedReferences
     def search_mods(self):
@@ -109,12 +110,12 @@ class SearchThread(QThread):
                 self.sig_finish_code.emit(0)
 
         except Exception as e:
-            print('SEARCH_THREAD search_mods:', e)
+            Utils.print_exception('SEARCH_THREAD search_mods', e)
 
     def get_mods_from_page(self, i):
         try:
-            url = curseapilinks.search_base_query + curseapilinks.search_filter_version + self.list_version + curseapilinks.search_offset + str(curseapilinks.pagesize * i)
-            mods = requests.get(url, headers=curseapilinks.header).json()
+            url = CurseAPI.search_base_query + CurseAPI.search_filter_version + self.list_version + CurseAPI.search_offset + str(CurseAPI.pagesize * i)
+            mods = requests.get(url, headers=CurseAPI.header).json()
             for mod in mods:
                 m = ModIndex(mod)
                 if self.searchnewupdate:
@@ -126,13 +127,15 @@ class SearchThread(QThread):
         except json.decoder.JSONDecodeError:
             QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
             return 0
+
         except Exception as e:
-            print('SEARCH_THREAD get_mods_from_page:', e) #, traceback.format_exc())
+            Utils.print_exception('SEARCH_THREAD get_mods_from_page', e)
 
     def set_close(self):
         try:
             self.canclose = True
+
         except Exception as e:
-            print('SEARCH_THREAD set_close:', e)
+            Utils.print_exception('SEARCH_THREAD set_close', e)
 
 

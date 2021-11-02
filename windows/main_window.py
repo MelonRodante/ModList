@@ -72,7 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.toolBar.insertSeparator(self.ui.actionResetFilters)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW setupWidgets: ', e)
+            Utils.print_exception('MAIN_WINDOW setupWidgets', e)
 
     def setupEvents(self):
         try:
@@ -141,14 +141,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionShowUpdated.triggered.connect(self.load_pages)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW setupEvents: ', e)
+            Utils.print_exception('MAIN_WINDOW setupEvents', e)
 
 
     def exit_app(self):
         try:
             self.close()
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW exit: ', e)
+            Utils.print_exception('MAIN_WINDOW exit', e)
 
 
 
@@ -214,7 +214,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             ''')
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW modify_css: ', e)
+            Utils.print_exception('MAIN_WINDOW modify_css', e)
 
     def filter_change(self):
         try:
@@ -222,7 +222,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_pages()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW filter_change: ', e)
+            Utils.print_exception('MAIN_WINDOW filter_change', e)
 
     def change_toolbar_orientation(self, floating):
         try:
@@ -241,7 +241,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.ui.toolBar.setStyleSheet('QToolBar {border-top-color: ' + colors.ColorStrong + ';}')
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW change_toolbar_orientation: ', e)
+            Utils.print_exception('MAIN_WINDOW change_toolbar_orientation', e)
 
     def resize_table(self):
         try:
@@ -259,7 +259,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.tableMods.setColumnWidth(5, 27)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW resize_table: ', e)
+            Utils.print_exception('MAIN_WINDOW resize_table', e)
 
 
 
@@ -290,7 +290,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_pages()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW clear_filters: ', e)
+            Utils.print_exception('MAIN_WINDOW clear_filters', e)
 
     def table_selectmode(self, checked):
         try:
@@ -300,7 +300,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tableMods.setSelectionMode(QAbstractItemView.SingleSelection)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW table_selectmode: ', e)
+            Utils.print_exception('MAIN_WINDOW table_selectmode', e)
 
     def exclusive_filter(self, button, list_buttons):
         try:
@@ -311,7 +311,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_pages()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW exclusive_filter: ', e)
+            Utils.print_exception('MAIN_WINDOW exclusive_filter', e)
 
 
 
@@ -339,7 +339,7 @@ class MainWindow(QtWidgets.QMainWindow):
             q = QtSql.QSqlQuery()
             q.prepare('SELECT C.cat_id, C.cat_name, C.icon, C.grp, C.ord FROM Categories as C ORDER BY C.grp ASC, C.ord ASC, C.cat_name ASC;')
 
-            if self.exec(q, 'load_categories'):
+            if Utils.query_exec(q, 'MAIN_WINDOW load_categories'):
                 while q.next():
 
                     icon = IconUtils.qbytearray_to_pixmap(q.value(2), size=48)
@@ -358,7 +358,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.create_menu_chk_categories_config()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW load_categories: ', e)
+            Utils.print_exception('MAIN_WINDOW load_categories', e)
 
     def create_cmb_values_categories(self):
         try:
@@ -379,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW create_cmb_values_categories: ', e)
+            Utils.print_exception('MAIN_WINDOW create_cmb_values_categories', e)
 
     def create_menu_chk_categories_config(self):
         try:
@@ -419,7 +419,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.chks_categories_group.buttonPressed.connect(self.change_chk_categories)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW create_menu_chk_categories_config: ', e)
+            Utils.print_exception('MAIN_WINDOW create_menu_chk_categories_config', e)
 
     def create_chk_category_config_action(self, menu, cat):
         try:
@@ -445,7 +445,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return action
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW create_chk_category_config_action: ', e)
+            Utils.print_exception('MAIN_WINDOW create_chk_category_config_action', e)
 
     # ------------------------------------------
 
@@ -458,7 +458,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return ''
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW actual_category_filter: ', e)
+            Utils.print_exception('MAIN_WINDOW actual_category_filter', e)
 
     def change_chk_categories(self, chk):
         try:
@@ -497,7 +497,7 @@ class MainWindow(QtWidgets.QMainWindow):
             chk.nextCheckState()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW change_chk_categories: ', e)
+            Utils.print_exception('MAIN_WINDOW change_chk_categories', e)
 
     def change_state_categories_config(self):
         try:
@@ -509,7 +509,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.tbtnCategoryConfig.setIcon(IconUtils.getLargeIcon(self.get_categories_from_checks(), center=True))
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW change_state_categories_config: ', e)
+            Utils.print_exception('MAIN_WINDOW change_state_categories_config', e)
 
 
 
@@ -548,7 +548,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW create_cmb_values_lists: ', e)
+            Utils.print_exception('MAIN_WINDOW create_cmb_values_lists', e)
 
     def change_cmb_list(self):
         try:
@@ -574,7 +574,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.filter_change()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW change_cmb_list: ', e)
+            Utils.print_exception('MAIN_WINDOW change_cmb_list', e)
 
     # ------------------------------------------
 
@@ -584,7 +584,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.filter_change()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW edit_name_clear: ', e)
+            Utils.print_exception('MAIN_WINDOW edit_name_clear', e)
 
 
 
@@ -613,7 +613,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return where
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW query_create_basic_where: ', e)
+            Utils.print_exception('MAIN_WINDOW query_create_basic_where', e)
 
     def query_bind_basic_where(self, q):
         try:
@@ -625,7 +625,7 @@ class MainWindow(QtWidgets.QMainWindow):
             q.bindValue(':list', self.ui.cmbModList.currentText())
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW query_bind_basic_where: ', e)
+            Utils.print_exception('MAIN_WINDOW query_bind_basic_where', e)
 
     def prepare_fill_table_query(self, q, count=False):
         try:
@@ -645,12 +645,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.query_bind_basic_where(q)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query: ', e)
+            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query', e)
 
     def prepare_fill_table_query_list(self):
         try:
-            select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, ML.installed, ML.ignored, ML.updated, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
-            from_q = 'FROM ModsLists as ML LEFT JOIN Mods as M ON ML.mod = M.projectid'
+            select_q = Mod.select_modslist
+            from_q = Mod.from_modslist
             where_q = self.query_create_basic_where()
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
@@ -672,12 +672,12 @@ class MainWindow(QtWidgets.QMainWindow):
             return select_q, from_q, where_q, orderby_q
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query_list: ', e)
+            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query_list', e)
 
     def prepare_fill_table_query_nolist(self):
         try:
-            select_q = 'SELECT M.icon, M.name, M.categories, M.loader, M.update_date, M.path, 0, 0, 0, M.favorite, M.blocked, M.projectid, M.autoinstall, M.autoignore '
-            from_q = 'FROM Mods as M'
+            select_q = Mod.select_mods
+            from_q = Mod.from_mods
             where_q = self.query_create_basic_where()
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
@@ -691,7 +691,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return select_q, from_q, where_q, orderby_q
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query_nolist: ', e)
+            Utils.print_exception('MAIN_WINDOW prepare_fill_table_query_nolist', e)
 
 
 
@@ -711,7 +711,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_data()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW click_left_page: ', e)
+            Utils.print_exception('MAIN_WINDOW click_left_page', e)
 
     def click_right_page(self):
         try:
@@ -720,7 +720,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_data()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW click_right_page: ', e)
+            Utils.print_exception('MAIN_WINDOW click_right_page', e)
 
     def check_table_buttons(self):
         try:
@@ -729,7 +729,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.lblActualPages.setEnabled(self.found_results != 0)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW check_table_buttons: ', e)
+            Utils.print_exception('MAIN_WINDOW check_table_buttons', e)
 
     # ------------------------------------------
 
@@ -762,7 +762,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return enabled
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW clear_selected: ', e)
+            Utils.print_exception('MAIN_WINDOW clear_selected', e)
 
     def select_mods(self):
         try:
@@ -838,7 +838,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.change_state_categories_config()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW select_mods:', e)
+            Utils.print_exception('MAIN_WINDOW select_mods', e)
 
     # ------------------------------------------
 
@@ -863,7 +863,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_data()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW load_pages: ', e)
+            Utils.print_exception('MAIN_WINDOW load_pages', e)
 
     def load_data(self):
         try:
@@ -879,7 +879,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.fill_table()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW load_data: ', e)
+            Utils.print_exception('MAIN_WINDOW load_data', e)
 
     def fill_table(self):
         try:
@@ -923,7 +923,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.lblActualPages.setText('0 / 0')
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW fill_table: ', e)
+            Utils.print_exception('MAIN_WINDOW fill_table', e)
 
     # ------------------------------------------
 
@@ -969,7 +969,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 menu.exec_(QtGui.QCursor.pos())
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW context_menu_table: ', e)  # , traceback.format_exc())
+            Utils.print_exception('MAIN_WINDOW context_menu_table', e)  # , traceback.format_exc())
 
     def table_add_list(self, q, listname, loader):
         try:
@@ -984,7 +984,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     mod.insert_in_list(q, listname)
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW table_add_list: ', e)
+            Utils.print_exception('MAIN_WINDOW table_add_list', e)
 
     def table_del_list(self, q):
         try:
@@ -998,7 +998,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW table_del_list: ', e)
+            Utils.print_exception('MAIN_WINDOW table_del_list', e)
 
     def table_mark_autoinstall(self, q):
         try:
@@ -1011,7 +1011,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW table_mark_autoinstall: ', e)
+            Utils.print_exception('MAIN_WINDOW table_mark_autoinstall', e)
 
     def table_mark_autoignore(self, q):
         try:
@@ -1024,7 +1024,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.load_pages_maintain_slider()
 
         except Exception as e:
-            Utils.print_exception('MAIN_WINDOW table_mark_autoignore: ', e)
+            Utils.print_exception('MAIN_WINDOW table_mark_autoignore', e)
 
 
 

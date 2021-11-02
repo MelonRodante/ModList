@@ -1,5 +1,7 @@
+import requests
 from PyQt5 import QtSql
 
+from utils.curseapilinks import CurseAPI
 from utils.database import Database
 
 
@@ -38,3 +40,31 @@ def modify_categories():
             print(i)
         if not q.exec():
             print('ERROR 2:' + q.lastError().text() + ' ' + str(mod[0]))
+
+
+def add_description():
+    db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='prueba')
+    db.setDatabaseName(Database.filename)
+    db.open()
+    q = QtSql.QSqlQuery(db)
+
+    mods = []
+    q.prepare('SELECT projectid, description FROM Mods;')
+    if q.exec():
+        while q.next():
+            if not q.value(1):
+                mods.append(q.value(0))
+    else:
+        print('ERROR 1:' + q.lastError().text())
+
+    i = 0
+    for mod in mods:
+        modjson = requests.get(CurseAPI.minecraft_modid + str(mod), headers=CurseAPI.header).json()
+        q.prepare('UPDATE Mods SET description = :description WHERE projectid == :projectid;')
+        q.bindValue(':projectid', mod)
+        q.bindValue(':description', modjson.get('summary'))
+        i+=1
+        if i % 500 == 0:
+            print(i)
+        if not q.exec():
+            print('ERROR 2:' + q.lastError().text() + ' ' + str(mod))

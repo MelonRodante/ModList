@@ -5,6 +5,8 @@ from PyQt5 import QtWidgets, QtSql
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtWidgets import QMessageBox
 
+from utils.utils import Utils
+
 
 class ModIndex:
     cat_id = {
@@ -59,6 +61,7 @@ class ModIndex:
             self.path = mod.get('websiteUrl')
             self.name = mod.get('name')
             self.loader = ModIndex.getLoader(mod)
+            self.description = mod.get('summary')
             self.categories = mod.get('categories')
             self.update_date = mod.get('dateModified')
             self.icon = mod.get('attachments')
@@ -71,7 +74,7 @@ class ModIndex:
             self.autoignore = 0
 
         except Exception as e:
-            print('ModIndex __init__:', e)
+            Utils.print_exception('ModIndex init', e)
 
     def setCategories(self):
         try:
@@ -143,8 +146,7 @@ class ModIndex:
                 return 'Fabric'
             else:
                 return 'No Loader'
-        except Exception as e:
-            print('ModIndex getLoader:', e)
+        except:
             return 'error'
 
     def load_data(self):
@@ -195,7 +197,7 @@ class ModIndex:
                 return False
 
         except Exception as e:
-            print('SEARCH_THREAD check_mod:', e)
+            Utils.print_exception('SEARCH_THREAD check_mod' + str(self.projectid), e)
 
     def process_mod(self, db, modlist=None):
         try:
@@ -207,15 +209,17 @@ class ModIndex:
                 if self.newmod:
                     self.setCategories()
                     self.setIcon()
-                    q.prepare('INSERT OR IGNORE INTO Mods(path, name, loader, categories, update_date, icon, projectid) '
-                              'VALUES (:path, :name, :loader, :categories, :update_date, :icon, :projectid)')
-                    q.bindValue(':path',        self.path)
+                    q.prepare('INSERT OR IGNORE INTO Mods(projectid, name, description, categories, loader, update_date, icon, path) '
+                              'VALUES (:projectid, :name, :description, :categories, :loader, :update_date, :icon, :path)')
+                    q.bindValue(':projectid',   self.projectid)
                     q.bindValue(':name',        self.name)
-                    q.bindValue(':loader',      self.loader)
+                    q.bindValue(':description', self.description)
                     q.bindValue(':categories',  self.categories)
+                    q.bindValue(':loader',      self.loader)
                     q.bindValue(':update_date', self.update_date)
                     q.bindValue(':icon',        self.icon)
-                    q.bindValue(':projectid',   self.projectid)
+                    q.bindValue(':path',        self.path)
+
                     if not q.exec():
                         print('MOD_INDEX DB NewMod:', q.lastError().text(), self.projectid, self.name)
 
@@ -249,13 +253,6 @@ class ModIndex:
                         print('MOD_INDEX DB ReIndex M:', q.lastError().text(), self.projectid, self.name)
 
                 db.commit()
+
         except Exception as e:
-            print('MOD_INDEX process_mod:', e)
-            print('     ', self.projectid)
-            print('     ', self.path)
-            print('     ', self.name)
-            print('     ', self.loader)
-            print('     ', self.categories)
-            print('     ', self.update_date)
-            print('     ', self.icon)
-            print()
+            Utils.print_exception('SEARCH_THREAD process_mod' + str(self.projectid), e)

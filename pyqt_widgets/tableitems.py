@@ -6,6 +6,7 @@ from PyQt5.QtGui import QColor
 
 from utils.icon_utils import IconUtils
 from utils.mod import Mod
+from utils.utils import Utils
 
 
 class TableItemButton(QtWidgets.QTableWidgetItem):
@@ -15,17 +16,17 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
             QtWidgets.QTableWidgetItem.__init__(self, IconUtils.getNormalIcon(mod.icon), '')
             self.mod = mod
 
-            self.setToolTip('ID: ' + str(mod.projectid))
+            self.setToolTip('ID: ' + str(mod.projectid) + '\n\nDESCRIPTION:\n' + mod.description)
 
         except Exception as e:
-            print('TABLE_ITEM_BUTTON init: ', str(e))
+            Utils.print_exception('TABLE_ITEM_BUTTON init', e)
 
     def click(self):
         try:
             os.startfile(self.mod.path)
 
         except Exception as e:
-            print('TABLE_ITEM_BUTTON click: ', str(e))
+            Utils.print_exception('TABLE_ITEM_BUTTON click', e)
 
     @staticmethod
     def click_icon_table(item):
@@ -34,7 +35,7 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
                 item.click()
 
         except Exception as e:
-            print('TABLE_ITEM_BUTTON click_icon_table: ', str(e))
+            Utils.print_exception('TABLE_ITEM_BUTTON click_icon_table', e)
 
 
 class TableItemName(QtWidgets.QTableWidgetItem):
@@ -49,7 +50,7 @@ class TableItemName(QtWidgets.QTableWidgetItem):
                 self.setForeground(QColor('#9B5D62'))
 
         except Exception as e:
-            print('TABLE_ITEM_NAME init: ', str(e))
+            Utils.print_exception('TABLE_ITEM_NAME init', e)
 
 
 class TableItemCategories(QtWidgets.QTableWidgetItem):
@@ -63,6 +64,6 @@ class TableItemCategories(QtWidgets.QTableWidgetItem):
             self.setToolTip(cat_tooltip[:-1])
 
         except Exception as e:
-            print('TABLE_ITEM_CATEGORIES init: ', str(e))
+            Utils.print_exception('TABLE_ITEM_CATEGORIES init', e)
 
 

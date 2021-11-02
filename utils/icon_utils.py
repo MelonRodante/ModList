@@ -5,6 +5,8 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import QRectF, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QIcon
 
+from utils.utils import Utils
+
 
 class IconUtils:
     other_cat_icons = {}
@@ -12,16 +14,21 @@ class IconUtils:
 
     @staticmethod
     def getIconWithoutTint(pixmap):
-        icon = QIcon(pixmap)
-        icon.addPixmap(pixmap, QIcon.Normal, QIcon.Off)
-        icon.addPixmap(pixmap, QIcon.Normal, QIcon.On)
-        icon.addPixmap(pixmap, QIcon.Active, QIcon.Off)
-        icon.addPixmap(pixmap, QIcon.Active, QIcon.On)
-        icon.addPixmap(pixmap, QIcon.Disabled, QIcon.Off)
-        icon.addPixmap(pixmap, QIcon.Disabled, QIcon.On)
-        icon.addPixmap(pixmap, QIcon.Selected, QIcon.Off)
-        icon.addPixmap(pixmap, QIcon.Selected, QIcon.On)
-        return icon
+        try:
+            icon = QIcon(pixmap)
+            icon.addPixmap(pixmap, QIcon.Normal, QIcon.Off)
+            icon.addPixmap(pixmap, QIcon.Normal, QIcon.On)
+            icon.addPixmap(pixmap, QIcon.Active, QIcon.Off)
+            icon.addPixmap(pixmap, QIcon.Active, QIcon.On)
+            icon.addPixmap(pixmap, QIcon.Disabled, QIcon.Off)
+            icon.addPixmap(pixmap, QIcon.Disabled, QIcon.On)
+            icon.addPixmap(pixmap, QIcon.Selected, QIcon.Off)
+            icon.addPixmap(pixmap, QIcon.Selected, QIcon.On)
+            return icon
+
+        except Exception as e:
+            Utils.print_exception('ICON_UTILS getIconWithoutTint', e)
+
 
     @staticmethod
     def get_cat_icon_str(cat):
@@ -45,8 +52,9 @@ class IconUtils:
                 return byte_array
             else:
                 return QtCore.QByteArray()
+
         except Exception as e:
-            print('ICON_UTILS pixmap_to_qbytearray:', e)
+            Utils.print_exception('ICON_UTILS pixmap_to_qbytearray', e)
 
     @staticmethod
     def qbytearray_to_pixmap(array, size=48):
@@ -58,31 +66,48 @@ class IconUtils:
                 pixmap = QtGui.QPixmap(':/widgets/widgets/noicon.png')
 
             return pixmap.scaled(size, size, Qt.KeepAspectRatio)
+
         except Exception as e:
-            print('ICON_UTILS qbytearray_to_pixmap:', e)
+            Utils.print_exception('ICON_UTILS qbytearray_to_pixmap', e)
 
     @staticmethod
     def getCatNormalPixMap(image):
-        if image.startswith('-mlc-'):
-            return IconUtils.other_cat_icons[image]
-        else:
-            return QPixmap(IconUtils.get_cat_icon_str(image))
+        try:
+            if image.startswith('-mlc-'):
+                return IconUtils.other_cat_icons[image]
+            else:
+                return QPixmap(IconUtils.get_cat_icon_str(image))
+
+        except Exception as e:
+            Utils.print_exception('ICON_UTILS getCatNormalPixMap', e)
 
     @staticmethod
     def getCatNormalIcon(image):
-        if image.startswith('-mlc-'):
-            return IconUtils.getIconWithoutTint(IconUtils.other_cat_icons[image])
-        else:
-            return IconUtils.getIconWithoutTint(QPixmap(IconUtils.get_cat_icon_str(image)))
+        try:
+            if image.startswith('-mlc-'):
+                return IconUtils.getIconWithoutTint(IconUtils.other_cat_icons[image])
+            else:
+                return IconUtils.getIconWithoutTint(QPixmap(IconUtils.get_cat_icon_str(image)))
+
+        except Exception as e:
+            Utils.print_exception('ICON_UTILS getCatNormalIcon', e)
 
     @staticmethod
     def getNormalIcon(image):
-        return IconUtils.getIconWithoutTint(QPixmap(image))
+        try:
+            return IconUtils.getIconWithoutTint(QPixmap(image))
+
+        except Exception as e:
+            Utils.print_exception('ICON_UTILS getNormalIcon', e)
 
     @staticmethod
     def getLargeIcon(categories, center=False):
-        pm = IconUtils.__getLargePixmap(categories, center=center)
-        return IconUtils.getIconWithoutTint(pm)
+        try:
+            pm = IconUtils.__getLargePixmap(categories, center=center)
+            return IconUtils.getIconWithoutTint(pm)
+
+        except Exception as e:
+            Utils.print_exception('ICON_UTILS getLargeIcon', e)
 
     @staticmethod
     def __getLargePixmap(categories, center=False):
@@ -119,6 +144,7 @@ class IconUtils:
                 return pm
             else:
                 return icon
+
         except Exception as e:
-            print('ICON_UTILS __getLargePixmap: ', str(e), traceback.format_exc())
+            Utils.print_exception('ICON_UTILS __getLargePixmap', e)
 
