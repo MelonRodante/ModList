@@ -327,12 +327,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def load_categories(self):
         try:
             Mod.categories = {'': {
-                        'cat_id':       '',
-                        'cat_name':     'NO MODIFY',
-                        'cat_grp':      0,
-                        'cat_ord':      0,
-                        'cat_icon':     QPixmap(),
-                        'cat_check':    None
+                        'cat_id':           '',
+                        'cat_name':         'NO MODIFY',
+                        'cat_grp':          0,
+                        'cat_ord':          0,
+                        'cat_icon':         QPixmap(),
+                        'cat_check':        None,
+                        'cat_index_filter': None
                     }}
             self.chks_categories_group = QButtonGroup()
 
@@ -344,12 +345,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     icon = IconUtils.qbytearray_to_pixmap(q.value(2), size=48)
                     Mod.categories[q.value(0)] = {
-                        'cat_id':       q.value(0),
-                        'cat_name':     q.value(1),
-                        'cat_grp':      q.value(3),
-                        'cat_ord':      q.value(4),
-                        'cat_icon':     icon,
-                        'cat_check':    None
+                        'cat_id':           q.value(0),
+                        'cat_name':         q.value(1),
+                        'cat_grp':          q.value(3),
+                        'cat_ord':          q.value(4),
+                        'cat_icon':         icon,
+                        'cat_check':        None,
+                        'cat_index_filter': None
                     }
 
                     IconUtils.other_cat_icons[q.value(0)] = icon
@@ -372,6 +374,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if lastgrp != cat.get('cat_grp'):
                         self.ui.cmbCategories.insertSeparator(self.ui.cmbCategories.count())
                         lastgrp = cat.get('cat_grp')
+                    cat['cat_index_filter'] = self.ui.cmbCategories.count()
                     self.ui.cmbCategories.addItem(IconUtils.getCatNormalIcon(cat.get('cat_id')), cat.get('cat_name'))
 
             model = self.ui.cmbCategories.model()
@@ -449,11 +452,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # ------------------------------------------
 
-    @staticmethod
-    def actual_category_filter(text):
+    def actual_category_filter(self):
         try:
             for cat in Mod.categories.values():
-                if cat.get('cat_name') == text:
+                if cat.get('cat_index_filter') == self.ui.cmbCategories.currentIndex():
                     return cat['cat_id']
             return ''
 
@@ -618,8 +620,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def query_bind_basic_where(self, q):
         try:
             q.bindValue(':loader', self.get_loader())
-            q.bindValue(':categories',
-                        '%' + self.actual_category_filter(self.ui.cmbCategories.currentText()) + '%')
+            q.bindValue(':categories', '%' + self.actual_category_filter() + '%')
             q.bindValue(':name', '%' + self.ui.editName.text() + '%')
 
             q.bindValue(':list', self.ui.cmbModList.currentText())
@@ -872,7 +873,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.prepare_fill_table_query(q)
 
             if self.exec(q, 'load_data'):
-                # print(self.current_page, q.lastQuery())
+                # print(q.lastQuery())
                 while q.next():
                     self.tableMods.append(Mod(q))
 
