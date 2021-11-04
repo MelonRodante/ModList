@@ -835,6 +835,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     else:
                         self.ui.chkUpdated.setTristate(True)
                         self.ui.chkUpdated.setCheckState(Qt.PartiallyChecked)
+                else:
+                    self.ui.chkUpdated.setEnabled(False)
+                    self.ui.chkUpdated.setChecked(False)
 
             self.change_state_categories_config()
 
