@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 from pyqt_windows.lists_dialog import Ui_AdminListDialog
 from utils import curseapilinks
+from utils.curseapilinks import CurseAPI
 
 
 class AdminListDialog(QtWidgets.QDialog):
@@ -38,7 +39,7 @@ class AdminListDialog(QtWidgets.QDialog):
     def create_cmb_versions(self):
         try:
             try:
-                versions = requests.get(curseapilinks.minecraft_versions, headers=curseapilinks.header).json()
+                versions = requests.get(CurseAPI.minecraft_versions, headers=CurseAPI.header).json()
                 for version in versions:
                     if version.get('versionString') is not None:
                         self.ui.cmbVersion.addItem(version.get('versionString'))
@@ -53,11 +54,11 @@ class AdminListDialog(QtWidgets.QDialog):
         try:
             model = self.ui.cmbLoader.model()
             for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
             model = self.ui.cmbVersion.model()
             for i in range(model.rowCount()):
-                model.setData(model.index(i, 0), QSize(0, 20), QtCore.Qt.SizeHintRole)
+                model.setData(model.index(i, 0), QSize(0, 20), Qt.SizeHintRole)
 
             self.ui.cmbVersion.setCurrentIndex(-1)
             self.ui.cmbLoader.setCurrentIndex(-1)
