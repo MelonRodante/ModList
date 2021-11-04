@@ -963,9 +963,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 autoinstall.triggered.connect(partial(self.table_mark_autoinstall, q))
                 menu.addAction(autoinstall)
 
+                noautoinstall = QAction("Unmark as Auto-Install", self)
+                noautoinstall.triggered.connect(partial(self.table_unmark_autoinstall, q))
+                menu.addAction(noautoinstall)
+
+                menu.addSeparator()
+
                 autoignore = QAction("Mark as Auto-Ignore", self)
                 autoignore.triggered.connect(partial(self.table_mark_autoignore, q))
                 menu.addAction(autoignore)
+
+                noautoignore = QAction("Unmark as Auto-Ignore", self)
+                noautoignore.triggered.connect(partial(self.table_unmark_autoignore, q))
+                menu.addAction(noautoignore)
 
                 menu.exec_(QtGui.QCursor.pos())
 
@@ -1014,6 +1024,19 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW table_mark_autoinstall', e)
 
+    def table_unmark_autoinstall(self, q):
+        try:
+            if WarningDialog('Are you sure you want to unmark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Install?').exec():
+                for mod in self.selectedMods:
+                    q.prepare('UPDATE Mods SET autoinstall = 0 WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', mod.projectid)
+                    self.exec(q, 'table_mark_autoinstall')
+
+                self.load_pages_maintain_slider()
+
+        except Exception as e:
+            Utils.print_exception('MAIN_WINDOW table_unmark_autoinstall', e)
+
     def table_mark_autoignore(self, q):
         try:
             if WarningDialog('Are you sure you want to mark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?').exec():
@@ -1026,6 +1049,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW table_mark_autoignore', e)
+
+    def table_unmark_autoignore(self, q):
+        try:
+            if WarningDialog('Are you sure you want to unmark ' + str(len(self.selectedMods)) + ' Mod/s as Auto-Ignore?').exec():
+                for mod in self.selectedMods:
+                    q.prepare('UPDATE Mods SET autoignore = 0 WHERE projectid == :projectid;')
+                    q.bindValue(':projectid', mod.projectid)
+                    self.exec(q, 'table_mark_autoignore')
+
+                self.load_pages_maintain_slider()
+
+        except Exception as e:
+            Utils.print_exception('MAIN_WINDOW table_unmark_autoignore', e)
 
 
 

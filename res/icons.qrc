@@ -7,7 +7,7 @@
     <file>states/favorite_installed.png</file>
     <file>states/ignored.png</file>
     <file>states/installed.png</file>
-    <file>states/update_favorite_ignored.png</file>
+    <file>states/updated_favorite_ignored.png</file>
     <file>states/updated.png</file>
     <file>states/updated_favorite.png</file>
     <file>states/updated_favorite_installed.png</file>
