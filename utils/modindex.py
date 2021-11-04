@@ -1,10 +1,12 @@
 from datetime import datetime
 
 import requests
-from PyQt5 import QtWidgets, QtSql
-from PyQt5.QtCore import QByteArray
+from PyQt5 import QtWidgets, QtSql, Qt
+from PyQt5.QtCore import QByteArray, Qt
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMessageBox
 
+from utils.icon_utils import IconUtils
 from utils.utils import Utils
 
 
@@ -113,7 +115,10 @@ class ModIndex:
             if isinstance(self.icon, list):
                 for attach in self.icon:
                     if attach.get('isDefault') is True:
-                        self.icon = QByteArray(requests.get(attach.get('thumbnailUrl')).content)
+                        pix = QPixmap()
+                        pix.loadFromData(requests.get(attach.get('thumbnailUrl')).content)
+                        pix.scaled(48, 48, Qt.KeepAspectRatio)
+                        self.icon = IconUtils.pixmap_to_qbytearray(pix)
             elif not isinstance(self.icon, QByteArray):
                 self.icon = QByteArray()
         except Exception as e:

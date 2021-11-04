@@ -1,8 +1,9 @@
 import requests
-from PyQt5 import QtSql
+from PyQt5 import QtSql, QtWidgets
 
 from utils.curseapilinks import CurseAPI
 from utils.database import Database
+from utils.icon_utils import IconUtils
 
 
 def modify_categories():
@@ -68,3 +69,31 @@ def add_description():
             print(i)
         if not q.exec():
             print('ERROR 2:' + q.lastError().text() + ' ' + str(mod))
+
+
+def resize_icons():
+    app = QtWidgets.QApplication([])
+
+    db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='prueba')
+    db.setDatabaseName(Database.filename)
+    db.open()
+    q = QtSql.QSqlQuery(db)
+
+    mods = []
+    q.prepare('SELECT projectid, icon FROM Mods;')
+    if q.exec():
+        while q.next():
+            mods.append([q.value(0), IconUtils.qbytearray_to_pixmap(q.value(1), size=48)])
+    else:
+        print('ERROR 1:' + q.lastError().text())
+
+    i = 0
+    for mod in mods:
+        q.prepare('UPDATE Mods SET icon = :icon WHERE projectid == :projectid;')
+        q.bindValue(':projectid', mod[0])
+        q.bindValue(':icon', IconUtils.pixmap_to_qbytearray(mod[1]))
+        i+=1
+        if i % 500 == 0:
+            print(i)
+        if not q.exec():
+            print('ERROR 2:' + q.lastError().text() + ' ' + str(mod[0]))

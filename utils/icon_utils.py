@@ -35,12 +35,12 @@ class IconUtils:
         return ':/categories/categories/' + cat + '.png'
 
     @staticmethod
-    def pixmap_to_qbytearray(cat):
+    def pixmap_to_qbytearray(image):
         try:
-            if isinstance(cat, str):
-                px = QPixmap(IconUtils.get_cat_icon_str(cat))
-            elif isinstance(cat, QPixmap):
-                px = cat
+            if isinstance(image, str):
+                px = QPixmap(IconUtils.get_cat_icon_str(image))
+            elif isinstance(image, QPixmap):
+                px = image
             else:
                 return QtCore.QByteArray()
 
