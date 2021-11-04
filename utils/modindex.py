@@ -60,7 +60,7 @@ class ModIndex:
             self.projectid = mod.get('id')
             self.path = mod.get('websiteUrl')
             self.name = mod.get('name')
-            self.loader = ModIndex.getLoader(mod)
+            self.loader = self.getLoader(mod)
             self.description = mod.get('summary')
             self.categories = mod.get('categories')
             self.update_date = mod.get('dateModified')
@@ -91,7 +91,8 @@ class ModIndex:
                 self.categories = ','.join(categories)
             else:
                 self.categories = '-cc-without-category'
-        except:
+        except Exception as e:
+            Utils.print_exception('MOD setCategories' + str(self.projectid), e)
             self.categories = 'error'
 
     def setDate(self):
@@ -103,7 +104,8 @@ class ModIndex:
                     self.update_date = int(datetime.strptime(self.update_date, '%Y-%m-%dT%H:%M:%S%z').replace(microsecond=0).timestamp())
             elif not isinstance(self.update_date, int):
                 self.update_date = 0
-        except:
+        except Exception as e:
+            Utils.print_exception('MOD setDate' + str(self.projectid), e)
             self.update_date = -1
 
     def setIcon(self):
@@ -113,12 +115,12 @@ class ModIndex:
                     if attach.get('isDefault') is True:
                         self.icon = QByteArray(requests.get(attach.get('thumbnailUrl')).content)
             elif not isinstance(self.icon, QByteArray):
-                self.update_date = QByteArray()
-        except:
-            self.update_date = QByteArray()
+                self.icon = QByteArray()
+        except Exception as e:
+            Utils.print_exception('MOD setIcon' + str(self.projectid), e)
+            self.icon = QByteArray()
 
-    @staticmethod
-    def getLoader(mod):
+    def getLoader(self, mod):
         try:
             forge = False
             fabric = False
@@ -146,7 +148,8 @@ class ModIndex:
                 return 'Fabric'
             else:
                 return 'No Loader'
-        except:
+        except Exception as e:
+            Utils.print_exception('MOD getLoader' + str(self.projectid), e)
             return 'error'
 
     def load_data(self):
