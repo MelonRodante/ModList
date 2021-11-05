@@ -71,7 +71,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.toolBar.setStyleSheet('QToolBar {border-right-color: ' + colors.ColorStrong + ';}')
             self.ui.toolBar.insertSeparator(self.ui.actionResetFilters)
 
-            self.ui.actionExit.setShortcut('º')
+            self.ui.actionExit.setShortcut('1')
 
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW setupWidgets', e)
