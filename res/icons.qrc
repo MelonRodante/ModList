@@ -34,6 +34,9 @@
     <file>widgets/window_icon.png</file>
   </qresource>
   <qresource prefix="categories">
+    <file>categories/-cc-fabric.png</file>
+    <file>categories/-cc-mc-creator.png</file>
+    <file>categories/-cc-vanilla-plus.png</file>
     <file>categories/cat_border.png</file>
     <file>categories/-cc-adventure-rpg.png</file>
     <file>categories/-cc-armor-weapons-tools.png</file>

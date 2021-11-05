@@ -71,6 +71,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.toolBar.setStyleSheet('QToolBar {border-right-color: ' + colors.ColorStrong + ';}')
             self.ui.toolBar.insertSeparator(self.ui.actionResetFilters)
 
+            self.ui.actionExit.setShortcut('º')
+
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW setupWidgets', e)
 
@@ -143,12 +145,6 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW setupEvents', e)
 
-
-    def exit_app(self):
-        try:
-            self.close()
-        except Exception as e:
-            Utils.print_exception('MAIN_WINDOW exit', e)
 
 
 
@@ -312,6 +308,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW exclusive_filter', e)
+
+    def exit_app(self):
+        try:
+            self.ui.cmbLoaderConfig.setCurrentIndex(3)
+            self.ui.chkBlockedConfig.setChecked(True)
+        except Exception as e:
+            Utils.print_exception('MAIN_WINDOW exit', e)
 
 
 

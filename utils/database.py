@@ -83,7 +83,10 @@ class Database:
         ['-cc-server-utility', 'Server Utility', 1, 25],
         ['-cc-mc-addons', 'Addon', 1, 26],
         ['-cc-library-api', 'API and Library', 1, 27],
-        ['-cc-twitch-integration', 'Twitch Integration', 1, 28]
+        ['-cc-vanilla-plus', 'Vanilla +', 1, 28],
+        ['-cc-mc-creator', 'MC Creator', 1, 29],
+        ['-cc-fabric', 'Fabric', 1, 30],
+        ['-cc-twitch-integration', 'Twitch Integration', 1, 31]
     ]
 
     @staticmethod

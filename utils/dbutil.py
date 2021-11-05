@@ -1,9 +1,13 @@
+import json
+
 import requests
 from PyQt5 import QtSql, QtWidgets
 
 from utils.curseapilinks import CurseAPI
 from utils.database import Database
 from utils.icon_utils import IconUtils
+from utils.modindex import ModIndex
+from utils.utils import Utils
 
 
 def modify_categories():
@@ -97,3 +101,93 @@ def resize_icons():
             print(i)
         if not q.exec():
             print('ERROR 2:' + q.lastError().text() + ' ' + str(mod[0]))
+
+
+def reasign_Category():
+    app = QtWidgets.QApplication([])
+
+    db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='prueba')
+    db.setDatabaseName(Database.filename)
+    db.open()
+    q = QtSql.QSqlQuery(db)
+
+    version = '1.17.1'
+    target_category_id = 4906
+    target_category_name = '-cc-mc-creator'
+
+    #target_category_id = 4780
+    #target_category_name = '-cc-fabric'
+
+    #target_category_id = 5129
+    #target_category_name = '-cc-vanilla-plus'
+
+    page = 0
+    mods_found = 1
+    url = ''
+    while mods_found > 0:
+        try:
+            url = CurseAPI.search_base_query + CurseAPI.search_filter_version + version + CurseAPI.search_offset + str(CurseAPI.pagesize * page) + '&categoryId=' + str(target_category_id)
+            mods = requests.get(url, headers=CurseAPI.header).json()
+
+            print('page: ' + str(page))
+            for mod in mods:
+
+                projectid = mod.get('id')
+
+                q.prepare('SELECT categories FROM Mods WHERE projectid == :projectid;')
+                q.bindValue(':projectid', projectid)
+
+                if q.exec():
+                    if q.next():
+                        categories = q.value(0).split(',')
+
+                        modified = False
+                        for cat in categories:
+                            if cat == target_category_name or cat.startswith('-mlc-'):
+                                modified = True
+                                break
+
+                        if not modified:
+                            if len(categories) >= 5:
+                                categories = setCategories(projectid, mod.get('categories'))
+                            else:
+                                categories.append(target_category_name)
+                                categories.sort()
+
+                            q.prepare('UPDATE Mods SET categories = :categories WHERE projectid == :projectid;')
+                            q.bindValue(':projectid', projectid)
+                            q.bindValue(':categories', ",".join(categories))
+
+                            if not q.exec():
+                                print(' id:' + str(projectid) + ' | Query Error 2: ' + q.lastError().text())
+                else:
+                    print(' id:' + str(projectid) + ' | Query Error 1: ' + q.lastError().text())
+
+            page += 1
+            mods_found = len(mods)
+
+        except json.decoder.JSONDecodeError:
+            print('API ERROR: La consulta a la API no ha regresado ningun valor. | ' + url)
+            return 0
+
+    print('FINISH')
+
+
+def setCategories(projectid, cate):
+    try:
+        categories = set()
+        if isinstance(cate, list):
+            for cat in cate:
+                cat = ModIndex.cat_id.get(cat.get('categoryId'))
+                if cat is not None:
+                    categories.add(cat)
+        categories = list(categories)
+        categories.sort()
+
+        if len(categories) > 0:
+            return ','.join(categories)
+        else:
+            return '-cc-without-category'
+    except Exception as e:
+        Utils.print_exception('MOD setCategories' + str(projectid), e)
+        return 'error'

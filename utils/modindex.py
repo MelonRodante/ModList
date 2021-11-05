@@ -53,8 +53,11 @@ class ModIndex:
         436:  "-cc-mc-food",
         4558: "-cc-redstone",
         4671: "-cc-twitch-integration",
-        4906: None,  # "mc-creator",
-        4780: None,  # "[4780]fabric",
+
+        4906: "-cc-mc-creator",
+        4780: "-cc-fabric",
+
+        5129: "-cc-vanilla-plus"
     }
 
     def __init__(self, mod: dict):
