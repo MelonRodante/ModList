@@ -311,7 +311,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def exit_app(self):
         try:
-            self.ui.cmbLoaderConfig.setCurrentIndex(3)
+            # self.ui.cmbLoaderConfig.setCurrentIndex(3)
             self.ui.chkBlockedConfig.setChecked(True)
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW exit', e)
