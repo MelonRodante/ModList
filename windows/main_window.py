@@ -842,6 +842,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.chkUpdated.setEnabled(False)
                     self.ui.chkUpdated.setChecked(False)
 
+                for cat in Mod.categories:
+                    Mod.categories.get(cat).get('cat_check').setChecked(False)
+                Mod.categories.get('').get('cat_check').setChecked(True)
+
             self.change_state_categories_config()
 
         except Exception as e:
