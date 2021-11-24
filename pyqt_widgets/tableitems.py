@@ -14,11 +14,11 @@ class TableItemButton(QtWidgets.QTableWidgetItem):
         try:
             QtWidgets.QTableWidgetItem.__init__(self, IconUtils.getNormalIcon(mod.icon), '')
             self.mod = mod
-
             self.setToolTip('<b style="font-size:14px;">ID:</b> ' + str(mod.projectid) + '<br/><b style="font-size:14px;">DESCRIPTION:</b><br/>' + mod.description)
 
         except Exception as e:
             Utils.print_exception('TABLE_ITEM_BUTTON init', e)
+
 
     def click(self):
         try:
