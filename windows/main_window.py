@@ -109,6 +109,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionSearchingNewMods.triggered.connect(self.show_searching_dialog)
             self.ui.actionSearchModID.triggered.connect(self.show_search_modid_dialog)
 
+            self.ui.actionUpdateModInfo.triggered.connect(self.update_mod_info)
+            self.ui.actionDeleteModDB.triggered.connect(self.delete_mod_from_db)
+
             self.ui.actionMultiselection.triggered.connect(self.table_selectmode)
 
             self.ui.actionExit.triggered.connect(self.exit_app)
@@ -308,6 +311,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW exclusive_filter', e)
+
+    def update_mod_info(self):
+        q = QtSql.QSqlQuery()
+        for mod in self.selectedMods:
+            mod.update_basic_info(q)
+        self.load_pages_maintain_slider()
+
+    def delete_mod_from_db(self):
+        if WarningDialog('Are you sure you want to delete ' + str(len(self.selectedMods)) + ' Mod/s from database?').exec():
+            q = QtSql.QSqlQuery()
+            for mod in self.selectedMods:
+                mod.delete_from_db(q)
+            self.load_pages_maintain_slider()
 
     def exit_app(self):
         try:
@@ -778,8 +794,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
             if self.clear_selected(len(self.selectedMods) > 0):
-                state = ModCompare(self.selectedMods, self.islist)
 
+                self.ui.actionUpdateModInfo.setEnabled(True)
+                self.ui.actionDeleteModDB.setEnabled(True)
+
+                state = ModCompare(self.selectedMods, self.islist)
 
                 self.ui.editNameConfig.setText(state.name)
 
@@ -845,6 +864,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 for cat in Mod.categories:
                     Mod.categories.get(cat).get('cat_check').setChecked(False)
                 Mod.categories.get('').get('cat_check').setChecked(True)
+            else:
+                self.ui.actionUpdateModInfo.setEnabled(False)
+                self.ui.actionDeleteModDB.setEnabled(False)
 
             self.change_state_categories_config()
 
@@ -1310,14 +1332,14 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW show_copylist_dialog: ', e)
 
-    @staticmethod
-    def show_search_modid_dialog():
+
+    def show_search_modid_dialog(self):
         try:
             dialog = SearchingModIdDialog()
             code = dialog.exec()
 
             if code == 1:
-                pass
+                self.load_pages_maintain_slider()
 
         except Exception as e:
             Utils.print_exception('MAIN_WINDOW show_search_modid_dialog: ', e)

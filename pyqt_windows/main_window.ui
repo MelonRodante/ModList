@@ -896,6 +896,9 @@
     <addaction name="actionAdminLists"/>
     <addaction name="actionCopyList"/>
     <addaction name="separator"/>
+    <addaction name="actionUpdateModInfo"/>
+    <addaction name="actionDeleteModDB"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -1348,6 +1351,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionUpdateModInfo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Update Mod Info</string>
+   </property>
+  </action>
+  <action name="actionDeleteModDB">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Delete Mod from DB</string>
    </property>
   </action>
  </widget>
