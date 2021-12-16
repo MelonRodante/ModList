@@ -113,6 +113,7 @@ class SearchThread(QThread):
             Utils.print_exception('SEARCH_THREAD search_mods', e)
 
     def get_mods_from_page(self, i):
+        url = ''
         try:
             url = CurseAPI.search_base_query + CurseAPI.search_filter_version + self.list_version + CurseAPI.search_offset + str(CurseAPI.pagesize * i)
             mods = requests.get(url, headers=CurseAPI.header).json()
@@ -126,6 +127,8 @@ class SearchThread(QThread):
             return len(mods)
         except json.decoder.JSONDecodeError:
             QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
+            print(url)
+            print(i)
             return 0
 
         except Exception as e:
