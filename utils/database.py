@@ -84,9 +84,10 @@ class Database:
         ['-cc-mc-addons', 'Addon', 1, 26],
         ['-cc-library-api', 'API and Library', 1, 27],
         ['-cc-vanilla-plus', 'Vanilla +', 1, 28],
-        ['-cc-mc-creator', 'MC Creator', 1, 29],
-        ['-cc-fabric', 'Fabric', 1, 30],
-        ['-cc-twitch-integration', 'Twitch Integration', 1, 31]
+        ['-cc-utility-qol', 'Utility & QoL', 1, 23],
+        ['-cc-mc-creator', 'MC Creator', 1, 30],
+        ['-cc-fabric', 'Fabric', 1, 31],
+        ['-cc-twitch-integration', 'Twitch Integration', 1, 32]
     ]
 
     @staticmethod

@@ -35,6 +35,7 @@
   </qresource>
   <qresource prefix="categories">
     <file>categories/-cc-fabric.png</file>
+    <file>categories/-cc-utility-qol.png</file>
     <file>categories/-cc-mc-creator.png</file>
     <file>categories/-cc-vanilla-plus.png</file>
     <file>categories/cat_border.png</file>

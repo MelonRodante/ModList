@@ -57,7 +57,8 @@ class ModIndex:
         4906: "-cc-mc-creator",
         4780: "-cc-fabric",
 
-        5129: "-cc-vanilla-plus"
+        5129: "-cc-vanilla-plus",
+        5191: "-cc-utility-qol"
     }
 
     def __init__(self, mod: dict):
