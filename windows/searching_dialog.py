@@ -78,7 +78,7 @@ class SearchingDialog(QtWidgets.QDialog):
             self.ui.progressBar.setMaximum(0)
 
             self.ui.cmbModList.setEnabled(False)
-            self.ui.chkSeachNewUpdate.setChecked(False)
+            self.ui.chkSeachNewUpdate.setEnabled(False)
             self.ui.btnSearchNewMods.setEnabled(False)
 
             self.search_thread = SearchThread(self.ui.cmbModList.currentText(), self.ui.chkSeachNewUpdate.isChecked())
