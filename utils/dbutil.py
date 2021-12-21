@@ -191,3 +191,6 @@ def setCategories(projectid, cate):
     except Exception as e:
         Utils.print_exception('MOD setCategories' + str(projectid), e)
         return 'error'
+
+
+# INSERT INTO ModsVersions(version, mod) SELECT "1.18.1", M.projectid FROM Mods AS M INNER JOIN ModsLists AS ML ON M.projectid = ML.mod WHERE ML.list == "Forge 1.18.1";
