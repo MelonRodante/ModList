@@ -7,6 +7,14 @@ from PyQt5.QtWidgets import QMessageBox
 from utils.icon_utils import IconUtils
 from utils.utils import Utils
 
+tablecategories = '''CREATE TABLE IF NOT EXISTS Categories (
+                        cat_id	    TEXT NOT NULL,
+                        cat_name	TEXT NOT NULL,
+                        grp	        INTEGER NOT NULL DEFAULT 0,
+                        ord	        INTEGER NOT NULL DEFAULT 0,
+                        icon	    BLOB,
+                        PRIMARY KEY("cat_id"));'''
+
 tablelists = '''CREATE TABLE IF NOT EXISTS Lists (
                     listname TEXT NOT NULL,
                     version  TEXT NOT NULL,
@@ -17,7 +25,7 @@ tablemods = '''CREATE TABLE IF NOT EXISTS Mods (
                     projectid       INTEGER NOT NULL, 
                     name	        TEXT NOT NULL DEFAULT 'no-name',
                     description	    TEXT NOT NULL DEFAULT '',
-                    categories      TEXT NOT NULL DEFAULT 'without-category',
+                    categories      TEXT NOT NULL DEFAULT '-cc-without-category',
                     loader	        TEXT NOT NULL DEFAULT 'No Loader',
                     update_date     INTEGER NOT NULL,
                     icon	        BLOB,
@@ -40,13 +48,16 @@ tablemodslists = '''CREATE TABLE IF NOT EXISTS ModsLists (
                         FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
                         );'''
 
-tablecategories = '''CREATE TABLE IF NOT EXISTS Categories (
-                        cat_id	    TEXT NOT NULL,
-                        cat_name	TEXT NOT NULL,
-                        grp	        INTEGER NOT NULL DEFAULT 0,
-                        ord	        INTEGER NOT NULL DEFAULT 0,
-                        icon	    BLOB,
-                        PRIMARY KEY("cat_id"));'''
+tablemodversions = '''CREATE TABLE IF NOT EXISTS ModsVersions (
+                        version        TEXT NOT NULL,
+                        mod	        INTEGER NOT NULL,
+                        PRIMARY KEY(version, mod),
+                        FOREIGN KEY(mod) REFERENCES Mods(projectid) ON DELETE CASCADE ON UPDATE CASCADE
+                        );'''
+
+
+
+
 
 
 class Database:
@@ -103,10 +114,11 @@ class Database:
             else:
                 Database.db.exec("PRAGMA foreign_keys = ON;")
                 db = QSqlQuery()
+                Database.exec(db, tablecategories)
                 Database.exec(db, tablelists)
                 Database.exec(db, tablemods)
                 Database.exec(db, tablemodslists)
-                Database.exec(db, tablecategories)
+                Database.exec(db, tablemodversions)
                 Database.__create_default_categories(db)
                 Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderMods" ON "Mods" ("favorite"	DESC, "blocked"	ASC, "name"	ASC);')
                 Database.exec(db, 'CREATE INDEX IF NOT EXISTS "OrderModsLists" ON "Mods" ("installed" DESC, "updated" DESC, "name" ASC);')
