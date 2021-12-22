@@ -211,7 +211,7 @@ class ModIndex:
         except Exception as e:
             Utils.print_exception('SEARCH_THREAD check_mod' + str(self.projectid), e)
 
-    def process_mod(self, db, modlist=None):
+    def process_mod(self, db, modlist=None, version=None):
         try:
             if self.error != 1:
                 db.transaction()
@@ -246,6 +246,13 @@ class ModIndex:
                     q.bindValue(':update_date', self.update_date)
                     if not q.exec():
                         print('MOD_INDEX DB Update M:', q.lastError().text(), self.projectid, self.name)
+
+                if version is not None:
+                    q.prepare('INSERT OR IGNORE INTO ModsVersions(version, mod)' 'VALUES (:version, :mod)')
+                    q.bindValue(':version', version)
+                    q.bindValue(':mod', self.projectid)
+                    if not q.exec():
+                        print('MOD_INDEX DB Update MV:', q.lastError().text(), self.projectid, self.name)
 
                 if self.addlist and modlist is not None:
                     q.prepare('INSERT OR IGNORE INTO ModsLists(list, mod, installed, ignored)' 'VALUES (:list, :mod, :installed, :ignored)')

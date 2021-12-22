@@ -192,5 +192,49 @@ def setCategories(projectid, cate):
         Utils.print_exception('MOD setCategories' + str(projectid), e)
         return 'error'
 
+def search_versions():
+    app = QtWidgets.QApplication([])
+
+    db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='prueba')
+    db.setDatabaseName(Database.filename)
+    db.open()
+    q = QtSql.QSqlQuery(db)
+
+    mods = []
+    valid_versions = ('1.16.5', '1.17.1', '1.17', '1.18', '1.18.1')
+
+
+    q.prepare('SELECT projectid FROM Mods AS M LEFT JOIN ModsVersions AS ML ON M.projectid = ML.mod WHERE ML.mod IS NULL;')
+    if q.exec():
+        while q.next():
+            mods.append(q.value(0))
+    else:
+        print('ERROR 1:' + q.lastError().text())
+
+    i = 0
+    for mod in mods:
+        m = requests.get(CurseAPI.minecraft_modid + str(mod), headers=CurseAPI.header).json()
+        for file in m.get('gameVersionLatestFiles'):
+            if file.get('gameVersion') in valid_versions:
+                q.prepare('INSERT OR IGNORE INTO ModsVersions(version, mod)' 'VALUES (:version, :mod)')
+                q.bindValue(':version', file.get('gameVersion'))
+                q.bindValue(':mod', mod)
+                i += 1
+                if i % 500 == 0:
+                    print(i)
+                if not q.exec():
+                    print('ERROR 2:' + q.lastError().text() + ' ' + str(mod))
+
+
+
+        '''q.prepare('UPDATE Mods SET icon = :icon WHERE projectid == :projectid;')
+        q.bindValue(':projectid', mod[0])
+        q.bindValue(':icon', IconUtils.pixmap_to_qbytearray(mod[1]))
+        i+=1
+        if i % 500 == 0:
+            print(i)
+        if not q.exec():
+            print('ERROR 2:' + q.lastError().text() + ' ' + str(mod[0]))'''
+
 
 # INSERT INTO ModsVersions(version, mod) SELECT "1.18.1", M.projectid FROM Mods AS M INNER JOIN ModsLists AS ML ON M.projectid = ML.mod WHERE ML.list == "Forge 1.18.1";

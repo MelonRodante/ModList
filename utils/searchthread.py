@@ -101,7 +101,7 @@ class SearchThread(QThread):
                     break
                 else:
                     mod.check_mod(db, self.valid_loaders)
-                    mod.process_mod(db, self.modlist)
+                    mod.process_mod(db, self.modlist, self.list_version)
                     self.sig_page_finish.emit(i)
 
             if self.canclose:
