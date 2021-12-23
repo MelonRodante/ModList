@@ -563,6 +563,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.cmbModList.addItem('New Mods')
             self.ui.cmbModList.addItem('Favorites')
             self.ui.cmbModList.addItem('Blocked')
+            self.ui.cmbModList.addItem('No Blocked')
 
             model = self.ui.cmbModList.model()
             for i in range(model.rowCount()):
@@ -701,12 +702,14 @@ class MainWindow(QtWidgets.QMainWindow):
             where_q = self.query_create_basic_where()
             orderby_q = 'ORDER BY M.favorite DESC, M.blocked ASC, M.name ASC '
 
-            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 3:
+            if self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 4:
                 where_q += self.optional_filter('newmod', 1, where_q)
-            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 3:
                 where_q += self.optional_filter('favorite', 1, where_q)
-            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 2:
                 where_q += self.optional_filter('blocked', 1, where_q)
+            elif self.ui.cmbModList.currentIndex() == self.ui.cmbModList.count() - 1:
+                where_q += self.optional_filter('blocked', 0, where_q)
 
             return select_q, from_q, where_q, orderby_q
 
