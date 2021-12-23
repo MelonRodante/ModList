@@ -237,4 +237,36 @@ def search_versions():
             print('ERROR 2:' + q.lastError().text() + ' ' + str(mod[0]))'''
 
 
+def copy_versions():
+    app = QtWidgets.QApplication([])
+
+    db = QtSql.QSqlDatabase.addDatabase('QSQLITE', connectionName='prueba')
+    db.setDatabaseName(Database.filename)
+    db.open()
+    q = QtSql.QSqlQuery(db)
+
+    mods = []
+
+    q.prepare("select ml.mod, ml.installed, ml.ignored from modslists as ml where list == 'Forge 1.18.1' and mod in (select mod from modslists where list == 'Forge 1.18.1 Simple');")
+    if q.exec():
+        while q.next():
+            mods.append([q.value(0), q.value(1), q.value(2)])
+    else:
+        print('ERROR 1:' + q.lastError().text())
+
+    i = 0
+    for mod in mods:
+        q.prepare("UPDATE Modslists SET installed = :installed, ignored = :ignored WHERE mod == :mod and list == 'Forge 1.18.1 Simple';")
+        q.bindValue(':mod', mod[0])
+        q.bindValue(':installed', mod[1])
+        q.bindValue(':ignored', mod[2])
+
+        i += 1
+        if i % 10 == 0:
+            print(i)
+        if not q.exec():
+            print('ERROR 2:' + q.lastError().text() + ' ' + str(mod))
+
+
+
 # INSERT INTO ModsVersions(version, mod) SELECT "1.18.1", M.projectid FROM Mods AS M INNER JOIN ModsLists AS ML ON M.projectid = ML.mod WHERE ML.list == "Forge 1.18.1";

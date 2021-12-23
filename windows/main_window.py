@@ -1359,7 +1359,7 @@ class MainWindow(QtWidgets.QMainWindow):
     '''
 
     def set_islist(self):
-        self.islist = 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 3
+        self.islist = 1 < self.ui.cmbModList.currentIndex() < self.ui.cmbModList.count() - 4
 
     @staticmethod
     def get_categories_from_checks():
