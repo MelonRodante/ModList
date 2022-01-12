@@ -114,9 +114,11 @@ class SearchThread(QThread):
 
     def get_mods_from_page(self, i):
         url = ''
+        page = ''
         try:
             url = CurseAPI.search_base_query + CurseAPI.search_filter_version + self.list_version + CurseAPI.search_offset + str(CurseAPI.pagesize * i)
-            mods = requests.get(url, headers=CurseAPI.header).json()
+            page = requests.get(url, headers=CurseAPI.header)
+            mods = page.json()
             for mod in mods:
                 m = ModIndex(mod)
                 if self.searchnewupdate:
@@ -129,6 +131,7 @@ class SearchThread(QThread):
             QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
             print(url)
             print(i)
+            print('\n\n' + page.text)
             return 0
 
         except Exception as e:
