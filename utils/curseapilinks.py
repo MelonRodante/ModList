@@ -30,14 +30,14 @@ class CurseAPI:
     categorymods = '6'
 
     updateorder = '2'
-    pagesize = '50'
+    pagesize = 50
 
     endpoint = 'https://addons-ecs.forgesvc.net/api/v2'
 
     minecraft_versions = endpoint + '/minecraft/version'
     minecraft_modid = endpoint + '/addon/'
 
-    search_base_query = endpoint + '/addon/search' + '?gameId=' + gameid + '&sectionId=' + categorymods + '&sort=' + updateorder + '&pageSize=' + pagesize
+    search_base_query = endpoint + '/addon/search' + '?gameId=' + gameid + '&sectionId=' + categorymods + '&sort=' + updateorder + '&pageSize=' + str(pagesize)
     search_filter_version = '&gameVersion='
     search_offset = index = '&index='
 
