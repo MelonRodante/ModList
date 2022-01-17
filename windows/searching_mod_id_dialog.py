@@ -36,21 +36,21 @@ class SearchingModIdDialog(QtWidgets.QDialog):
     def btn_search_mod(self):
         try:
             try:
-                mod = requests.get(CurseAPI.minecraft_modid + str(self.ui.spinModid.value()), headers=CurseAPI.header).json()
-                if mod.get('categorySection').get('gameId') == CurseAPI.gameid and mod.get('categorySection').get('gameCategoryId') == CurseAPI.categorymods:
+                # mod = requests.get(CurseAPI.minecraft_modid + str(self.ui.spinModid.value()), headers=CurseAPI.header).json()
+                mod = requests.get(CurseAPI.minecraft_modid + str(self.ui.spinModid.value()), headers=CurseAPI.header).json().get('data')
+
+                # if mod.get('categorySection').get('gameId') == CurseAPI.gameId and mod.get('categorySection').get('gameCategoryId') == CurseAPI.classId:
+                print(str(mod.get('gameId')), str(mod.get('categories')[0].get('classID')))
+                if str(mod.get('gameId')) == CurseAPI.gameId and str(mod.get('categories')[0].get('classId')) == CurseAPI.classId:
                     mod = ModIndex(mod)
                     mod.check_mod(Database.db, [''])
                     mod.process_mod(Database.db)
                     self.done(1)
                 else:
-                    QMessageBox.warning(None, 'MOD NO ENCONTRADO:',
-                                        'MOD NO ENCONTRADO:\n\nEl ID de proyecto no es un mod de minecraft.',
-                                        QtWidgets.QMessageBox.Close)
+                    QMessageBox.warning(None, 'MOD NO ENCONTRADO:', 'MOD NO ENCONTRADO:\n\nEl ID de proyecto no es un mod de minecraft.', QtWidgets.QMessageBox.Close)
                     self.done(0)
             except json.decoder.JSONDecodeError:
-                QMessageBox.critical(None, 'API ERROR:',
-                                     'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.',
-                                     QtWidgets.QMessageBox.Close)
+                QMessageBox.critical(None, 'API ERROR:', 'API ERROR:\n\nLa consulta a la API no ha regresado ningun valor.', QtWidgets.QMessageBox.Close)
                 self.done(0)
 
         except Exception as e:

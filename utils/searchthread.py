@@ -10,6 +10,7 @@ from utils.curseapilinks import CurseAPI
 from utils.database import Database
 from utils.modindex import ModIndex
 from utils.utils import Utils
+from windows.warning_dialog import WarningDialog
 
 
 class SearchThread(QThread):
@@ -40,6 +41,40 @@ class SearchThread(QThread):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # noinspection PyUnresolvedReferences
+    def search_mods(self):
+        try:
+            db = Database.get_thread_sqlquery()
+            self.getListInfo(db)
+
+            if not self.canclose:
+                i = 0
+                while self.get_mods_from_page(i):
+                    i += 1
+                    self.sig_max_pages.emit(len(self.mods))
+                    if self.canclose:
+                        break
+
+                if not self.canclose:
+                    self.sig_max_pages.emit(len(self.mods))
+                    self.sig_page_finish.emit(0)
+
+                for i, mod in enumerate(self.mods):
+                    if self.canclose:
+                        break
+                    else:
+                        mod.check_mod(db, self.valid_loaders)
+                        mod.process_mod(db, self.modlist, self.list_version)
+                        self.sig_page_finish.emit(i)
+
+                if self.canclose:
+                    self.sig_finish_code.emit(1)
+                else:
+                    self.sig_finish_code.emit(0)
+
+        except Exception as e:
+            Utils.print_exception('SEARCH_THREAD search_mods', e)
+
     def getListInfo(self, db):
         try:
             q = QtSql.QSqlQuery(db)
@@ -51,13 +86,11 @@ class SearchThread(QThread):
                     self.list_version = q.value(0)
                     self.valid_loaders = [q.value(1), 'No Loader', 'Forge | Fabric']
                 else:
-                    QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
-                    print("Searching DB Error:", 'No hay una lista seleccionada')
-                    sys.exit(1)
+                    QMessageBox.critical(QWidget(), "Searching Error:", 'No list selected', QtWidgets.QMessageBox.Close)
+                    self.canclose = True
             else:
-                QMessageBox.critical(QWidget(), "Searching DB Error:", q.lastError().databaseText(),
-                                     QtWidgets.QMessageBox.Close)
-                sys.exit(1)
+                QMessageBox.critical(QWidget(), "Searching DB Error:", q.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+                self.canclose = True
 
             q.prepare('SELECT MAX(M.update_date) FROM ModsLists AS ML LEFT JOIN Mods AS M ON M.projectid = ML.mod WHERE ML.list = :listname;')
             q.bindValue(':listname', self.modlist)
@@ -68,57 +101,23 @@ class SearchThread(QThread):
                     else:
                         self.last_update_date = 0
                 else:
-                    QMessageBox.critical(None, "Searching DB Error:", 'No hay una lista seleccionada', QtWidgets.QMessageBox.Close)
-                    print("Searching DB Error:", 'No hay una lista seleccionada')
-                    sys.exit(1)
+                    QMessageBox.critical(QWidget(), "Searching Error:", 'No list selected', QtWidgets.QMessageBox.Close)
+                    self.canclose = True
             else:
-                QMessageBox.critical(QWidget(), "Searching DB Error:", q.lastError().databaseText(),
-                                     QtWidgets.QMessageBox.Close)
-                sys.exit(1)
+                QMessageBox.critical(QWidget(), "Searching DB Error:", q.lastError().databaseText(), QtWidgets.QMessageBox.Close)
+                self.canclose = True
 
         except Exception as e:
             Utils.print_exception('SEARCH_THREAD getListInfo', e)
-
-    # noinspection PyUnresolvedReferences
-    def search_mods(self):
-        try:
-            db = Database.get_thread_sqlquery()
-            self.getListInfo(db)
-
-            i = 0
-            while self.get_mods_from_page(i):
-                i += 1
-                self.sig_max_pages.emit(len(self.mods))
-                if self.canclose:
-                    break
-
-            if not self.canclose:
-                self.sig_max_pages.emit(len(self.mods))
-                self.sig_page_finish.emit(0)
-
-            for i, mod in enumerate(self.mods):
-                if self.canclose:
-                    break
-                else:
-                    mod.check_mod(db, self.valid_loaders)
-                    mod.process_mod(db, self.modlist, self.list_version)
-                    self.sig_page_finish.emit(i)
-
-            if self.canclose:
-                self.sig_finish_code.emit(1)
-            else:
-                self.sig_finish_code.emit(0)
-
-        except Exception as e:
-            Utils.print_exception('SEARCH_THREAD search_mods', e)
 
     def get_mods_from_page(self, i):
         url = ''
         page = ''
         try:
-            url = CurseAPI.search_base_query + CurseAPI.search_filter_version + self.list_version + CurseAPI.search_offset + str(CurseAPI.pagesize * i)
+            url = CurseAPI.search_base_query + CurseAPI.search_filter_version + self.list_version + CurseAPI.search_offset + str(int(CurseAPI.pageSize) * i)
             page = requests.get(url, headers=CurseAPI.header)
-            mods = page.json()
+            # mods = page.json()
+            mods = page.json().get('data')
             for mod in mods:
                 m = ModIndex(mod)
                 if self.searchnewupdate:

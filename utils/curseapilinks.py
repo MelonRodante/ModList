@@ -1,4 +1,4 @@
-'''
+
 class CurseAPI:
 
     key = '$2a$10$ku3.ncligCgUckN7vKnKyOeqH9y9H/aDca3t.QjPEG./wPaOU7UPu'
@@ -8,7 +8,7 @@ class CurseAPI:
     classId = '6'       # Mods
 
     pageSize = '20'
-    sortfield = '3'
+    sortField = '3'
     sortOrder = 'desc'
 
     endpoint = 'https://api.curseforge.com/v1'
@@ -16,30 +16,31 @@ class CurseAPI:
     minecraft_versions = 'https://addons-ecs.forgesvc.net/api/v2/minecraft/version'       # endpoint + '/minecraft/version'
     minecraft_modid = endpoint + '/mods/'
 
-    search_base_query = endpoint + '/mods/search' + '?gameId=' + gameId + '&classId=' + classId + '&sortField=' + sortfield + '&sortOrder=' + sortOrder + '&pageSize=' + pageSize
+    search_base_query = endpoint + '/mods/search' + '?gameId=' + gameId + '&classId=' + classId + '&sortField=' + sortField + '&sortOrder=' + sortOrder + '&pageSize=' + pageSize
 
     search_filter_version = '&gameVersion='
     search_offset = index = '&index='
+
+
 '''
-
-
 class CurseAPI:
     header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
 
-    gameid = '432'
-    categorymods = '6'
+    gameId = '432'
+    classId = '6'
 
-    updateorder = '2'
-    pagesize = 50
+    sortField = '2'
+    pageSize = 50
 
     endpoint = 'https://addons-ecs.forgesvc.net/api/v2'
 
     minecraft_versions = endpoint + '/minecraft/version'
     minecraft_modid = endpoint + '/addon/'
 
-    search_base_query = endpoint + '/addon/search' + '?gameId=' + gameid + '&sectionId=' + categorymods + '&sort=' + updateorder + '&pageSize=' + str(pagesize)
+    search_base_query = endpoint + '/addon/search' + '?gameId=' + gameId + '&sectionId=' + classId + '&sort=' + sortField + '&pageSize=' + str(pageSize)
     search_filter_version = '&gameVersion='
     search_offset = index = '&index='
+'''
 
 '''
 gameId	            query	    integer(int32)	    false	    Filter by game id
@@ -62,4 +63,11 @@ pageSize	        query	    integer(int32)	    false	    The number of items to i
 6=TotalDownloads
 7=Category
 8=GameVersion
+
+
+0 = Any
+1 = Forge
+2 = Cauldron
+3 = LiteLoader
+4 = Fabric
 '''
