@@ -9,7 +9,7 @@ class Utils:
             exception_type, exception_object, exception_traceback = sys.exc_info()
             line_number = exception_traceback.tb_lineno
 
-            print(method + ': ' + str(exception) + ' [' + str(line_number) + ']')
+            print(method + ': ' + str(exception.__cause__) + ' [' + str(line_number) + ']')
 
         except Exception as e:
             Utils.print_exception('UTILS print_exception', e)

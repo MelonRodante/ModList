@@ -114,7 +114,7 @@ class CopyListDialog(QtWidgets.QDialog):
             Database.db.transaction()
             q = QtSql.QSqlQuery()
 
-            cmbvalue = self.lists[self.ui.cmbListCopy.currentIndex()]
+            cmbvalue = self.ui.cmbListCopy.currentText()
 
             q.prepare('SELECT version, loader FROM Lists WHERE listname == :listname;')
             q.bindValue(':listname', cmbvalue)
