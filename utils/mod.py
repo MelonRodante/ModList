@@ -63,7 +63,8 @@ class Mod:
     def update_basic_info(self, q: QSqlQuery):
         try:
             try:
-                mod = ModIndex(requests.get(CurseAPI.minecraft_modid + str(self.projectid), headers=CurseAPI.header).json())
+                # mod = ModIndex(requests.get(CurseAPI.minecraft_modid + str(self.projectid), headers=CurseAPI.header).json())
+                mod = ModIndex(requests.get(CurseAPI.minecraft_modid + str(self.projectid), headers=CurseAPI.header).json().get('data'))
                 mod.setIcon()
 
                 q.prepare('UPDATE Mods SET icon = :icon, path = :path, name = :name, description = :description WHERE projectid == :projectid;')
