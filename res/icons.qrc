@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="states">
+    <file>states/updated_blocked.png</file>
     <file>states/blocked.png</file>
     <file>states/empty.png</file>
     <file>states/favorite.png</file>

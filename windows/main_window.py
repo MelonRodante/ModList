@@ -1390,13 +1390,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_state_icon(self, mod):
         try:
-            if mod.blocked:
-                return self.state_icons['b']
-            else:
-                state = ''
+            state = ''
 
-                if mod.updated:
-                    state += 'u'
+            if mod.updated:
+                state += 'u'
+
+            if mod.blocked:
+                return self.state_icons[state + 'b']
+            else:
 
                 if mod.favorite:
                     state += 'f'
@@ -1464,7 +1465,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 'e': IconUtils.getNormalIcon(":/state/state/empty.png"),
 
                 'f': IconUtils.getNormalIcon(":/states/states/favorite.png"),
+
                 'b': IconUtils.getNormalIcon(":/states/states/blocked.png"),
+                'ub': IconUtils.getNormalIcon(":/states/states/updated_blocked.png"),
 
                 'u': IconUtils.getNormalIcon(":/states/states/updated.png"),
                 'uf': IconUtils.getNormalIcon(":/states/states/updated_favorite.png"),
